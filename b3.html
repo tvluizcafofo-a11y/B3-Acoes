@@ -6,9 +6,17 @@
     <title>Cotações B3</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: system-ui, Arial, sans-serif; margin: 20px; background: #f4f6f9; color: #222; }
-        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        body { font-family: system-ui, Arial, sans-serif; margin: 12px; background: #f4f6f9; color: #222; }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
 
+        /* ---------- Cabeçalho ---------- */
         .app-header {
             position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -29,6 +37,7 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
+        /* ---------- Barra ---------- */
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
         .toolbar button, .toolbar select {
             padding: 9px 16px; border: none; border-radius: 6px;
@@ -42,11 +51,31 @@
 
         .table-wrapper { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; margin-bottom: 8px; }
 
-        table { width: 100%; min-width: 850px; border-collapse: collapse; font-size: 0.9rem; }
-        th, td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: middle; white-space: nowrap; }
-        th { background: #f8f9fa; font-weight: 600; color: #333; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.9rem; }
+
+        /* Cabeçalhos em negrito */
+        th {
+            padding: 10px 8px;
+            background: #f1f4f8;
+            font-weight: 700;
+            color: #222;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid #d8dee8;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: middle; white-space: nowrap; }
         tr:hover td { background: #fafbfc; }
         tfoot td { background: #f8f9fa; border-top: 2px solid #0066ff; padding: 12px 8px; }
+
+        /* ---------- Ocultar coluna Nome da Empresa ---------- */
+        #cotacoesTable.hide-nome th:nth-child(2),
+        #cotacoesTable.hide-nome td:nth-child(2) {
+            display: none;
+        }
 
         /* Primeira coluna sticky */
         #cotacoesTable th:first-child,
@@ -55,7 +84,7 @@
             background: #fff; z-index: 2;
             box-shadow: 3px 0 5px -3px rgba(0,0,0,0.18);
         }
-        #cotacoesTable thead th:first-child,
+        #cotacoesTable thead th:first-child { background: #f1f4f8; z-index: 3; }
         #cotacoesTable tfoot td:first-child { background: #f8f9fa; z-index: 3; }
         #cotacoesTable tbody tr:hover td:first-child { background: #fafbfc; }
 
@@ -70,14 +99,23 @@
         #cotacoesTable tfoot .total-var { text-align: right; }
 
         input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
-        input.codigo { width: 75px; text-transform: uppercase; }
+        input.codigo { width: 75px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
         input.quantidade { width: 75px; text-align: right; }
-        input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; }
+
+        /* Nome da empresa — estilo original (sem cor/negrito) */
+        input.nome-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: #fff;
+        }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
 
         .loading { color: #0066ff; font-style: italic; }
         .error { color: #dc3545; border-color: #dc3545 !important; }
-        .remove-btn { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.85rem; }
+        .remove-btn { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 5px 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .remove-btn:hover { background: #a71d2a; }
         .positivo { color: #0a7a3e; font-weight: 600; }
         .negativo { color: #c62828; font-weight: 600; }
@@ -156,6 +194,7 @@
 
         @media (max-width: 600px) {
             .settings-btn { width: 40px; height: 40px; font-size: 1.25rem; }
+            .container { padding: 16px; }
         }
     </style>
 </head>
@@ -176,6 +215,7 @@
         </select>
         <button id="addRowBtn">➕ Ativo</button>
         <button id="refreshAllBtn" class="secondary">🔄 Atualizar</button>
+        <button id="toggleNomeColBtn" class="secondary" title="Ocultar coluna Nome da Empresa">👁️ Ocultar Nome</button>
     </div>
 
     <div class="table-wrapper">
@@ -196,11 +236,13 @@
             <tfoot>
                 <tr>
                     <td class="total-label" title="Total da Carteira (R$)">Total:</td>
-                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
                     <td class="total-var"><span id="variacaoTotal">—</span></td>
                     <td></td>
                     <td id="totalCarteira">0,00</td>
-                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </tfoot>
         </table>
@@ -296,6 +338,8 @@
     const variacaoTotalEl = document.getElementById('variacaoTotal');
     const importFile   = document.getElementById('importFile');
     const fonteSelect  = document.getElementById('fonteSelect');
+    const toggleNomeColBtn = document.getElementById('toggleNomeColBtn');
+    const cotacoesTable = document.getElementById('cotacoesTable');
 
     const carteiraTotalHoje      = document.getElementById('carteiraTotalHoje');
     const carteiraTotalAnterior  = document.getElementById('carteiraTotalAnterior');
@@ -310,6 +354,7 @@
     let state = loadState();
     let token = state.token || '';
     let fonte = state.fonte || 'brapi';
+    let hideNome = !!state.hideNome;
     let ultimaCotacaoDate = null;
 
     function fmt(v) {
@@ -362,11 +407,11 @@
 
     function loadState() {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { token: '', rows: [], fonte: 'brapi' };
-        } catch { return { token: '', rows: [], fonte: 'brapi' }; }
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { token: '', rows: [], fonte: 'brapi', hideNome: false };
+        } catch { return { token: '', rows: [], fonte: 'brapi', hideNome: false }; }
     }
     function saveState() {
-        state = { token: token, fonte: fonte, rows: getRowsData() };
+        state = { token: token, fonte: fonte, hideNome: hideNome, rows: getRowsData() };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
     function getRowsData() {
@@ -382,6 +427,24 @@
             price:           parseFloat(tr.dataset.price) || 0
         }));
     }
+
+    // ---------- Toggle da coluna Nome ----------
+    function aplicarVisibilidadeNome() {
+        if (hideNome) {
+            cotacoesTable.classList.add('hide-nome');
+            toggleNomeColBtn.textContent = '👁️ Mostrar Nome';
+            toggleNomeColBtn.title = 'Mostrar coluna Nome da Empresa';
+        } else {
+            cotacoesTable.classList.remove('hide-nome');
+            toggleNomeColBtn.textContent = '👁️ Ocultar Nome';
+            toggleNomeColBtn.title = 'Ocultar coluna Nome da Empresa';
+        }
+    }
+    toggleNomeColBtn.addEventListener('click', () => {
+        hideNome = !hideNome;
+        aplicarVisibilidadeNome();
+        saveState();
+    });
 
     function updateTokenBadge() {
         if (token) {
@@ -450,7 +513,7 @@
             <td><input type="number" class="quantidade" min="0" step="1" value="0"></td>
             <td class="valor-total">0,00</td>
             <td class="data-hora"></td>
-            <td><button class="remove-btn" title="Remover">✕</button></td>
+            <td><button class="remove-btn" title="Remover ativo">✕</button></td>
         `;
         tableBody.appendChild(tr);
 
@@ -506,10 +569,17 @@
             atualizarTotal(tr);
             saveState();
         });
+
+        // CONFIRMAÇÃO antes de excluir
         removeBtn.addEventListener('click', () => {
+            const codigo = codigoInput.value.trim();
+            const nome   = nomeInput.value.trim();
+            const identificacao = nome || codigo || 'este ativo';
+            if (!confirm(`Excluir "${identificacao}" da carteira?`)) return;
             tr.remove();
             calcularTotais();
             saveState();
+            showToast('🗑️ Ativo removido.');
         });
 
         return tr;
@@ -922,6 +992,7 @@
 
     updateTokenBadge();
     fonteSelect.value = fonte;
+    aplicarVisibilidadeNome();
 
     if (state.rows && state.rows.length > 0) state.rows.forEach(r => createRow(r));
     else createRow();
