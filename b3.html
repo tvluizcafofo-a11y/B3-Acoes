@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotações B3</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, Arial, sans-serif; margin: 20px; background: #f4f6f9; color: #222; }
+        .container { max-width: 1400px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+        .app-header {
+            position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; gap: 8px; margin-bottom: 22px; padding-bottom: 16px;
+            border-bottom: 2px solid #eef1f5;
+        }
+        .app-header h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
+        .header-date { font-size: clamp(1.2rem, 3.6vw, 1.8rem); color: #444; font-weight: 500; text-transform: capitalize; }
+
+        .settings-btn {
+            position: absolute; top: 4px; right: 0;
+            width: 46px; height: 46px;
+            border: 1px solid #d0d7de; background: #f8f9fa; border-radius: 50%;
+            cursor: pointer; font-size: 1.45rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, transform 0.3s, border-color 0.2s;
+            z-index: 10; padding: 0;
+        }
+        .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
+
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+        .toolbar button, .toolbar select {
+            padding: 9px 16px; border: none; border-radius: 6px;
+            background: #0066ff; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.9rem;
+        }
+        .toolbar button:hover { background: #0047b3; }
+        .toolbar button.secondary { background: #6c757d; }
+        .toolbar button.secondary:hover { background: #4e555b; }
+        .toolbar select { background: #fff; color: #222; border: 1px solid #ccc; }
+        .toolbar select:focus { outline: 2px solid #0066ff; }
+
+        .table-wrapper { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; margin-bottom: 8px; }
+
+        table { width: 100%; min-width: 850px; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: middle; white-space: nowrap; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        tr:hover td { background: #fafbfc; }
+        tfoot td { background: #f8f9fa; border-top: 2px solid #0066ff; padding: 12px 8px; }
+
+        /* Primeira coluna sticky */
+        #cotacoesTable th:first-child,
+        #cotacoesTable td:first-child {
+            position: sticky; left: 0;
+            background: #fff; z-index: 2;
+            box-shadow: 3px 0 5px -3px rgba(0,0,0,0.18);
+        }
+        #cotacoesTable thead th:first-child,
+        #cotacoesTable tfoot td:first-child { background: #f8f9fa; z-index: 3; }
+        #cotacoesTable tbody tr:hover td:first-child { background: #fafbfc; }
+
+        /* Alinhamento numérico à direita */
+        #cotacoesTable thead th:nth-child(3),
+        #cotacoesTable thead th:nth-child(4),
+        #cotacoesTable thead th:nth-child(6),
+        #cotacoesTable td.cotacao,
+        #cotacoesTable td.variacao,
+        #cotacoesTable td.valor-total,
+        #cotacoesTable tfoot #totalCarteira,
+        #cotacoesTable tfoot .total-var { text-align: right; }
+
+        input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+        input.codigo { width: 75px; text-transform: uppercase; }
+        input.quantidade { width: 75px; text-align: right; }
+        input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; }
+        input.nome-input:focus { border-color: #0066ff; outline: none; }
+
+        .loading { color: #0066ff; font-style: italic; }
+        .error { color: #dc3545; border-color: #dc3545 !important; }
+        .remove-btn { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.85rem; }
+        .remove-btn:hover { background: #a71d2a; }
+        .positivo { color: #0a7a3e; font-weight: 600; }
+        .negativo { color: #c62828; font-weight: 600; }
+
+        .total-label { font-weight: 600; color: #333; }
+        #totalCarteira { color: #0066ff; font-size: 1.05rem; font-weight: 700; }
+        .total-var { font-weight: 600; font-size: 1.02rem; }
+        .total-var .positivo, .total-var .negativo { font-weight: 700; }
+
+        .status-badge { font-size: 0.72rem; padding: 3px 9px; border-radius: 12px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-warn { background: #fff3cd; color: #856404; }
+
+        .resumo-mercado {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 2px solid #eef1f5;
+        }
+        .resumo-card {
+            background: #f8f9fa; border-radius: 10px; padding: 18px 20px;
+            border-left: 5px solid #0066ff; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: transform 0.15s;
+        }
+        .resumo-card:hover { transform: translateY(-2px); }
+        .resumo-card .label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px; color: #666; font-weight: 600; margin-bottom: 6px; }
+        .resumo-card .valor { font-size: 1.45rem; font-weight: 700; color: #222; line-height: 1.2; }
+        .resumo-card .detalhe { font-size: 0.9rem; font-weight: 600; margin-top: 4px; }
+        .resumo-card .detalhe.positivo { color: #0a7a3e; }
+        .resumo-card .detalhe.negativo { color: #c62828; }
+        .resumo-card .detalhe.neutro { color: #666; }
+
+        .carteira-linha { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 0.95rem; }
+        .carteira-linha .rotulo { color: #555; font-weight: 500; }
+        .carteira-linha .num { font-weight: 700; font-variant-numeric: tabular-nums; }
+        .carteira-linha.destaque { border-top: 1px dashed #d0d7de; margin-top: 6px; padding-top: 8px; font-size: 1.05rem; }
+        .carteira-linha.destaque .num { font-size: 1.25rem; }
+        .carteira-linha .num.positivo { color: #0a7a3e; }
+        .carteira-linha .num.negativo { color: #c62828; }
+
+        #cardCarteira { border-left-color: #0066ff; }
+        #cardIbovespa { border-left-color: #8e44ad; }
+        #cardDolar { border-left-color: #e67e22; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #fff; padding: 28px; border-radius: 12px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+        .modal h2 { margin-top: 0; font-size: 1.35rem; }
+        .settings-section { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid #eef1f5; }
+        .settings-section:last-of-type { border-bottom: none; padding-bottom: 0; }
+        .settings-section h3 { margin: 0 0 8px 0; font-size: 1rem; color: #333; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .settings-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .settings-btn-row button { flex: 1; min-width: 130px; padding: 11px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.92rem; }
+        .modal label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        .modal input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; margin-bottom: 4px; }
+        .modal input[type="text"]:focus { border-color: #0066ff; outline: none; }
+        .modal .hint { font-size: 0.85rem; color: #555; margin-bottom: 10px; line-height: 1.55; }
+        .modal .hint a { color: #0066ff; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+        .modal-actions button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-primary { background: #0066ff; color: #fff; }
+        .btn-primary:hover { background: #0047b3; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .btn-secondary:hover { background: #4e555b; }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #0a7a3e; color: #fff;
+            padding: 14px 22px; border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 2000; font-weight: 500; font-size: 0.92rem;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: #c62828; }
+
+        @media (max-width: 600px) {
+            .settings-btn { width: 40px; height: 40px; font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="app-header">
+        <button id="openSettingsBtn" class="settings-btn" title="Configurações" aria-label="Configurações">⚙️</button>
+        <h1>Cotações B3</h1>
+        <div id="headerDate" class="header-date"></div>
+    </header>
+
+    <div class="toolbar">
+        <label for="fonteSelect" style="font-weight:600;font-size:0.85rem;">Fonte:</label>
+        <select id="fonteSelect">
+            <option value="brapi">brapi.dev (padrão)</option>
+            <option value="google">Google Finance</option>
+            <option value="yahoo">Yahoo Finance (recomendado)</option>
+        </select>
+        <button id="addRowBtn">➕ Ativo</button>
+        <button id="refreshAllBtn" class="secondary">🔄 Atualizar</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="cotacoesTable">
+            <thead>
+                <tr>
+                    <th style="width:90px;">Código</th>
+                    <th>Nome da Empresa</th>
+                    <th style="width:115px;">Cotação (R$)</th>
+                    <th style="width:105px;">Variação (%)</th>
+                    <th style="width:80px;">Qtd.</th>
+                    <th style="width:115px;">Total (R$)</th>
+                    <th style="width:90px;">Hora</th>
+                    <th style="width:70px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td class="total-label" title="Total da Carteira (R$)">Total:</td>
+                    <td colspan="2"></td>
+                    <td class="total-var"><span id="variacaoTotal">—</span></td>
+                    <td></td>
+                    <td id="totalCarteira">0,00</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="resumo-mercado">
+        <div class="resumo-card" id="cardCarteira">
+            <div class="label">Variação da Carteira (R$)</div>
+            <div class="carteira-linha">
+                <span class="rotulo">Total do dia:</span>
+                <span class="num" id="carteiraTotalHoje">0,00</span>
+            </div>
+            <div class="carteira-linha">
+                <span class="rotulo">Total do dia anterior:</span>
+                <span class="num" id="carteiraTotalAnterior">0,00</span>
+            </div>
+            <div class="carteira-linha destaque">
+                <span class="rotulo">Diferença:</span>
+                <span class="num" id="carteiraDiferenca">0,00</span>
+            </div>
+            <div class="detalhe neutro" id="carteiraPercentual" style="text-align:right;margin-top:2px;">—</div>
+        </div>
+        <div class="resumo-card" id="cardIbovespa">
+            <div class="label">Ibovespa</div>
+            <div class="valor" id="resumoIbovespaValor">—</div>
+            <div class="detalhe neutro" id="resumoIbovespaDetalhe">—</div>
+        </div>
+        <div class="resumo-card" id="cardDolar">
+            <div class="label">Dólar (USD/BRL)</div>
+            <div class="valor" id="resumoDolarValor">—</div>
+            <div class="detalhe neutro" id="resumoDolarDetalhe">—</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+        <h2>⚙️ Configurações</h2>
+
+        <section class="settings-section">
+            <h3>💾 Backup de dados</h3>
+            <p class="hint">
+                Exporte um arquivo JSON com todas as posições, quantidade, token e preferências de fonte.
+                Use <strong>Importar</strong> para restaurar em outro dispositivo ou navegador.
+            </p>
+            <div class="settings-btn-row">
+                <button id="exportBtn" class="btn-primary">⬇ Exportar JSON</button>
+                <button id="importBtn" class="btn-secondary">⬆ Importar JSON</button>
+            </div>
+            <input type="file" id="importFile" accept=".json,application/json,text/plain,application/octet-stream" style="display:none">
+        </section>
+
+        <section class="settings-section">
+            <h3>
+                🔑 Token brapi.dev
+                <span id="tokenBadge" class="status-badge status-warn">Sem token</span>
+            </h3>
+            <p class="hint">
+                <code>PETR4</code>, <code>VALE3</code>, <code>MGLU3</code> e <code>ITUB4</code> funcionam sem token.
+                Para os demais tickers, obtenha um token gratuito em
+                <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
+                <br><br>
+                <strong>Google/Yahoo Finance:</strong> não possuem API oficial. O app usa um proxy CORS público
+                (<code>allorigins.win</code>) para contornar o bloqueio. Yahoo Finance costuma ser a fonte mais
+                confiável para a B3 (atraso de ~15 min).
+            </p>
+            <label for="tokenInput">Token de acesso</label>
+            <input type="text" id="tokenInput" placeholder="Cole seu token aqui" autocomplete="off">
+            <div class="hint" id="tokenStatus"></div>
+            <div class="settings-btn-row">
+                <button class="btn-secondary" id="clearTokenBtn">Limpar</button>
+                <button class="btn-primary" id="saveTokenBtn">Salvar token</button>
+            </div>
+        </section>
+
+        <div class="modal-actions">
+            <button class="btn-secondary" id="closeSettingsBtn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    const STORAGE_KEY = 'b3_cotacoes_data';
+    const tableBody    = document.getElementById('tableBody');
+    const tokenInput   = document.getElementById('tokenInput');
+    const tokenBadge   = document.getElementById('tokenBadge');
+    const tokenStatus  = document.getElementById('tokenStatus');
+    const settingsModal = document.getElementById('settingsModal');
+    const headerDate   = document.getElementById('headerDate');
+    const totalCarteiraEl = document.getElementById('totalCarteira');
+    const variacaoTotalEl = document.getElementById('variacaoTotal');
+    const importFile   = document.getElementById('importFile');
+    const fonteSelect  = document.getElementById('fonteSelect');
+
+    const carteiraTotalHoje      = document.getElementById('carteiraTotalHoje');
+    const carteiraTotalAnterior  = document.getElementById('carteiraTotalAnterior');
+    const carteiraDiferenca      = document.getElementById('carteiraDiferenca');
+    const carteiraPercentual     = document.getElementById('carteiraPercentual');
+
+    const resumoIbovespaValor = document.getElementById('resumoIbovespaValor');
+    const resumoIbovespaDetalhe = document.getElementById('resumoIbovespaDetalhe');
+    const resumoDolarValor = document.getElementById('resumoDolarValor');
+    const resumoDolarDetalhe = document.getElementById('resumoDolarDetalhe');
+
+    let state = loadState();
+    let token = state.token || '';
+    let fonte = state.fonte || 'brapi';
+    let ultimaCotacaoDate = null;
+
+    function fmt(v) {
+        const n = Number(v);
+        if (!isFinite(n)) return '0,00';
+        return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    const FERIADOS_B3 = new Set([
+        '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
+        '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
+        '2026-11-20', '2026-12-24', '2026-12-25', '2026-12-31'
+    ]);
+
+    function toISODate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+    function ehDiaUtil(d) {
+        const dow = d.getDay();
+        if (dow === 0 || dow === 6) return false;
+        return !FERIADOS_B3.has(toISODate(d));
+    }
+    function ultimoDiaUtil(d) {
+        const copia = new Date(d.getTime());
+        while (!ehDiaUtil(copia)) copia.setDate(copia.getDate() - 1);
+        return copia;
+    }
+    function formatarDataCabecalho(d) {
+        const diasSemana = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        return `${dia}.${mes}.${ano} — ${diasSemana[d.getDay()]}`;
+    }
+    function atualizarDataCabecalho() {
+        if (ultimaCotacaoDate) headerDate.textContent = formatarDataCabecalho(ultimaCotacaoDate);
+        else headerDate.textContent = formatarDataCabecalho(ultimoDiaUtil(new Date()));
+    }
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function loadState() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { token: '', rows: [], fonte: 'brapi' };
+        } catch { return { token: '', rows: [], fonte: 'brapi' }; }
+    }
+    function saveState() {
+        state = { token: token, fonte: fonte, rows: getRowsData() };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function getRowsData() {
+        return Array.from(document.querySelectorAll('#tableBody tr')).map(tr => ({
+            codigo:          tr.querySelector('.codigo').value.trim(),
+            nome:            tr.querySelector('.nome-input').value.trim(),
+            cotacao:         tr.querySelector('.cotacao').textContent,
+            variacao:        tr.querySelector('.variacao').textContent,
+            variacaoClass:   tr.querySelector('.variacao').className,
+            variacaoNumber:  tr.dataset.variacao != null ? parseFloat(tr.dataset.variacao) : null,
+            quantidade:      parseFloat(tr.querySelector('.quantidade').value) || 0,
+            dataHora:        tr.querySelector('.data-hora').textContent,
+            price:           parseFloat(tr.dataset.price) || 0
+        }));
+    }
+
+    function updateTokenBadge() {
+        if (token) {
+            tokenBadge.textContent = '✔ Configurado';
+            tokenBadge.className = 'status-badge status-ok';
+        } else {
+            tokenBadge.textContent = 'Sem token';
+            tokenBadge.className = 'status-badge status-warn';
+        }
+    }
+    function openSettingsModal() {
+        tokenInput.value = token;
+        tokenStatus.textContent = token ? '✅ Token salvo no navegador.' : '⚠️ Nenhum token salvo.';
+        settingsModal.classList.add('active');
+    }
+    function closeSettingsModal() { settingsModal.classList.remove('active'); }
+
+    document.getElementById('openSettingsBtn').addEventListener('click', openSettingsModal);
+    document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+    document.getElementById('saveTokenBtn').addEventListener('click', () => {
+        token = tokenInput.value.trim();
+        saveState();
+        updateTokenBadge();
+        tokenStatus.textContent = '✅ Token salvo com sucesso.';
+    });
+    document.getElementById('clearTokenBtn').addEventListener('click', () => {
+        token = '';
+        tokenInput.value = '';
+        saveState();
+        updateTokenBadge();
+        tokenStatus.textContent = 'Token removido.';
+    });
+    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && settingsModal.classList.contains('active')) closeSettingsModal();
+    });
+
+    fonteSelect.addEventListener('change', () => {
+        fonte = fonteSelect.value;
+        saveState();
+        const nome = fonte === 'google' ? 'Google Finance' : (fonte === 'yahoo' ? 'Yahoo Finance' : 'brapi.dev');
+        showToast(`Fonte alterada para ${nome}. Atualizando cotações...`);
+        fetchAllQuotes();
+    });
+
+    function ordenarLinhas() {
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const ca = a.querySelector('.codigo').value.trim().toUpperCase();
+            const cb = b.querySelector('.codigo').value.trim().toUpperCase();
+            if (!ca && !cb) return 0;
+            if (!ca) return 1;
+            if (!cb) return -1;
+            return ca.localeCompare(cb, 'pt-BR');
+        });
+        rows.forEach(tr => tableBody.appendChild(tr));
+    }
+
+    function createRow(data = {}) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="codigo" placeholder="PETR4" maxlength="12"></td>
+            <td><input type="text" class="nome-input" placeholder="Digite ou deixe em branco"></td>
+            <td class="cotacao"></td>
+            <td class="variacao"></td>
+            <td><input type="number" class="quantidade" min="0" step="1" value="0"></td>
+            <td class="valor-total">0,00</td>
+            <td class="data-hora"></td>
+            <td><button class="remove-btn" title="Remover">✕</button></td>
+        `;
+        tableBody.appendChild(tr);
+
+        const codigoInput     = tr.querySelector('.codigo');
+        const nomeInput       = tr.querySelector('.nome-input');
+        const quantidadeInput = tr.querySelector('.quantidade');
+        const removeBtn       = tr.querySelector('.remove-btn');
+
+        if (data.codigo)              codigoInput.value = data.codigo;
+        if (data.nome)                nomeInput.value = data.nome;
+        if (data.quantidade != null)  quantidadeInput.value = data.quantidade;
+        if (data.cotacao)             tr.querySelector('.cotacao').textContent = data.cotacao;
+        if (data.variacao) {
+            const v = tr.querySelector('.variacao');
+            v.textContent = data.variacao;
+            if (data.variacaoClass) v.className = data.variacaoClass;
+        }
+        if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) {
+            tr.dataset.variacao = data.variacaoNumber;
+        } else if (data.variacao) {
+            const num = parseFloat(String(data.variacao).replace('%','').replace(/\./g,'').replace(',','.'));
+            if (!isNaN(num)) tr.dataset.variacao = num;
+        }
+        if (data.dataHora) {
+            const cell = tr.querySelector('.data-hora');
+            let hora = data.dataHora;
+            if (typeof hora === 'string' && hora.includes('T')) {
+                hora = new Date(hora).toLocaleTimeString('pt-BR', { hour12: false });
+            } else if (typeof hora === 'string' && hora.length > 8) {
+                const partes = hora.split(' ');
+                hora = partes.length > 1 ? partes[1] : hora;
+            }
+            cell.textContent = hora;
+        }
+        if (data.price) tr.dataset.price = data.price;
+
+        atualizarTotal(tr);
+
+        codigoInput.addEventListener('input', () => {
+            codigoInput.value = codigoInput.value.toUpperCase();
+        });
+        codigoInput.addEventListener('blur', () => {
+            const codigo = codigoInput.value.trim();
+            if (codigo && tr.dataset.lastCodigo !== codigo) fetchQuote(codigo, tr);
+            ordenarLinhas();
+            saveState();
+        });
+        codigoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); }
+        });
+        nomeInput.addEventListener('input', saveState);
+        quantidadeInput.addEventListener('input', () => {
+            atualizarTotal(tr);
+            saveState();
+        });
+        removeBtn.addEventListener('click', () => {
+            tr.remove();
+            calcularTotais();
+            saveState();
+        });
+
+        return tr;
+    }
+
+    async function fetchQuote(codigo, row) {
+        if (fonte === 'google') return fetchGoogleFinanceQuote(codigo, row);
+        if (fonte === 'yahoo')  return fetchYahooFinanceQuote(codigo, row);
+        return fetchBrapiQuote(codigo, row);
+    }
+
+    async function fetchBrapiQuote(codigo, row) {
+        const nomeInput    = row.querySelector('.nome-input');
+        const cotacaoCell  = row.querySelector('.cotacao');
+        const variacaoCell = row.querySelector('.variacao');
+        const dataHoraCell = row.querySelector('.data-hora');
+
+        nomeInput.classList.add('loading');
+        nomeInput.classList.remove('error');
+        nomeInput.placeholder = 'Carregando (brapi)...';
+
+        try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const url = `https://brapi.dev/api/quote/${encodeURIComponent(codigo)}`;
+            const response = await fetch(url, { headers });
+            if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+            const json = await response.json();
+            const data = json.results && json.results[0];
+            if (!data) throw new Error('Ticker não encontrado');
+
+            if (!nomeInput.value.trim() && data.longName) nomeInput.value = data.longName;
+            else if (!nomeInput.value.trim() && data.shortName) nomeInput.value = data.shortName;
+            nomeInput.placeholder = 'Digite ou deixe em branco';
+
+            const price = data.regularMarketPrice;
+            const changePercent = data.regularMarketChangePercent;
+
+            cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
+
+            if (changePercent != null) {
+                variacaoCell.textContent = fmt(changePercent) + '%';
+                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = changePercent;
+            } else {
+                variacaoCell.textContent = 'N/A';
+                delete row.dataset.variacao;
+            }
+
+            if (data.regularMarketTime) {
+                const d = new Date(data.regularMarketTime);
+                ultimaCotacaoDate = ultimoDiaUtil(d);
+                atualizarDataCabecalho();
+                dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            }
+
+            row.dataset.price = price || 0;
+            row.dataset.lastCodigo = codigo;
+            atualizarTotal(row);
+            ordenarLinhas();
+            saveState();
+
+        } catch (error) {
+            nomeInput.placeholder = `Erro brapi: ${error.message}`;
+            nomeInput.classList.add('error');
+            console.error(error);
+        } finally {
+            nomeInput.classList.remove('loading');
+        }
+    }
+
+    async function fetchGoogleFinanceQuote(codigo, row) {
+        const nomeInput    = row.querySelector('.nome-input');
+        const cotacaoCell  = row.querySelector('.cotacao');
+        const variacaoCell = row.querySelector('.variacao');
+        const dataHoraCell = row.querySelector('.data-hora');
+
+        nomeInput.classList.add('loading');
+        nomeInput.classList.remove('error');
+        nomeInput.placeholder = 'Carregando (Google Finance)...';
+
+        const simboloGF = `${codigo}:BVMF`;
+        const urlGF = `https://www.google.com/finance/quote/${encodeURIComponent(simboloGF)}`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlGF)}`;
+
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Erro ${response.status} no proxy`);
+
+            const html = await response.text();
+            if (!html || html.length < 500) throw new Error('Resposta vazia do proxy');
+
+            let price = null;
+            const priceMatch = html.match(/<div class="YMlKec fxKbKc">([^<]+)<\/div>/);
+            if (priceMatch) {
+                const raw = priceMatch[1].trim().replace(/,/g, '');
+                price = parseFloat(raw);
+            }
+            if (price == null) {
+                const fallbackMatch = html.match(/data-last-price="([\d.]+)"/);
+                if (fallbackMatch) price = parseFloat(fallbackMatch[1]);
+            }
+            if (price == null) {
+                const jsonMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/);
+                if (jsonMatch) price = parseFloat(jsonMatch[1].replace(/,/g, ''));
+            }
+            if (price == null || isNaN(price)) throw new Error('Preço não encontrado no HTML');
+
+            let changePercent = null;
+            const pctMatch = html.match(/([+-]?\d+[.,]\d+)\s*%/);
+            if (pctMatch) changePercent = parseFloat(pctMatch[1].replace(',', '.'));
+
+            if (!nomeInput.value.trim()) {
+                const nameMatch = html.match(/<div class="zzDege">([^<]+)<\/div>/) ||
+                                  html.match(/<h1[^>]*>([^<]+)<\/h1>/);
+                if (nameMatch) nomeInput.value = nameMatch[1].trim();
+            }
+            nomeInput.placeholder = 'Digite ou deixe em branco';
+
+            cotacaoCell.textContent = fmt(price);
+
+            if (changePercent != null && !isNaN(changePercent)) {
+                variacaoCell.textContent = fmt(changePercent) + '%';
+                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = changePercent;
+            } else {
+                variacaoCell.textContent = 'N/A';
+                delete row.dataset.variacao;
+            }
+
+            const agora = new Date();
+            ultimaCotacaoDate = ultimoDiaUtil(agora);
+            atualizarDataCabecalho();
+            dataHoraCell.textContent = agora.toLocaleTimeString('pt-BR', { hour12: false });
+
+            row.dataset.price = price;
+            row.dataset.lastCodigo = codigo;
+            atualizarTotal(row);
+            ordenarLinhas();
+            saveState();
+
+        } catch (error) {
+            nomeInput.placeholder = `Erro Google: ${error.message}`;
+            nomeInput.classList.add('error');
+            console.error(error);
+        } finally {
+            nomeInput.classList.remove('loading');
+        }
+    }
+
+    async function fetchYahooFinanceQuote(codigo, row) {
+        const nomeInput    = row.querySelector('.nome-input');
+        const cotacaoCell  = row.querySelector('.cotacao');
+        const variacaoCell = row.querySelector('.variacao');
+        const dataHoraCell = row.querySelector('.data-hora');
+
+        nomeInput.classList.add('loading');
+        nomeInput.classList.remove('error');
+        nomeInput.placeholder = 'Carregando (Yahoo Finance)...';
+
+        const simboloYF = `${codigo}.SA`;
+        const urlYF = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simboloYF)}?interval=1d&range=1d`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYF)}`;
+
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Erro ${response.status} no proxy`);
+
+            const json = await response.json();
+            const result = json && json.chart && json.chart.result && json.chart.result[0];
+            if (!result || !result.meta) throw new Error('Dados não encontrados no Yahoo');
+
+            const meta = result.meta;
+            const price = meta.regularMarketPrice;
+            const changePercent = meta.regularMarketChangePercent;
+
+            if (price == null || isNaN(price)) throw new Error('Preço não disponível');
+
+            if (!nomeInput.value.trim()) {
+                const nome = meta.longName || meta.shortName;
+                if (nome) nomeInput.value = nome;
+            }
+            nomeInput.placeholder = 'Digite ou deixe em branco';
+
+            cotacaoCell.textContent = fmt(price);
+
+            if (changePercent != null && !isNaN(changePercent)) {
+                variacaoCell.textContent = fmt(changePercent) + '%';
+                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = changePercent;
+            } else {
+                variacaoCell.textContent = 'N/A';
+                delete row.dataset.variacao;
+            }
+
+            if (meta.regularMarketTime) {
+                const d = new Date(meta.regularMarketTime * 1000);
+                ultimaCotacaoDate = ultimoDiaUtil(d);
+                atualizarDataCabecalho();
+                dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            }
+
+            row.dataset.price = price;
+            row.dataset.lastCodigo = codigo;
+            atualizarTotal(row);
+            ordenarLinhas();
+            saveState();
+
+        } catch (error) {
+            nomeInput.placeholder = `Erro Yahoo: ${error.message}`;
+            nomeInput.classList.add('error');
+            console.error(error);
+        } finally {
+            nomeInput.classList.remove('loading');
+        }
+    }
+
+    async function fetchMarketSummary() {
+        fetchYahooSummary('^BVSP', resumoIbovespaValor, resumoIbovespaDetalhe);
+        fetchYahooSummary('USDBRL=X', resumoDolarValor, resumoDolarDetalhe);
+    }
+
+    async function fetchYahooSummary(ticker, valorEl, detalheEl) {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+            const json = await response.json();
+            const result = json && json.chart && json.chart.result && json.chart.result[0];
+            if (!result || !result.meta) throw new Error('Dados não encontrados');
+
+            const meta = result.meta;
+            const price = meta.regularMarketPrice;
+            const changePercent = meta.regularMarketChangePercent;
+
+            if (price == null || isNaN(price)) throw new Error('Preço indisponível');
+
+            if (ticker === '^BVSP') {
+                valorEl.textContent = price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                valorEl.textContent = price.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+            }
+
+            if (changePercent != null && !isNaN(changePercent)) {
+                detalheEl.textContent = `${changePercent >= 0 ? '+' : ''}${fmt(changePercent)}%`;
+                detalheEl.className = 'detalhe ' + (changePercent >= 0 ? 'positivo' : 'negativo');
+            } else {
+                detalheEl.textContent = '—';
+                detalheEl.className = 'detalhe neutro';
+            }
+
+        } catch (error) {
+            valorEl.textContent = 'Erro';
+            detalheEl.textContent = error.message;
+            detalheEl.className = 'detalhe negativo';
+            console.error(`Erro ao buscar ${ticker}:`, error);
+        }
+    }
+
+    function calcularVariacaoCarteira() {
+        let totalHoje = 0;
+        let totalAnterior = 0;
+
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
+            const variacaoPct = parseFloat(row.dataset.variacao);
+
+            if (price > 0 && qty > 0) {
+                const valorHoje = price * qty;
+                totalHoje += valorHoje;
+
+                if (!isNaN(variacaoPct) && (1 + variacaoPct / 100) !== 0) {
+                    totalAnterior += valorHoje / (1 + variacaoPct / 100);
+                } else {
+                    totalAnterior += valorHoje;
+                }
+            }
+        });
+
+        const diferenca = totalHoje - totalAnterior;
+        const percentual = totalAnterior > 0 ? (diferenca / totalAnterior) * 100 : 0;
+
+        carteiraTotalHoje.textContent = fmt(totalHoje);
+        carteiraTotalHoje.className = 'num';
+
+        carteiraTotalAnterior.textContent = fmt(totalAnterior);
+        carteiraTotalAnterior.className = 'num';
+
+        carteiraDiferenca.textContent = (diferenca >= 0 ? '+' : '') + fmt(diferenca);
+        carteiraDiferenca.className = 'num ' + (diferenca > 0 ? 'positivo' : (diferenca < 0 ? 'negativo' : ''));
+
+        if (totalAnterior > 0) {
+            carteiraPercentual.textContent = `${percentual >= 0 ? '+' : ''}${fmt(percentual)}%`;
+            carteiraPercentual.className = 'detalhe ' + (percentual > 0 ? 'positivo' : (percentual < 0 ? 'negativo' : 'neutro'));
+
+            variacaoTotalEl.textContent = `${percentual >= 0 ? '+' : ''}${fmt(percentual)}%`;
+            variacaoTotalEl.className = percentual > 0 ? 'positivo' : (percentual < 0 ? 'negativo' : '');
+        } else {
+            carteiraPercentual.textContent = '—';
+            carteiraPercentual.className = 'detalhe neutro';
+            variacaoTotalEl.textContent = '—';
+            variacaoTotalEl.className = '';
+        }
+    }
+
+    function atualizarTotal(row) {
+        const price = parseFloat(row.dataset.price) || 0;
+        const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
+        row.querySelector('.valor-total').textContent = fmt(price * qty);
+        calcularTotais();
+    }
+    function calcularTotais() {
+        let totalCarteira = 0;
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
+            totalCarteira += price * qty;
+        });
+        totalCarteiraEl.textContent = fmt(totalCarteira);
+        calcularVariacaoCarteira();
+    }
+
+    function fetchAllQuotes() {
+        const rows = Array.from(document.querySelectorAll('#tableBody tr')).filter(
+            tr => tr.querySelector('.codigo').value.trim()
+        );
+        rows.forEach((tr, i) => {
+            setTimeout(() => {
+                const codigo = tr.querySelector('.codigo').value.trim();
+                if (codigo) fetchQuote(codigo, tr);
+            }, i * 400);
+        });
+        fetchMarketSummary();
+    }
+
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+        createRow(); ordenarLinhas(); saveState();
+    });
+    document.getElementById('refreshAllBtn').addEventListener('click', () => {
+        fetchAllQuotes();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        saveState();
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cotacoes-b3-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('✅ Arquivo JSON exportado com sucesso!');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+        importFile.value = '';
+        importFile.click();
+    });
+    importFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) { showToast('Nenhum arquivo selecionado.', true); return; }
+        const reader = new FileReader();
+        reader.onerror = () => { showToast('Erro ao ler o arquivo.', true); importFile.value = ''; };
+        reader.onload = (ev) => {
+            try {
+                const texto = ev.target.result;
+                if (!texto || !texto.trim()) throw new Error('Arquivo vazio');
+                let imported;
+                try { imported = JSON.parse(texto); }
+                catch { throw new Error('O arquivo não é um JSON válido'); }
+
+                let rows, importedToken, importedFonte;
+                if (Array.isArray(imported)) {
+                    rows = imported; importedToken = token; importedFonte = fonte;
+                } else if (imported && Array.isArray(imported.rows)) {
+                    rows = imported.rows;
+                    importedToken = imported.token || '';
+                    importedFonte = imported.fonte || 'brapi';
+                } else throw new Error('Estrutura inválida');
+
+                if (!confirm('Importar dados? Isso substituirá os dados atuais.')) { importFile.value = ''; return; }
+
+                tableBody.innerHTML = '';
+                token = importedToken;
+                fonte = importedFonte;
+                fonteSelect.value = fonte;
+                updateTokenBadge();
+                tokenInput.value = token;
+                if (rows.length === 0) createRow();
+                else rows.forEach(r => createRow(r));
+                ordenarLinhas();
+                calcularTotais();
+                saveState();
+                showToast('✅ Dados importados com sucesso!');
+            } catch (err) {
+                showToast('Erro ao importar: ' + err.message, true);
+                console.error(err);
+            } finally { importFile.value = ''; }
+        };
+        reader.readAsText(file, 'utf-8');
+    });
+
+    updateTokenBadge();
+    fonteSelect.value = fonte;
+
+    if (state.rows && state.rows.length > 0) state.rows.forEach(r => createRow(r));
+    else createRow();
+
+    ordenarLinhas();
+    calcularTotais();
+    atualizarDataCabecalho();
+
+    setTimeout(() => {
+        const temCodigos = Array.from(document.querySelectorAll('#tableBody tr'))
+            .some(tr => tr.querySelector('.codigo').value.trim());
+        if (temCodigos) {
+            const nomeFonte = fonte === 'google' ? 'Google Finance' : (fonte === 'yahoo' ? 'Yahoo Finance' : 'brapi.dev');
+            showToast(`Buscando cotações via ${nomeFonte}...`);
+            fetchAllQuotes();
+        }
+        fetchMarketSummary();
+    }, 300);
+</script>
+</body>
+</html>
