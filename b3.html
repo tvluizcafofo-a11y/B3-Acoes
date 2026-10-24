@@ -4,19 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cotações B3</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: system-ui, Arial, sans-serif; margin: 12px; background: #f4f6f9; color: #222; }
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px 28px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
+        .container { max-width: 1800px; margin: 0 auto; background: #fff; padding: 20px 28px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-        /* ---------- Cabeçalho ---------- */
         .app-header {
             position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -37,7 +33,6 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
-        /* ---------- Barra ---------- */
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
         .toolbar button, .toolbar select {
             padding: 9px 16px; border: none; border-radius: 6px;
@@ -53,31 +48,20 @@
 
         table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.9rem; }
 
-        /* Cabeçalhos em negrito */
         th {
-            padding: 10px 8px;
-            background: #f1f4f8;
-            font-weight: 700;
-            color: #222;
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
+            padding: 10px 8px; background: #f1f4f8;
+            font-weight: 700; color: #222; font-size: 0.82rem;
+            text-transform: uppercase; letter-spacing: 0.4px;
             border-bottom: 2px solid #d8dee8;
-            text-align: left;
-            vertical-align: middle;
-            white-space: nowrap;
+            text-align: left; vertical-align: middle; white-space: nowrap;
         }
         td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: middle; white-space: nowrap; }
         tr:hover td { background: #fafbfc; }
         tfoot td { background: #f8f9fa; border-top: 2px solid #0066ff; padding: 12px 8px; }
 
-        /* ---------- Ocultar coluna Nome da Empresa ---------- */
         #cotacoesTable.hide-nome th:nth-child(2),
-        #cotacoesTable.hide-nome td:nth-child(2) {
-            display: none;
-        }
+        #cotacoesTable.hide-nome td:nth-child(2) { display: none; }
 
-        /* Primeira coluna sticky */
         #cotacoesTable th:first-child,
         #cotacoesTable td:first-child {
             position: sticky; left: 0;
@@ -88,7 +72,6 @@
         #cotacoesTable tfoot td:first-child { background: #f8f9fa; z-index: 3; }
         #cotacoesTable tbody tr:hover td:first-child { background: #fafbfc; }
 
-        /* Alinhamento numérico à direita */
         #cotacoesTable thead th:nth-child(3),
         #cotacoesTable thead th:nth-child(4),
         #cotacoesTable thead th:nth-child(6),
@@ -102,14 +85,9 @@
         input.codigo { width: 75px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
         input.quantidade { width: 75px; text-align: right; }
 
-        /* Nome da empresa — estilo original (sem cor/negrito) */
         input.nome-input {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            background: #fff;
+            width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0;
+            border-radius: 4px; font-size: 0.9rem; background: #fff;
         }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
 
@@ -158,6 +136,31 @@
         #cardIbovespa { border-left-color: #8e44ad; }
         #cardDolar { border-left-color: #e67e22; }
 
+        .charts-section { margin-top: 28px; padding-top: 22px; border-top: 2px solid #eef1f5; }
+        .charts-section h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 16px 0; color: #222; }
+        .chart-card {
+            background: #fff; border: 1px solid #e0e6ed; border-radius: 10px;
+            padding: 18px; margin-bottom: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .chart-card h3 { font-size: 1rem; font-weight: 700; margin: 0 0 12px 0; color: #333; }
+        .chart-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        .chart-controls label { font-size: 0.85rem; font-weight: 600; color: #444; }
+        .chart-controls select,
+        .chart-controls input[type="date"] {
+            padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 0.88rem; background: #fff;
+        }
+        .chart-controls button {
+            padding: 7px 14px; border: none; border-radius: 6px;
+            background: #0066ff; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.88rem;
+        }
+        .chart-controls button:hover { background: #0047b3; }
+        .chart-total { margin-left: auto; font-weight: 700; color: #0066ff; font-size: 0.95rem; }
+        .chart-unit { font-size: 0.78rem; color: #666; font-style: italic; margin-top: 6px; }
+        .chart-container { position: relative; height: 360px; width: 100%; }
+        .chart-empty { text-align: center; padding: 60px 20px; color: #999; font-style: italic; }
+        .chart-info { font-size: 0.78rem; color: #666; text-align: right; margin-top: 6px; font-style: italic; }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
         .modal-overlay.active { display: flex; }
         .modal { background: #fff; padding: 28px; border-radius: 12px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
@@ -195,6 +198,8 @@
         @media (max-width: 600px) {
             .settings-btn { width: 40px; height: 40px; font-size: 1.25rem; }
             .container { padding: 16px; }
+            .chart-container { height: 280px; }
+            .chart-total { margin-left: 0; width: 100%; }
         }
     </style>
 </head>
@@ -276,6 +281,64 @@
             <div class="detalhe neutro" id="resumoDolarDetalhe">—</div>
         </div>
     </div>
+
+    <div class="charts-section">
+        <h2>📊 Gráficos</h2>
+
+        <div class="chart-card">
+            <h3>Valor da minha carteira por papel</h3>
+            <div class="chart-controls">
+                <button id="renderVolumeBtn">🔄 Atualizar gráfico</button>
+                <span class="chart-total" id="volumeTotalLabel">Total: R$ 0,00</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="volumeChart"></canvas>
+            </div>
+            <div class="chart-unit">Valores em R$ 1.000</div>
+            <div id="volumeEmpty" class="chart-empty" style="display:none;">
+                Adicione ativos com quantidade e cotação para visualizar o gráfico.
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Evolução individual do papel</h3>
+            <div class="chart-controls">
+                <label for="ativoGrafico">Ativo:</label>
+                <select id="ativoGrafico"></select>
+
+                <label for="periodoGrafico">Período:</label>
+                <select id="periodoGrafico">
+                    <option value="1d">Dia</option>
+                    <option value="5d">Semana</option>
+                    <option value="1mo" selected>Mês</option>
+                    <option value="1y">Anual</option>
+                    <option value="custom">Personalizado</option>
+                </select>
+
+                <span id="customPeriodo" style="display:none; gap:6px; align-items:center;">
+                    <input type="date" id="dataInicio">
+                    <span style="font-size:0.85rem;color:#666;">até</span>
+                    <input type="date" id="dataFim">
+                </span>
+
+                <label for="tipoGrafico">Tipo:</label>
+                <select id="tipoGrafico">
+                    <option value="line" selected>Linha</option>
+                    <option value="candlestick">Vela (Candlestick)</option>
+                </select>
+
+                <button id="renderIndividualBtn">Gerar gráfico</button>
+                <span id="individualLoading" style="display:none;color:#0066ff;font-style:italic;">Carregando...</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="individualChart"></canvas>
+            </div>
+            <div id="individualEmpty" class="chart-empty" style="display:none;">
+                Selecione um ativo com cotação para visualizar a evolução.
+            </div>
+            <div class="chart-info" id="individualInfo"></div>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="settingsModal">
@@ -305,9 +368,8 @@
                 Para os demais tickers, obtenha um token gratuito em
                 <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
                 <br><br>
-                <strong>Google/Yahoo Finance:</strong> não possuem API oficial. O app usa um proxy CORS público
-                (<code>allorigins.win</code>) para contornar o bloqueio. Yahoo Finance costuma ser a fonte mais
-                confiável para a B3 (atraso de ~15 min).
+                <strong>Dólar:</strong> usa a AwesomeAPI (gratuita, sem token).
+                <strong>Histórico do gráfico:</strong> usa a brapi.dev (necessita token para períodos longos).
             </p>
             <label for="tokenInput">Token de acesso</label>
             <input type="text" id="tokenInput" placeholder="Cole seu token aqui" autocomplete="off">
@@ -351,11 +413,60 @@
     const resumoDolarValor = document.getElementById('resumoDolarValor');
     const resumoDolarDetalhe = document.getElementById('resumoDolarDetalhe');
 
+    const volumeChartCanvas = document.getElementById('volumeChart');
+    const individualChartCanvas = document.getElementById('individualChart');
+    const ativoGraficoSelect = document.getElementById('ativoGrafico');
+    const periodoGraficoSelect = document.getElementById('periodoGrafico');
+    const tipoGraficoSelect = document.getElementById('tipoGrafico');
+    const customPeriodoSpan = document.getElementById('customPeriodo');
+    const dataInicioInput = document.getElementById('dataInicio');
+    const dataFimInput = document.getElementById('dataFim');
+    const individualLoading = document.getElementById('individualLoading');
+    const individualInfo = document.getElementById('individualInfo');
+    const volumeTotalLabel = document.getElementById('volumeTotalLabel');
+    const volumeEmpty = document.getElementById('volumeEmpty');
+    const individualEmpty = document.getElementById('individualEmpty');
+
+    let volumeChartInstance = null;
+    let individualChartInstance = null;
+
     let state = loadState();
     let token = state.token || '';
     let fonte = state.fonte || 'brapi';
     let hideNome = !!state.hideNome;
     let ultimaCotacaoDate = null;
+
+    const historyCache = new Map();
+    const CACHE_TTL_MS = 5 * 60 * 1000;
+    function cacheGet(key) {
+        const entry = historyCache.get(key);
+        if (!entry) return null;
+        if (Date.now() - entry.ts > CACHE_TTL_MS) {
+            historyCache.delete(key);
+            return null;
+        }
+        return entry.data;
+    }
+    function cacheSet(key, data) {
+        historyCache.set(key, { data, ts: Date.now() });
+    }
+
+    const periodConfig = {
+        '1d':  { interval: '30m', range: '1d',  sampleTo: 15, label: 'Dia' },
+        '5d':  { interval: '1h',  range: '5d',  sampleTo: 15, label: 'Semana' },
+        '1mo': { interval: '1d',  range: '1mo', sampleTo: 15, label: 'Mês' },
+        '1y':  { interval: '1d',  range: '1y',  sampleTo: 18, label: 'Anual' }
+    };
+
+    function sampleData(data, targetPoints) {
+        if (!data || data.length <= targetPoints) return data;
+        const step = (data.length - 1) / (targetPoints - 1);
+        const result = [];
+        for (let i = 0; i < targetPoints; i++) {
+            result.push(data[Math.round(i * step)]);
+        }
+        return result;
+    }
 
     function fmt(v) {
         const n = Number(v);
@@ -428,7 +539,6 @@
         }));
     }
 
-    // ---------- Toggle da coluna Nome ----------
     function aplicarVisibilidadeNome() {
         if (hideNome) {
             cotacoesTable.classList.add('hide-nome');
@@ -570,7 +680,6 @@
             saveState();
         });
 
-        // CONFIRMAÇÃO antes de excluir
         removeBtn.addEventListener('click', () => {
             const codigo = codigoInput.value.trim();
             const nome   = nomeInput.value.trim();
@@ -580,9 +689,36 @@
             calcularTotais();
             saveState();
             showToast('🗑️ Ativo removido.');
+            atualizarSelectAtivos();
+            renderVolumeChart();
         });
 
         return tr;
+    }
+
+    const PROXIES = [
+        { name: 'allorigins', build: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
+        { name: 'cors.eu.org', build: (url) => `https://cors.eu.org/${url}` }
+    ];
+
+    async function fetchWithProxies(targetUrl) {
+        let lastError = null;
+        for (const proxy of PROXIES) {
+            try {
+                const proxyUrl = proxy.build(targetUrl);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (data && data.chart && data.chart.error) {
+                    throw new Error(data.chart.error.description || 'Erro no Yahoo');
+                }
+                return data;
+            } catch (err) {
+                lastError = err;
+                console.warn(`Proxy ${proxy.name} falhou:`, err.message);
+            }
+        }
+        throw lastError || new Error('Todos os proxies falharam');
     }
 
     async function fetchQuote(codigo, row) {
@@ -643,6 +779,7 @@
             atualizarTotal(row);
             ordenarLinhas();
             saveState();
+            atualizarSelectAtivos();
 
         } catch (error) {
             nomeInput.placeholder = `Erro brapi: ${error.message}`;
@@ -722,6 +859,7 @@
             atualizarTotal(row);
             ordenarLinhas();
             saveState();
+            atualizarSelectAtivos();
 
         } catch (error) {
             nomeInput.placeholder = `Erro Google: ${error.message}`;
@@ -744,13 +882,9 @@
 
         const simboloYF = `${codigo}.SA`;
         const urlYF = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simboloYF)}?interval=1d&range=1d`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlYF)}`;
 
         try {
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error(`Erro ${response.status} no proxy`);
-
-            const json = await response.json();
+            const json = await fetchWithProxies(urlYF);
             const result = json && json.chart && json.chart.result && json.chart.result[0];
             if (!result || !result.meta) throw new Error('Dados não encontrados no Yahoo');
 
@@ -789,6 +923,7 @@
             atualizarTotal(row);
             ordenarLinhas();
             saveState();
+            atualizarSelectAtivos();
 
         } catch (error) {
             nomeInput.placeholder = `Erro Yahoo: ${error.message}`;
@@ -800,47 +935,71 @@
     }
 
     async function fetchMarketSummary() {
-        fetchYahooSummary('^BVSP', resumoIbovespaValor, resumoIbovespaDetalhe);
-        fetchYahooSummary('USDBRL=X', resumoDolarValor, resumoDolarDetalhe);
+        fetchDolarAwesome();
+        fetchIbovespaComFallback();
     }
 
-    async function fetchYahooSummary(ticker, valorEl, detalheEl) {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-
+    async function fetchDolarAwesome() {
         try {
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error(`Erro ${response.status}`);
+            const resp = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const d = json.USDBRL;
+            if (!d) throw new Error('Dados vazios');
 
-            const json = await response.json();
-            const result = json && json.chart && json.chart.result && json.chart.result[0];
-            if (!result || !result.meta) throw new Error('Dados não encontrados');
-
-            const meta = result.meta;
-            const price = meta.regularMarketPrice;
-            const changePercent = meta.regularMarketChangePercent;
-
-            if (price == null || isNaN(price)) throw new Error('Preço indisponível');
-
-            if (ticker === '^BVSP') {
-                valorEl.textContent = price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            resumoDolarValor.textContent = Number(d.bid).toLocaleString('pt-BR', {
+                minimumFractionDigits: 4, maximumFractionDigits: 4
+            });
+            const pct = Number(d.pctChange);
+            if (isFinite(pct)) {
+                resumoDolarDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+                resumoDolarDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
             } else {
-                valorEl.textContent = price.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+                resumoDolarDetalhe.textContent = '—';
+                resumoDolarDetalhe.className = 'detalhe neutro';
             }
+        } catch (e) {
+            resumoDolarValor.textContent = 'Indisponível';
+            resumoDolarDetalhe.textContent = e.message;
+            resumoDolarDetalhe.className = 'detalhe negativo';
+            console.error('Erro Dólar (AwesomeAPI):', e);
+        }
+    }
 
-            if (changePercent != null && !isNaN(changePercent)) {
-                detalheEl.textContent = `${changePercent >= 0 ? '+' : ''}${fmt(changePercent)}%`;
-                detalheEl.className = 'detalhe ' + (changePercent >= 0 ? 'positivo' : 'negativo');
-            } else {
-                detalheEl.textContent = '—';
-                detalheEl.className = 'detalhe neutro';
-            }
-
-        } catch (error) {
-            valorEl.textContent = 'Erro';
-            detalheEl.textContent = error.message;
-            detalheEl.className = 'detalhe negativo';
-            console.error(`Erro ao buscar ${ticker}:`, error);
+    async function fetchIbovespaComFallback() {
+        try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const resp = await fetch('https://brapi.dev/api/quote/%5EBVSP', { headers });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const data = json.results && json.results[0];
+            if (!data) throw new Error('Dados vazios');
+            resumoIbovespaValor.textContent = data.regularMarketPrice.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2, maximumFractionDigits: 2
+            });
+            const pct = data.regularMarketChangePercent;
+            resumoIbovespaDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+            resumoIbovespaDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            return;
+        } catch (e) {
+            console.warn('brapi Ibovespa falhou:', e.message);
+        }
+        try {
+            const url = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1d&range=1d';
+            const json = await fetchWithProxies(url);
+            const meta = json.chart.result[0].meta;
+            resumoIbovespaValor.textContent = meta.regularMarketPrice.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2, maximumFractionDigits: 2
+            });
+            const pct = meta.regularMarketChangePercent;
+            resumoIbovespaDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+            resumoIbovespaDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+        } catch (e) {
+            resumoIbovespaValor.textContent = 'Indisponível';
+            resumoIbovespaDetalhe.textContent = 'Tente novamente';
+            resumoIbovespaDetalhe.className = 'detalhe negativo';
+            console.error('Erro Ibovespa:', e);
         }
     }
 
@@ -912,10 +1071,14 @@
         const rows = Array.from(document.querySelectorAll('#tableBody tr')).filter(
             tr => tr.querySelector('.codigo').value.trim()
         );
+        let pending = rows.length;
+        if (pending === 0) { renderVolumeChart(); return; }
         rows.forEach((tr, i) => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 const codigo = tr.querySelector('.codigo').value.trim();
-                if (codigo) fetchQuote(codigo, tr);
+                if (codigo) await fetchQuote(codigo, tr);
+                pending--;
+                if (pending === 0) renderVolumeChart();
             }, i * 400);
         });
         fetchMarketSummary();
@@ -927,6 +1090,312 @@
     document.getElementById('refreshAllBtn').addEventListener('click', () => {
         fetchAllQuotes();
     });
+
+    // ============================================================
+    // GRÁFICO 1: VALOR DA CARTEIRA POR PAPEL (em R$ 1.000)
+    // ============================================================
+    function renderVolumeChart() {
+        const dados = [];
+        document.querySelectorAll('#tableBody tr').forEach(tr => {
+            const codigo = tr.querySelector('.codigo').value.trim();
+            const qty = parseFloat(tr.querySelector('.quantidade').value) || 0;
+            const price = parseFloat(tr.dataset.price) || 0;
+            if (codigo && qty > 0 && price > 0) {
+                dados.push({ codigo, valor: qty * price });
+            }
+        });
+
+        dados.sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR'));
+
+        const total = dados.reduce((s, d) => s + d.valor, 0);
+        volumeTotalLabel.textContent = `Total: R$ ${fmt(total)}`;
+
+        if (dados.length === 0) {
+            volumeEmpty.style.display = 'block';
+            if (volumeChartInstance) { volumeChartInstance.destroy(); volumeChartInstance = null; }
+            return;
+        }
+        volumeEmpty.style.display = 'none';
+
+        const labels = dados.map(d => d.codigo);
+        // Divide por 1000 para exibir em "R$ 1.000"
+        const valuesMil = dados.map(d => d.valor / 1000);
+        const valuesReais = dados.map(d => d.valor);
+        const colors = valuesMil.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 52%)`);
+
+        if (volumeChartInstance) volumeChartInstance.destroy();
+
+        const ctx = volumeChartCanvas.getContext('2d');
+        volumeChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Valor na carteira (R$ mil)',
+                    data: valuesMil,
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const idx = ctx.dataIndex;
+                                const valorReal = valuesReais[idx];
+                                const pct = total > 0 ? (valorReal / total) * 100 : 0;
+                                return [
+                                    `R$ ${fmt(valorReal)}`,
+                                    `R$ ${fmt(ctx.raw)} mil`,
+                                    `${fmt(pct)}% da carteira`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (v) => Number(v).toLocaleString('pt-BR', {
+                                minimumFractionDigits: 0, maximumFractionDigits: 2
+                            })
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    document.getElementById('renderVolumeBtn').addEventListener('click', renderVolumeChart);
+
+    // ============================================================
+    // GRÁFICO 2: EVOLUÇÃO INDIVIDUAL
+    // ============================================================
+    async function renderIndividualChart() {
+        const ticker = ativoGraficoSelect.value;
+        const periodo = periodoGraficoSelect.value;
+        const tipo = tipoGraficoSelect.value;
+
+        if (!ticker) {
+            showToast('Selecione um ativo para o gráfico individual.', true);
+            individualEmpty.style.display = 'block';
+            return;
+        }
+
+        individualEmpty.style.display = 'none';
+        individualInfo.textContent = '';
+        individualLoading.style.display = 'inline';
+
+        try {
+            let rawData;
+            let config;
+            let cacheKey;
+
+            if (periodo === 'custom') {
+                const inicio = dataInicioInput.value;
+                const fim = dataFimInput.value;
+                if (!inicio || !fim) {
+                    showToast('Informe as datas de início e fim.', true);
+                    individualLoading.style.display = 'none';
+                    return;
+                }
+                config = { interval: '1d', sampleTo: 15, label: 'Personalizado' };
+                cacheKey = `${ticker}|custom|${inicio}|${fim}`;
+                rawData = cacheGet(cacheKey);
+                if (!rawData) {
+                    rawData = await fetchBrapiHistoryByDate(ticker, inicio, fim, config.interval);
+                    cacheSet(cacheKey, rawData);
+                }
+            } else {
+                config = periodConfig[periodo];
+                cacheKey = `${ticker}|${config.range}|${config.interval}`;
+                rawData = cacheGet(cacheKey);
+                if (!rawData) {
+                    rawData = await fetchBrapiHistory(ticker, config.range, config.interval);
+                    cacheSet(cacheKey, rawData);
+                }
+            }
+
+            if (!rawData || rawData.length === 0) {
+                showToast('Nenhum dado encontrado para o período selecionado.', true);
+                individualLoading.style.display = 'none';
+                return;
+            }
+
+            const data = sampleData(rawData, config.sampleTo);
+            individualInfo.textContent = `${data.length} pontos exibidos (de ${rawData.length} carregados) · Período: ${config.label}`;
+
+            if (individualChartInstance) individualChartInstance.destroy();
+            const ctx = individualChartCanvas.getContext('2d');
+            const timeUnit = (periodo === '1d') ? 'hour' : 'day';
+
+            if (tipo === 'candlestick') {
+                const ohlcData = data.map(bar => ({
+                    x: bar.time, o: bar.open, h: bar.high, l: bar.low, c: bar.close
+                }));
+                individualChartInstance = new Chart(ctx, {
+                    type: 'candlestick',
+                    data: {
+                        datasets: [{
+                            label: ticker,
+                            data: ohlcData,
+                            color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
+                            borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        parsing: false,
+                        animation: { duration: 300 },
+                        scales: {
+                            x: {
+                                type: 'timeseries',
+                                time: { unit: timeUnit },
+                                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
+                            },
+                            y: { type: 'linear', position: 'right' }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const d = ctx.raw;
+                                        return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                const lineData = data.map(bar => ({ x: bar.time, y: bar.close }));
+                individualChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: ticker,
+                            data: lineData,
+                            borderColor: '#0066ff',
+                            backgroundColor: 'rgba(0,102,255,0.08)',
+                            fill: true, tension: 0.2,
+                            pointRadius: 3, pointHoverRadius: 6, borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        parsing: false,
+                        animation: { duration: 300 },
+                        scales: {
+                            x: {
+                                type: 'timeseries',
+                                time: { unit: timeUnit },
+                                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
+                            },
+                            y: {
+                                type: 'linear', position: 'right',
+                                ticks: { callback: (v) => 'R$ ' + fmt(v) }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` }
+                            }
+                        }
+                    }
+                });
+            }
+
+        } catch (error) {
+            showToast('Erro ao gerar gráfico individual: ' + error.message, true);
+            console.error(error);
+        } finally {
+            individualLoading.style.display = 'none';
+        }
+    }
+
+    document.getElementById('renderIndividualBtn').addEventListener('click', renderIndividualChart);
+
+    periodoGraficoSelect.addEventListener('change', () => {
+        customPeriodoSpan.style.display = periodoGraficoSelect.value === 'custom' ? 'inline-flex' : 'none';
+    });
+
+    async function fetchBrapiHistory(ticker, range, interval) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results && json.results[0];
+        if (!data || !data.historicalDataPrice) return [];
+
+        return data.historicalDataPrice.map(bar => ({
+            time: new Date(bar.date * 1000).getTime(),
+            open: bar.open,
+            high: bar.high,
+            low: bar.low,
+            close: bar.close,
+            volume: bar.volume || 0
+        })).filter(b => b.close != null);
+    }
+
+    async function fetchBrapiHistoryByDate(ticker, dataInicio, dataFim, interval) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?startDate=${dataInicio}&endDate=${dataFim}&interval=${interval}`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results && json.results[0];
+        if (!data || !data.historicalDataPrice) return [];
+
+        return data.historicalDataPrice.map(bar => ({
+            time: new Date(bar.date * 1000).getTime(),
+            open: bar.open,
+            high: bar.high,
+            low: bar.low,
+            close: bar.close,
+            volume: bar.volume || 0
+        })).filter(b => b.close != null);
+    }
+
+    function atualizarSelectAtivos() {
+        const tickers = [];
+        document.querySelectorAll('#tableBody tr').forEach(tr => {
+            const codigo = tr.querySelector('.codigo').value.trim();
+            if (codigo && !tickers.includes(codigo)) tickers.push(codigo);
+        });
+
+        const currentValue = ativoGraficoSelect.value;
+        ativoGraficoSelect.innerHTML = '';
+
+        if (tickers.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '— Nenhum ativo —';
+            ativoGraficoSelect.appendChild(opt);
+            individualEmpty.style.display = 'block';
+        } else {
+            tickers.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            tickers.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                ativoGraficoSelect.appendChild(opt);
+            });
+            if (tickers.includes(currentValue)) ativoGraficoSelect.value = currentValue;
+        }
+    }
 
     document.getElementById('exportBtn').addEventListener('click', () => {
         saveState();
@@ -981,6 +1450,8 @@
                 ordenarLinhas();
                 calcularTotais();
                 saveState();
+                atualizarSelectAtivos();
+                renderVolumeChart();
                 showToast('✅ Dados importados com sucesso!');
             } catch (err) {
                 showToast('Erro ao importar: ' + err.message, true);
@@ -1000,6 +1471,8 @@
     ordenarLinhas();
     calcularTotais();
     atualizarDataCabecalho();
+    atualizarSelectAtivos();
+    renderVolumeChart();
 
     setTimeout(() => {
         const temCodigos = Array.from(document.querySelectorAll('#tableBody tr'))
