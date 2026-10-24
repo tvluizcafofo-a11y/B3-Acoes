@@ -369,7 +369,7 @@
                 <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
                 <br><br>
                 <strong>Dólar:</strong> usa a AwesomeAPI (gratuita, sem token).
-                <strong>Histórico do gráfico:</strong> usa a brapi.dev (necessita token para períodos longos).
+                <strong>Histórico do gráfico:</strong> usa brapi com fallback para Yahoo.
             </p>
             <label for="tokenInput">Token de acesso</label>
             <input type="text" id="tokenInput" placeholder="Cole seu token aqui" autocomplete="off">
@@ -435,7 +435,9 @@
     let fonte = state.fonte || 'brapi';
     let hideNome = !!state.hideNome;
     let ultimaCotacaoDate = null;
+    let renderIndividualToken = 0; // token para evitar races
 
+    // Cache de histórico com informações
     const historyCache = new Map();
     const CACHE_TTL_MS = 5 * 60 * 1000;
     function cacheGet(key) {
@@ -445,17 +447,44 @@
             historyCache.delete(key);
             return null;
         }
-        return entry.data;
+        return entry.value;
     }
-    function cacheSet(key, data) {
-        historyCache.set(key, { data, ts: Date.now() });
+    function cacheSet(key, value) {
+        historyCache.set(key, { value, ts: Date.now() });
     }
 
-    const periodConfig = {
-        '1d':  { interval: '30m', range: '1d',  sampleTo: 15, label: 'Dia' },
-        '5d':  { interval: '1h',  range: '5d',  sampleTo: 15, label: 'Semana' },
-        '1mo': { interval: '1d',  range: '1mo', sampleTo: 15, label: 'Mês' },
-        '1y':  { interval: '1d',  range: '1y',  sampleTo: 18, label: 'Anual' }
+    // ============================================================
+    // ESTRATÉGIAS POR PERÍODO (em ordem de tentativa)
+    // Se uma falhar (dados vazios ou erro), passa para a próxima.
+    // ============================================================
+    const periodAttempts = {
+        '1d': [
+            { source: 'brapi', range: '1d',  interval: '5m',  sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '1d',  interval: '15m', sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '1d',  interval: '30m', sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Últimos 5 dias' },
+            { source: 'yahoo', range: '1d',  interval: '5m',  sampleTo: 15, label: 'Dia' },
+            { source: 'yahoo', range: '5d',  interval: '30m', sampleTo: 15, label: 'Últimos 5 dias' }
+        ],
+        '5d': [
+            { source: 'brapi', range: '5d',  interval: '30m', sampleTo: 15, label: 'Semana' },
+            { source: 'brapi', range: '5d',  interval: '1h',  sampleTo: 15, label: 'Semana' },
+            { source: 'brapi', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Semana (diário)' },
+            { source: 'yahoo', range: '5d',  interval: '30m', sampleTo: 15, label: 'Semana' },
+            { source: 'yahoo', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Semana (diário)' }
+        ],
+        '1mo': [
+            { source: 'brapi', range: '1mo', interval: '1d',  sampleTo: 15, label: 'Mês' },
+            { source: 'brapi', range: '1mo', interval: '1wk', sampleTo: 4,  label: 'Mês' },
+            { source: 'yahoo', range: '1mo', interval: '1d',  sampleTo: 15, label: 'Mês' }
+        ],
+        '1y': [
+            { source: 'brapi', range: '1y',  interval: '1d',  sampleTo: 18, label: 'Anual' },
+            { source: 'brapi', range: '1y',  interval: '1wk', sampleTo: 18, label: 'Anual' },
+            { source: 'brapi', range: '6mo', interval: '1d',  sampleTo: 15, label: 'Últimos 6 meses' },
+            { source: 'yahoo', range: '1y',  interval: '1d',  sampleTo: 18, label: 'Anual' },
+            { source: 'yahoo', range: '1y',  interval: '1wk', sampleTo: 18, label: 'Anual' }
+        ]
     };
 
     function sampleData(data, targetPoints) {
@@ -579,6 +608,7 @@
         saveState();
         updateTokenBadge();
         tokenStatus.textContent = '✅ Token salvo com sucesso.';
+        historyCache.clear();
     });
     document.getElementById('clearTokenBtn').addEventListener('click', () => {
         token = '';
@@ -586,6 +616,7 @@
         saveState();
         updateTokenBadge();
         tokenStatus.textContent = 'Token removido.';
+        historyCache.clear();
     });
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); });
     document.addEventListener('keydown', (e) => {
@@ -600,6 +631,9 @@
         fetchAllQuotes();
     });
 
+    // ============================================================
+    // TABELA
+    // ============================================================
     function ordenarLinhas() {
         const rows = Array.from(tableBody.querySelectorAll('tr'));
         rows.sort((a, b) => {
@@ -696,6 +730,9 @@
         return tr;
     }
 
+    // ============================================================
+    // PROXIES
+    // ============================================================
     const PROXIES = [
         { name: 'allorigins', build: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
         { name: 'cors.eu.org', build: (url) => `https://cors.eu.org/${url}` }
@@ -721,6 +758,9 @@
         throw lastError || new Error('Todos os proxies falharam');
     }
 
+    // ============================================================
+    // COTAÇÕES NA TABELA
+    // ============================================================
     async function fetchQuote(codigo, row) {
         if (fonte === 'google') return fetchGoogleFinanceQuote(codigo, row);
         if (fonte === 'yahoo')  return fetchYahooFinanceQuote(codigo, row);
@@ -934,6 +974,9 @@
         }
     }
 
+    // ============================================================
+    // RESUMO DE MERCADO
+    // ============================================================
     async function fetchMarketSummary() {
         fetchDolarAwesome();
         fetchIbovespaComFallback();
@@ -1003,6 +1046,9 @@
         }
     }
 
+    // ============================================================
+    // CÁLCULOS
+    // ============================================================
     function calcularVariacaoCarteira() {
         let totalHoje = 0;
         let totalAnterior = 0;
@@ -1118,7 +1164,6 @@
         volumeEmpty.style.display = 'none';
 
         const labels = dados.map(d => d.codigo);
-        // Divide por 1000 para exibir em "R$ 1.000"
         const valuesMil = dados.map(d => d.valor / 1000);
         const valuesReais = dados.map(d => d.valor);
         const colors = valuesMil.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 52%)`);
@@ -1188,14 +1233,18 @@
             return;
         }
 
+        // token de controle para evitar renders obsoletos quando o usuário troca rápido
+        const myToken = ++renderIndividualToken;
+
         individualEmpty.style.display = 'none';
         individualInfo.textContent = '';
         individualLoading.style.display = 'inline';
 
         try {
-            let rawData;
-            let config;
-            let cacheKey;
+            let rawData = null;
+            let usedSource = '';
+            let usedLabel = '';
+            let sampleTo = 15;
 
             if (periodo === 'custom') {
                 const inicio = dataInicioInput.value;
@@ -1205,35 +1254,105 @@
                     individualLoading.style.display = 'none';
                     return;
                 }
-                config = { interval: '1d', sampleTo: 15, label: 'Personalizado' };
-                cacheKey = `${ticker}|custom|${inicio}|${fim}`;
-                rawData = cacheGet(cacheKey);
-                if (!rawData) {
-                    rawData = await fetchBrapiHistoryByDate(ticker, inicio, fim, config.interval);
-                    cacheSet(cacheKey, rawData);
+                const cacheKey = `${ticker}|custom|${inicio}|${fim}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) {
+                    rawData = cached.data;
+                    usedSource = cached.source;
+                    usedLabel = cached.label;
+                    sampleTo = cached.sampleTo;
+                } else {
+                    const spanDays = (new Date(fim) - new Date(inicio)) / (1000 * 60 * 60 * 24);
+                    const intervals = spanDays <= 7 ? ['15m', '30m', '1h', '1d'] : ['1d', '1wk'];
+
+                    for (const interval of intervals) {
+                        try {
+                            const d = await fetchBrapiHistoryByDate(ticker, inicio, fim, interval);
+                            if (d && d.length > 0) {
+                                rawData = d;
+                                usedSource = 'brapi';
+                                usedLabel = 'Personalizado';
+                                sampleTo = 15;
+                                break;
+                            }
+                        } catch (e) { console.warn(`brapi custom ${interval} falhou:`, e.message); }
+                    }
+                    if (!rawData || rawData.length === 0) {
+                        for (const interval of intervals) {
+                            try {
+                                const d = await fetchYahooHistoryByDate(ticker, inicio, fim, interval);
+                                if (d && d.length > 0) {
+                                    rawData = d;
+                                    usedSource = 'Yahoo';
+                                    usedLabel = 'Personalizado';
+                                    sampleTo = 15;
+                                    break;
+                                }
+                            } catch (e) { console.warn(`yahoo custom ${interval} falhou:`, e.message); }
+                        }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
                 }
             } else {
-                config = periodConfig[periodo];
-                cacheKey = `${ticker}|${config.range}|${config.interval}`;
-                rawData = cacheGet(cacheKey);
-                if (!rawData) {
-                    rawData = await fetchBrapiHistory(ticker, config.range, config.interval);
-                    cacheSet(cacheKey, rawData);
+                const attempts = periodAttempts[periodo];
+                const cacheKey = `${ticker}|${periodo}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) {
+                    rawData = cached.data;
+                    usedSource = cached.source;
+                    usedLabel = cached.label;
+                    sampleTo = cached.sampleTo;
+                } else {
+                    for (const att of attempts) {
+                        try {
+                            let d;
+                            if (att.source === 'brapi') {
+                                d = await fetchBrapiHistory(ticker, att.range, att.interval);
+                            } else {
+                                d = await fetchYahooHistory(ticker, att.range, att.interval);
+                            }
+                            if (d && d.length > 0) {
+                                rawData = d;
+                                usedSource = att.source;
+                                usedLabel = att.label;
+                                sampleTo = att.sampleTo;
+                                break;
+                            }
+                        } catch (e) {
+                            console.warn(`Tentativa ${att.source} ${att.range}/${att.interval} falhou:`, e.message);
+                        }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
                 }
             }
 
+            // ignora resultado se outra requisição foi disparada depois desta
+            if (myToken !== renderIndividualToken) return;
+
             if (!rawData || rawData.length === 0) {
                 showToast('Nenhum dado encontrado para o período selecionado.', true);
+                individualInfo.textContent = 'Sem dados disponíveis para este período.';
                 individualLoading.style.display = 'none';
                 return;
             }
 
-            const data = sampleData(rawData, config.sampleTo);
-            individualInfo.textContent = `${data.length} pontos exibidos (de ${rawData.length} carregados) · Período: ${config.label}`;
+            const data = sampleData(rawData, sampleTo);
+
+            if (myToken !== renderIndividualToken) return;
+
+            individualInfo.textContent = `${data.length} pontos exibidos (de ${rawData.length} carregados) · ${usedLabel} · Fonte: ${usedSource}`;
+
+            // Detecta unidade do eixo X pelo span real dos dados
+            const spanMs = data[data.length - 1].time - data[0].time;
+            const spanHoras = spanMs / (1000 * 60 * 60);
+            let timeUnit;
+            if (spanHoras <= 48) timeUnit = 'hour';
+            else if (spanHoras <= 24 * 60) timeUnit = 'day';
+            else if (spanHoras <= 24 * 365) timeUnit = 'month';
+            else timeUnit = 'year';
 
             if (individualChartInstance) individualChartInstance.destroy();
             const ctx = individualChartCanvas.getContext('2d');
-            const timeUnit = (periodo === '1d') ? 'hour' : 'day';
 
             if (tipo === 'candlestick') {
                 const ohlcData = data.map(bar => ({
@@ -1316,19 +1435,53 @@
             }
 
         } catch (error) {
-            showToast('Erro ao gerar gráfico individual: ' + error.message, true);
-            console.error(error);
+            if (myToken === renderIndividualToken) {
+                showToast('Erro ao gerar gráfico individual: ' + error.message, true);
+                individualInfo.textContent = 'Erro ao carregar dados.';
+                console.error(error);
+            }
         } finally {
-            individualLoading.style.display = 'none';
+            if (myToken === renderIndividualToken) {
+                individualLoading.style.display = 'none';
+            }
         }
     }
 
+    // Botão manual ainda funciona
     document.getElementById('renderIndividualBtn').addEventListener('click', renderIndividualChart);
 
+    // Auto-atualização ao mudar qualquer controle
+    ativoGraficoSelect.addEventListener('change', () => {
+        if (ativoGraficoSelect.value) renderIndividualChart();
+    });
+    tipoGraficoSelect.addEventListener('change', () => {
+        if (ativoGraficoSelect.value) renderIndividualChart();
+    });
     periodoGraficoSelect.addEventListener('change', () => {
         customPeriodoSpan.style.display = periodoGraficoSelect.value === 'custom' ? 'inline-flex' : 'none';
+        if (periodoGraficoSelect.value !== 'custom' && ativoGraficoSelect.value) {
+            renderIndividualChart();
+        } else if (periodoGraficoSelect.value === 'custom'
+                   && dataInicioInput.value && dataFimInput.value) {
+            renderIndividualChart();
+        }
+    });
+    dataInicioInput.addEventListener('change', () => {
+        if (periodoGraficoSelect.value === 'custom'
+            && dataInicioInput.value && dataFimInput.value) {
+            renderIndividualChart();
+        }
+    });
+    dataFimInput.addEventListener('change', () => {
+        if (periodoGraficoSelect.value === 'custom'
+            && dataInicioInput.value && dataFimInput.value) {
+            renderIndividualChart();
+        }
     });
 
+    // ============================================================
+    // HISTÓRICO VIA brapi
+    // ============================================================
     async function fetchBrapiHistory(ticker, range, interval) {
         const headers = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -1369,6 +1522,56 @@
         })).filter(b => b.close != null);
     }
 
+    // ============================================================
+    // HISTÓRICO VIA Yahoo (fallback)
+    // ============================================================
+    async function fetchYahooHistory(ticker, range, interval) {
+        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&range=${range}`;
+        const json = await fetchWithProxies(url);
+        const result = json && json.chart && json.chart.result && json.chart.result[0];
+        if (!result || !result.timestamp) return [];
+
+        const timestamps = result.timestamp;
+        const quote = result.indicators && result.indicators.quote && result.indicators.quote[0];
+        if (!quote) return [];
+
+        return timestamps.map((ts, i) => ({
+            time: ts * 1000,
+            open: quote.open && quote.open[i] != null ? quote.open[i] : null,
+            high: quote.high && quote.high[i] != null ? quote.high[i] : null,
+            low: quote.low && quote.low[i] != null ? quote.low[i] : null,
+            close: quote.close && quote.close[i] != null ? quote.close[i] : null,
+            volume: quote.volume && quote.volume[i] != null ? quote.volume[i] : 0
+        })).filter(bar => bar.close != null);
+    }
+
+    async function fetchYahooHistoryByDate(ticker, dataInicio, dataFim, interval) {
+        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
+        const period1 = Math.floor(new Date(dataInicio + 'T00:00:00').getTime() / 1000);
+        const period2 = Math.floor(new Date(dataFim + 'T23:59:59').getTime() / 1000);
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&period1=${period1}&period2=${period2}`;
+        const json = await fetchWithProxies(url);
+        const result = json && json.chart && json.chart.result && json.chart.result[0];
+        if (!result || !result.timestamp) return [];
+
+        const timestamps = result.timestamp;
+        const quote = result.indicators && result.indicators.quote && result.indicators.quote[0];
+        if (!quote) return [];
+
+        return timestamps.map((ts, i) => ({
+            time: ts * 1000,
+            open: quote.open && quote.open[i] != null ? quote.open[i] : null,
+            high: quote.high && quote.high[i] != null ? quote.high[i] : null,
+            low: quote.low && quote.low[i] != null ? quote.low[i] : null,
+            close: quote.close && quote.close[i] != null ? quote.close[i] : null,
+            volume: quote.volume && quote.volume[i] != null ? quote.volume[i] : 0
+        })).filter(bar => bar.close != null);
+    }
+
+    // ============================================================
+    // SELECT DE ATIVOS
+    // ============================================================
     function atualizarSelectAtivos() {
         const tickers = [];
         document.querySelectorAll('#tableBody tr').forEach(tr => {
@@ -1397,6 +1600,9 @@
         }
     }
 
+    // ============================================================
+    // EXPORTAR / IMPORTAR
+    // ============================================================
     document.getElementById('exportBtn').addEventListener('click', () => {
         saveState();
         const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -1461,6 +1667,9 @@
         reader.readAsText(file, 'utf-8');
     });
 
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
     updateTokenBadge();
     fonteSelect.value = fonte;
     aplicarVisibilidadeNome();
@@ -1483,6 +1692,11 @@
             fetchAllQuotes();
         }
         fetchMarketSummary();
+
+        // Render inicial do gráfico individual se houver ticker selecionado
+        if (ativoGraficoSelect.value) {
+            setTimeout(renderIndividualChart, 800);
+        }
     }, 300);
 </script>
 </body>
