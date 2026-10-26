@@ -33,21 +33,23 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
+        /* ===== ABAS MAIORES E EM NEGRITO ===== */
         .tabs {
             display: flex;
             gap: 4px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #eef1f5;
+            border-bottom: 3px solid #eef1f5;
         }
         .tab-btn {
-            padding: 10px 24px;
+            padding: 14px 32px;
             border: none;
             background: transparent;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
             color: #666;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-bottom: 4px solid transparent;
             transition: color 0.2s, border-color 0.2s;
         }
         .tab-btn:hover { color: #0066ff; }
@@ -99,6 +101,16 @@
         .table-id.hide-nome th:nth-child(2),
         .table-id.hide-nome td:nth-child(2) { display: none; }
 
+        /* ===== COLUNA NOME DA CRYPTO ===== */
+        #cotacoesTableCrypto th:nth-child(2),
+        #cotacoesTableCrypto td:nth-child(2) {
+            min-width: 200px;
+        }
+/* ===== COLUNA NOME DA EMPRESA (B3) ===== */
+        #cotacoesTableB3 th:nth-child(2),
+         #cotacoesTableB3 td:nth-child(2) {
+             min-width: 200px;
+}
         input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
         input.codigo { width: 90px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
         input.quantidade { width: 85px; text-align: right; }
@@ -204,7 +216,7 @@
             .container { padding: 16px; }
             .chart-container { height: 280px; }
             .chart-total { margin-left: 0; width: 100%; }
-            .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
+            .tab-btn { padding: 10px 18px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -470,7 +482,7 @@
         <section class="settings-section">
             <h3>🔑 Token brapi.dev <span id="tokenBadge" class="status-badge status-warn">Sem token</span></h3>
             <p class="hint">
-                Necessário para cripto via brapi e para ações fora do plano gratuito.
+                Necessário para ações fora do plano gratuito.
                 Obtenha em <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
             </p>
             <label for="tokenInput">Token de acesso</label>
@@ -751,10 +763,7 @@
         const infoEl = document.getElementById('individualInfoB3');
         const emptyEl = document.getElementById('individualEmptyB3');
 
-        if (!ticker) {
-            emptyEl.style.display = 'block';
-            return;
-        }
+        if (!ticker) { emptyEl.style.display = 'block'; return; }
         const myToken = ++renderIndividualTokenB3;
         emptyEl.style.display = 'none';
         infoEl.textContent = '';
@@ -1165,7 +1174,24 @@
         })).filter(b => b.close != null);
     }
 
-    const COINGECKO_IDS = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', ADA: 'cardano', XRP: 'ripple', DOGE: 'dogecoin', DOT: 'polkadot', LINK: 'chainlink', LTC: 'litecoin', BCH: 'bitcoin-cash', MATIC: 'matic-network', AVAX: 'avalanche-2', SHIB: 'shiba-inu', TRX: 'tron', ATOM: 'cosmos' };
+    // ============================================================
+    // COINGECKO — MAPA DE IDs (EXPANDIDO)
+    // ============================================================
+    const COINGECKO_IDS = {
+        BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', ADA: 'cardano', XRP: 'ripple',
+        DOGE: 'dogecoin', DOT: 'polkadot', LINK: 'chainlink', LTC: 'litecoin', BCH: 'bitcoin-cash',
+        MATIC: 'matic-network', AVAX: 'avalanche-2', SHIB: 'shiba-inu', TRX: 'tron', ATOM: 'cosmos',
+        UNI: 'uniswap', XLM: 'stellar', ALGO: 'algorand', VET: 'vechain', FIL: 'filecoin',
+        NEAR: 'near', APT: 'aptos', ARB: 'arbitrum', OP: 'optimism', SUI: 'sui',
+        PEPE: 'pepe', WIF: 'dogwifcoin', BONK: 'bonk', FLOKI: 'floki', CORGIAI: 'corgiai',
+        HBAR: 'hedera-hashgraph', ICP: 'internet-computer', ETC: 'ethereum-classic', XMR: 'monero',
+        AAVE: 'aave', SAND: 'the-sandbox', MANA: 'decentraland', AXS: 'axie-infinity',
+        GRT: 'the-graph', THETA: 'theta-token', EOS: 'eos', XTZ: 'tezos', NEO: 'neo',
+        CAKE: 'pancakeswap-token', RNDR: 'render-token', INJ: 'injective-protocol', SEI: 'sei-network',
+        TIA: 'celestia', JUP: 'jupiter-exchange-solana', PYTH: 'pyth-network',
+        STRK: 'starknet', WLD: 'worldcoin-wld', MEME: 'memecoin', ORDI: 'ordinals',
+        RON: 'ronin', GMT: 'stepn', GALA: 'gala', ENJ: 'enjincoin', CHZ: 'chiliz'
+    };
     function coingeckoId(symbol) {
         const upper = symbol.toUpperCase();
         return COINGECKO_IDS[upper] || upper.toLowerCase();
@@ -1348,12 +1374,25 @@
     }
 
     // ============================================================
-    // CRYPTO — COTAÇÃO
+    // CRYPTO — COTAÇÃO (com fallback)
     // ============================================================
     async function fetchQuoteCrypto(codigo, row) {
-        const fonteCrypto = document.getElementById('fonteSelectCrypto').value;
-        if (fonteCrypto === 'coingecko') return fetchCoinGeckoQuote(codigo, row);
-        return fetchBrapiCryptoQuote(codigo, row);
+        const fonte = document.getElementById('fonteSelectCrypto').value;
+        if (fonte === 'brapi') {
+            try {
+                await fetchBrapiCryptoQuote(codigo, row);
+                return;
+            } catch (e) {
+                console.warn(`brapi falhou para ${codigo}, tentando CoinGecko:`, e.message);
+            }
+        }
+        try {
+            await fetchCoinGeckoQuote(codigo, row);
+        } catch (e) {
+            const nomeInput = row.querySelector('.nome-input');
+            nomeInput.classList.add('error');
+            nomeInput.placeholder = `Erro: ${e.message}`;
+        }
     }
 
     async function fetchBrapiCryptoQuote(codigo, row) {
@@ -1375,9 +1414,10 @@
             if (!data) throw new Error('Cripto não encontrada');
             const price = data.regularMarketPrice ?? data.price;
             const change = data.regularMarketChangePercent ?? data.changePercent;
+            if (price == null) throw new Error('Preço indisponível');
             if (!nomeInput.value.trim()) nomeInput.value = data.name || data.coinName || codigo;
             nomeInput.placeholder = 'Nome';
-            cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
+            cotacaoCell.textContent = fmt(price);
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
                 variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
@@ -1387,15 +1427,12 @@
             lastQuoteDate = d;
             atualizarDataCabecalho();
             dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-            row.dataset.price = price || 0;
+            row.dataset.price = price;
             row.dataset.lastCodigo = codigo;
             atualizarTotalCrypto(row);
             ordenarLinhasCrypto();
             saveState();
             atualizarSelectAtivosCrypto();
-        } catch (e) {
-            nomeInput.placeholder = `Erro brapi: ${e.message}`;
-            nomeInput.classList.add('error');
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1411,12 +1448,13 @@
             const id = coingeckoId(codigo);
             const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`;
             const resp = await fetch(url);
-            if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const json = await resp.json();
             const data = json[id];
-            if (!data) throw new Error('Moeda não encontrada');
+            if (!data) throw new Error('Moeda não encontrada no CoinGecko');
             const price = data.brl;
             const change = data.brl_24h_change;
+            if (price == null) throw new Error('Preço indisponível');
             if (!nomeInput.value.trim()) nomeInput.value = codigo.toUpperCase();
             nomeInput.placeholder = 'Nome';
             cotacaoCell.textContent = fmt(price);
@@ -1435,10 +1473,97 @@
             ordenarLinhasCrypto();
             saveState();
             atualizarSelectAtivosCrypto();
-        } catch (e) {
-            nomeInput.placeholder = `Erro CoinGecko: ${e.message}`;
-            nomeInput.classList.add('error');
         } finally { nomeInput.classList.remove('loading'); }
+    }
+
+    // ============================================================
+    // CRYPTO — BATCH (resolve rate limit)
+    // ============================================================
+    function applyCryptoQuote(tr, symbol, price, change) {
+        const nomeInput = tr.querySelector('.nome-input');
+        const cotacaoCell = tr.querySelector('.cotacao');
+        const variacaoCell = tr.querySelector('.variacao');
+        const dataHoraCell = tr.querySelector('.data-hora');
+
+        if (!nomeInput.value.trim()) nomeInput.value = symbol;
+        nomeInput.classList.remove('error', 'loading');
+        nomeInput.placeholder = 'Nome';
+
+        cotacaoCell.textContent = fmt(price);
+        if (change != null && !isNaN(change)) {
+            variacaoCell.textContent = fmt(change) + '%';
+            variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+            tr.dataset.variacao = change;
+        } else {
+            variacaoCell.textContent = 'N/A';
+            delete tr.dataset.variacao;
+        }
+
+        const d = new Date();
+        lastQuoteDate = d;
+        atualizarDataCabecalho();
+        dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+
+        tr.dataset.price = price || 0;
+        tr.dataset.lastCodigo = symbol;
+        atualizarTotalCrypto(tr);
+        ordenarLinhasCrypto();
+        atualizarSelectAtivosCrypto();
+    }
+
+    async function refreshAllCryptoBatch() {
+        const rows = Array.from(document.querySelectorAll('#tableBodyCrypto tr'))
+            .filter(tr => tr.querySelector('.codigo').value.trim());
+        if (rows.length === 0) { renderVolumeChartCrypto(); return; }
+
+        const symbolToId = {};
+        const ids = [];
+        rows.forEach(tr => {
+            const c = tr.querySelector('.codigo').value.trim().toUpperCase();
+            if (c) {
+                const id = coingeckoId(c);
+                symbolToId[c] = id;
+                if (!ids.includes(id)) ids.push(id);
+            }
+        });
+
+        if (ids.length === 0) return;
+
+        try {
+            const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=brl&include_24hr_change=true`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+
+            let sucessos = 0;
+            let falhas = [];
+            rows.forEach(tr => {
+                const c = tr.querySelector('.codigo').value.trim().toUpperCase();
+                const id = symbolToId[c];
+                if (!id) return;
+                const d = data[id];
+                if (!d || d.brl == null) {
+                    falhas.push(c);
+                    const nomeInput = tr.querySelector('.nome-input');
+                    nomeInput.classList.add('error');
+                    nomeInput.placeholder = 'Não encontrada no CoinGecko';
+                    return;
+                }
+                applyCryptoQuote(tr, c, d.brl, d.brl_24h_change);
+                sucessos++;
+            });
+
+            saveState();
+            renderVolumeChartCrypto();
+
+            if (falhas.length > 0) {
+                showToast(`✅ ${sucessos} atualizadas · ⚠️ ${falhas.length} não encontradas: ${falhas.join(', ')}`);
+            } else {
+                showToast(`✅ ${sucessos} criptoativos atualizados`);
+            }
+        } catch (e) {
+            showToast('Erro CoinGecko: ' + e.message, true);
+        }
     }
 
     // ============================================================
@@ -1745,14 +1870,29 @@
     }
 
     // ============================================================
-    // RESUMO MERCADO CRYPTO
+    // RESUMO MERCADO CRYPTO (CoinGecko primeiro)
     // ============================================================
     async function fetchMarketSummaryCrypto() {
         fetchCryptoSummaryCard('BTC', 'resumoBtcValor', 'resumoBtcDetalhe');
         fetchCryptoSummaryCard('ETH', 'resumoEthValor', 'resumoEthDetalhe');
     }
+
     async function fetchCryptoSummaryCard(symbol, valorId, detalheId) {
-        // Tenta brapi primeiro
+        try {
+            const id = coingeckoId(symbol);
+            const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const data = json[id];
+            if (!data) throw new Error('Sem dados');
+            document.getElementById(valorId).textContent = 'R$ ' + fmt(data.brl);
+            const pct = data.brl_24h_change;
+            if (pct != null) {
+                document.getElementById(detalheId).textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+                document.getElementById(detalheId).className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            }
+            return;
+        } catch (e) { console.warn(`CoinGecko ${symbol} falhou:`, e.message); }
         try {
             const headers = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -1767,22 +1907,6 @@
             if (change != null) {
                 document.getElementById(detalheId).textContent = `${change >= 0 ? '+' : ''}${fmt(change)}%`;
                 document.getElementById(detalheId).className = 'detalhe ' + (change >= 0 ? 'positivo' : 'negativo');
-            }
-            return;
-        } catch (e) { console.warn(`brapi ${symbol} falhou:`, e.message); }
-        // Fallback CoinGecko
-        try {
-            const id = coingeckoId(symbol);
-            const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const json = await resp.json();
-            const data = json[id];
-            if (!data) throw new Error('Sem dados');
-            document.getElementById(valorId).textContent = 'R$ ' + fmt(data.brl);
-            const pct = data.brl_24h_change;
-            if (pct != null) {
-                document.getElementById(detalheId).textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-                document.getElementById(detalheId).className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
             }
         } catch (e) {
             document.getElementById(valorId).textContent = 'Indisponível';
@@ -1858,18 +1982,8 @@
     document.getElementById('addRowBtnCrypto').addEventListener('click', () => {
         createRowCrypto(); ordenarLinhasCrypto(); saveState();
     });
-    document.getElementById('refreshAllBtnCrypto').addEventListener('click', () => {
-        const rows = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).filter(tr => tr.querySelector('.codigo').value.trim());
-        let pend = rows.length;
-        if (pend === 0) { renderVolumeChartCrypto(); return; }
-        rows.forEach((tr, i) => {
-            setTimeout(async () => {
-                const c = tr.querySelector('.codigo').value.trim();
-                if (c) await fetchQuoteCrypto(c, tr);
-                pend--;
-                if (pend === 0) renderVolumeChartCrypto();
-            }, i * 400);
-        });
+    document.getElementById('refreshAllBtnCrypto').addEventListener('click', async () => {
+        await refreshAllCryptoBatch();
         fetchMarketSummaryCrypto();
     });
     document.getElementById('renderVolumeBtnCrypto').addEventListener('click', renderVolumeChartCrypto);
@@ -1944,7 +2058,6 @@
                 if (!imported) throw new Error('Arquivo inválido');
                 if (!confirm('Importar dados? Isso substituirá tudo.')) { importFile.value = ''; return; }
 
-                // Suporta tanto o formato novo { b3, crypto } quanto o antigo (array ou {rows})
                 let b3rows = [], cryptorows = [], newToken = token;
                 if (imported.b3 || imported.crypto) {
                     b3rows = imported.b3?.rows || [];
@@ -1963,7 +2076,6 @@
                 updateTokenBadge();
                 tokenInput.value = token;
 
-                // Limpa e recria B3
                 document.getElementById('tableBodyB3').innerHTML = '';
                 if (b3rows.length === 0) createRowB3(); else b3rows.forEach(r => createRowB3(r));
                 ordenarLinhasB3();
@@ -1971,7 +2083,6 @@
                 atualizarSelectAtivosB3();
                 renderVolumeChartB3();
 
-                // Limpa e recria Crypto
                 document.getElementById('tableBodyCrypto').innerHTML = '';
                 if (cryptorows.length === 0) createRowCrypto(); else cryptorows.forEach(r => createRowCrypto(r));
                 ordenarLinhasCrypto();
@@ -1998,7 +2109,6 @@
     updateTokenBadge();
     atualizarDataCabecalho();
 
-    // Restaura B3
     document.getElementById('fonteSelectB3').value = state.b3.fonte;
     if (state.b3.rows.length === 0) createRowB3();
     else state.b3.rows.forEach(r => createRowB3(r));
@@ -2011,7 +2121,6 @@
         document.getElementById('toggleNomeColBtnB3').textContent = '👁️ Mostrar Nome';
     }
 
-    // Restaura Crypto
     document.getElementById('fonteSelectCrypto').value = state.crypto.fonte;
     if (state.crypto.rows.length === 0) createRowCrypto();
     else state.crypto.rows.forEach(r => createRowCrypto(r));
@@ -2024,13 +2133,10 @@
         document.getElementById('toggleNomeColBtnCrypto').textContent = '👁️ Mostrar Nome';
     }
 
-    // Ativa a aba salva
     if (activeTab === 'crypto') document.querySelector('[data-tab="crypto"]').click();
     else document.querySelector('[data-tab="b3"]').click();
 
-    // Busca inicial
     setTimeout(() => {
-        // B3
         const temB3 = Array.from(document.querySelectorAll('#tableBodyB3 tr')).some(tr => tr.querySelector('.codigo').value.trim());
         if (temB3) {
             showToast('Buscando cotações B3...');
@@ -2038,7 +2144,6 @@
         } else {
             fetchMarketSummaryB3();
         }
-        // Crypto
         const temCrypto = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).some(tr => tr.querySelector('.codigo').value.trim());
         if (temCrypto) {
             document.getElementById('refreshAllBtnCrypto').click();
