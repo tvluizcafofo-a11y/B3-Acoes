@@ -161,6 +161,7 @@
         .loading { color: #0066ff; font-style: italic; }
         .error { color: #dc3545; border-color: #dc3545 !important; }
         .sem-info { color: #c62828; font-style: italic; font-size: 0.82rem; font-weight: 600; }
+        .sem-info-count { font-size: 0.72em; color: #c62828; font-weight: 600; margin-left: 3px; }
         .remove-btn { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 5px 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .remove-btn:hover { background: #a71d2a; }
         .positivo { color: #0a7a3e; font-weight: 600; }
@@ -592,7 +593,46 @@
         if (el) el.textContent = 'R$ ' + fmt(totalB3Num + totalCryptoNum);
     }
 
-    // Marca uma linha crypto como "sem informação"
+    // Aplica valor em um elemento com aviso opcional entre parênteses
+    function aplicarTotalComAviso(el, valorNum, count, comPrefixoR$) {
+        if (!el) return;
+        const valorTxt = (comPrefixoR$ ? 'R$ ' : '') + fmt(valorNum);
+        if (count === 0) {
+            el.textContent = valorTxt;
+        } else {
+            el.innerHTML = valorTxt + ' <span class="sem-info-count">(' + count + ' sem info)</span>';
+        }
+    }
+
+    // Conta quantas linhas (com código preenchido) estão sem informação
+    function contarSemInfo(tab) {
+        const tbody = document.getElementById('tableBody' + (tab === 'b3' ? 'B3' : 'Crypto'));
+        if (!tbody) return 0;
+        let count = 0;
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const codigo = tr.querySelector('.codigo').value.trim();
+            const cotacaoCell = tr.querySelector('.cotacao');
+            if (codigo && cotacaoCell && cotacaoCell.classList.contains('sem-info')) count++;
+        });
+        return count;
+    }
+
+    function marcarB3SemInfo(tr) {
+        const cotacaoCell = tr.querySelector('.cotacao');
+        const variacaoCell = tr.querySelector('.variacao');
+        if (cotacaoCell) {
+            cotacaoCell.textContent = '(sem informação)';
+            cotacaoCell.classList.add('sem-info');
+        }
+        if (variacaoCell) {
+            variacaoCell.textContent = '';
+            variacaoCell.className = 'variacao';
+        }
+        delete tr.dataset.variacao;
+        delete tr.dataset.price;
+        atualizarTotalB3(tr);
+    }
+
     function marcarCryptoSemInfo(tr) {
         const cotacaoCell = tr.querySelector('.cotacao');
         const variacaoCell = tr.querySelector('.variacao');
@@ -1340,6 +1380,7 @@
             nomeInput.placeholder = 'Nome';
             const price = data.regularMarketPrice;
             const change = data.regularMarketChangePercent;
+            cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
@@ -1364,6 +1405,8 @@
         } catch (e) {
             nomeInput.placeholder = `Erro: ${e.message}`;
             nomeInput.classList.add('error');
+            marcarB3SemInfo(row);
+            saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1394,6 +1437,7 @@
                 if (nm) nomeInput.value = nm[1].trim();
             }
             nomeInput.placeholder = 'Nome';
+            cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
@@ -1413,6 +1457,8 @@
         } catch (e) {
             nomeInput.placeholder = `Erro Google: ${e.message}`;
             nomeInput.classList.add('error');
+            marcarB3SemInfo(row);
+            saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1434,6 +1480,7 @@
             if (price == null) throw new Error('Preço indisponível');
             if (!nomeInput.value.trim()) nomeInput.value = meta.longName || meta.shortName || '';
             nomeInput.placeholder = 'Nome';
+            cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
@@ -1455,6 +1502,8 @@
         } catch (e) {
             nomeInput.placeholder = `Erro Yahoo: ${e.message}`;
             nomeInput.classList.add('error');
+            marcarB3SemInfo(row);
+            saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1474,11 +1523,11 @@
         try {
             await fetchCoinGeckoQuote(codigo, row);
         } catch (e) {
-            // Ambas as fontes falharam → mostra aviso visível
             const nomeInput = row.querySelector('.nome-input');
             nomeInput.classList.add('error');
             nomeInput.placeholder = `Erro: ${e.message}`;
             marcarCryptoSemInfo(row);
+            saveState();
         }
     }
 
@@ -1653,7 +1702,6 @@
                 showToast(`✅ ${sucessos} criptoativos atualizados`);
             }
         } catch (e) {
-            // Falha total do CoinGecko → marca todos como "sem informação"
             rows.forEach(tr => marcarCryptoSemInfo(tr));
             saveState();
             renderVolumeChartCrypto();
@@ -1701,7 +1749,11 @@
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
-        if (data.cotacao) tr.querySelector('.cotacao').textContent = data.cotacao;
+        if (data.cotacao) {
+            const cell = tr.querySelector('.cotacao');
+            cell.textContent = data.cotacao;
+            if (data.cotacao === '(sem informação)') cell.classList.add('sem-info');
+        }
         if (data.variacao) {
             const v = tr.querySelector('.variacao');
             v.textContent = data.variacao;
@@ -1756,8 +1808,9 @@
             if (!isNaN(vp) && (1 + vp / 100) !== 0) totalAnterior += valor / (1 + vp / 100);
             else totalAnterior += valor;
         });
-        document.getElementById('totalCarteiraB3').textContent = fmt(total);
-        document.getElementById('headerTotalB3').textContent = 'R$ ' + fmt(total);
+        const semInfoB3 = contarSemInfo('b3');
+        aplicarTotalComAviso(document.getElementById('headerTotalB3'), total, semInfoB3, true);
+        aplicarTotalComAviso(document.getElementById('totalCarteiraB3'), total, semInfoB3, false);
         totalB3Num = total;
         atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
@@ -1885,8 +1938,9 @@
             if (!isNaN(vp) && (1 + vp / 100) !== 0) totalAnterior += valor / (1 + vp / 100);
             else totalAnterior += valor;
         });
-        document.getElementById('totalCarteiraCrypto').textContent = fmt(total);
-        document.getElementById('headerTotalCrypto').textContent = 'R$ ' + fmt(total);
+        const semInfoCrypto = contarSemInfo('crypto');
+        aplicarTotalComAviso(document.getElementById('headerTotalCrypto'), total, semInfoCrypto, true);
+        aplicarTotalComAviso(document.getElementById('totalCarteiraCrypto'), total, semInfoCrypto, false);
         totalCryptoNum = total;
         atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
@@ -1975,7 +2029,7 @@
     }
 
     // ============================================================
-    // RESUMO MERCADO CRYPTO (CoinGecko primeiro)
+    // RESUMO MERCADO CRYPTO
     // ============================================================
     async function fetchMarketSummaryCrypto() {
         fetchCryptoSummaryCard('BTC', 'resumoBtcValor', 'resumoBtcDetalhe');
