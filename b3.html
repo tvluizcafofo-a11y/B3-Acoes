@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotações B3</title>
+    <title>Cotações B3 & Crypto</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
@@ -16,7 +16,7 @@
         .app-header {
             position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; gap: 8px; margin-bottom: 22px; padding-bottom: 16px;
+            text-align: center; gap: 8px; margin-bottom: 16px; padding-bottom: 16px;
             border-bottom: 2px solid #eef1f5;
         }
         .app-header h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
@@ -33,6 +33,29 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eef1f5;
+        }
+        .tab-btn {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab-btn:hover { color: #0066ff; }
+        .tab-btn.active { color: #0066ff; border-bottom-color: #0066ff; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
         .toolbar button, .toolbar select {
             padding: 9px 16px; border: none; border-radius: 6px;
@@ -45,50 +68,41 @@
         .toolbar select:focus { outline: 2px solid #0066ff; }
 
         .table-wrapper { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; margin-bottom: 8px; }
-
         table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.9rem; }
-
         th {
-            padding: 10px 8px; background: #f1f4f8;
-            font-weight: 700; color: #222; font-size: 0.82rem;
-            text-transform: uppercase; letter-spacing: 0.4px;
-            border-bottom: 2px solid #d8dee8;
-            text-align: left; vertical-align: middle; white-space: nowrap;
+            padding: 10px 8px; background: #f1f4f8; font-weight: 700; color: #222;
+            font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 2px solid #d8dee8; text-align: left; vertical-align: middle; white-space: nowrap;
         }
         td { padding: 8px; border-bottom: 1px solid #e0e0e0; text-align: left; vertical-align: middle; white-space: nowrap; }
         tr:hover td { background: #fafbfc; }
         tfoot td { background: #f8f9fa; border-top: 2px solid #0066ff; padding: 12px 8px; }
 
-        #cotacoesTable.hide-nome th:nth-child(2),
-        #cotacoesTable.hide-nome td:nth-child(2) { display: none; }
-
-        #cotacoesTable th:first-child,
-        #cotacoesTable td:first-child {
-            position: sticky; left: 0;
-            background: #fff; z-index: 2;
+        .table-id th:first-child,
+        .table-id td:first-child {
+            position: sticky; left: 0; background: #fff; z-index: 2;
             box-shadow: 3px 0 5px -3px rgba(0,0,0,0.18);
         }
-        #cotacoesTable thead th:first-child { background: #f1f4f8; z-index: 3; }
-        #cotacoesTable tfoot td:first-child { background: #f8f9fa; z-index: 3; }
-        #cotacoesTable tbody tr:hover td:first-child { background: #fafbfc; }
+        .table-id thead th:first-child { background: #f1f4f8; z-index: 3; }
+        .table-id tfoot td:first-child { background: #f8f9fa; z-index: 3; }
+        .table-id tbody tr:hover td:first-child { background: #fafbfc; }
 
-        #cotacoesTable thead th:nth-child(3),
-        #cotacoesTable thead th:nth-child(4),
-        #cotacoesTable thead th:nth-child(6),
-        #cotacoesTable td.cotacao,
-        #cotacoesTable td.variacao,
-        #cotacoesTable td.valor-total,
-        #cotacoesTable tfoot #totalCarteira,
-        #cotacoesTable tfoot .total-var { text-align: right; }
+        .table-id thead th:nth-child(3),
+        .table-id thead th:nth-child(4),
+        .table-id thead th:nth-child(6),
+        .table-id td.cotacao,
+        .table-id td.variacao,
+        .table-id td.valor-total,
+        .table-id tfoot .totalCarteira,
+        .table-id tfoot .total-var { text-align: right; }
+
+        .table-id.hide-nome th:nth-child(2),
+        .table-id.hide-nome td:nth-child(2) { display: none; }
 
         input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
-        input.codigo { width: 75px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
-        input.quantidade { width: 75px; text-align: right; }
-
-        input.nome-input {
-            width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0;
-            border-radius: 4px; font-size: 0.9rem; background: #fff;
-        }
+        input.codigo { width: 90px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
+        input.quantidade { width: 85px; text-align: right; }
+        input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
 
         .loading { color: #0066ff; font-style: italic; }
@@ -99,13 +113,8 @@
         .negativo { color: #c62828; font-weight: 600; }
 
         .total-label { font-weight: 600; color: #333; }
-        #totalCarteira { color: #0066ff; font-size: 1.05rem; font-weight: 700; }
+        .totalCarteira { color: #0066ff; font-size: 1.05rem; font-weight: 700; }
         .total-var { font-weight: 600; font-size: 1.02rem; }
-        .total-var .positivo, .total-var .negativo { font-weight: 700; }
-
-        .status-badge { font-size: 0.72rem; padding: 3px 9px; border-radius: 12px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
-        .status-ok { background: #d4edda; color: #155724; }
-        .status-warn { background: #fff3cd; color: #856404; }
 
         .resumo-mercado {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -132,9 +141,11 @@
         .carteira-linha .num.positivo { color: #0a7a3e; }
         .carteira-linha .num.negativo { color: #c62828; }
 
-        #cardCarteira { border-left-color: #0066ff; }
+        #cardCarteiraB3, #cardCarteiraCrypto { border-left-color: #0066ff; }
         #cardIbovespa { border-left-color: #8e44ad; }
         #cardDolar { border-left-color: #e67e22; }
+        #cardBtc { border-left-color: #f7931a; }
+        #cardEth { border-left-color: #627eea; }
 
         .charts-section { margin-top: 28px; padding-top: 22px; border-top: 2px solid #eef1f5; }
         .charts-section h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 16px 0; color: #222; }
@@ -145,15 +156,8 @@
         .chart-card h3 { font-size: 1rem; font-weight: 700; margin: 0 0 12px 0; color: #333; }
         .chart-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
         .chart-controls label { font-size: 0.85rem; font-weight: 600; color: #444; }
-        .chart-controls select,
-        .chart-controls input[type="date"] {
-            padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px;
-            font-size: 0.88rem; background: #fff;
-        }
-        .chart-controls button {
-            padding: 7px 14px; border: none; border-radius: 6px;
-            background: #0066ff; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.88rem;
-        }
+        .chart-controls select, .chart-controls input[type="date"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.88rem; background: #fff; }
+        .chart-controls button { padding: 7px 14px; border: none; border-radius: 6px; background: #0066ff; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.88rem; }
         .chart-controls button:hover { background: #0047b3; }
         .chart-total { margin-left: auto; font-weight: 700; color: #0066ff; font-size: 0.95rem; }
         .chart-unit { font-size: 0.78rem; color: #666; font-style: italic; margin-top: 6px; }
@@ -182,15 +186,15 @@
         .btn-secondary { background: #6c757d; color: #fff; }
         .btn-secondary:hover { background: #4e555b; }
 
+        .status-badge { font-size: 0.72rem; padding: 3px 9px; border-radius: 12px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-warn { background: #fff3cd; color: #856404; }
+
         .toast {
-            position: fixed; bottom: 24px; right: 24px;
-            background: #0a7a3e; color: #fff;
-            padding: 14px 22px; border-radius: 8px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-            opacity: 0; transform: translateY(20px);
-            transition: opacity 0.3s, transform 0.3s;
-            z-index: 2000; font-weight: 500; font-size: 0.92rem;
-            pointer-events: none;
+            position: fixed; bottom: 24px; right: 24px; background: #0a7a3e; color: #fff;
+            padding: 14px 22px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s;
+            z-index: 2000; font-weight: 500; font-size: 0.92rem; pointer-events: none;
         }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { background: #c62828; }
@@ -200,6 +204,7 @@
             .container { padding: 16px; }
             .chart-container { height: 280px; }
             .chart-total { margin-left: 0; width: 100%; }
+            .tab-btn { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -207,136 +212,245 @@
 <div class="container">
     <header class="app-header">
         <button id="openSettingsBtn" class="settings-btn" title="Configurações" aria-label="Configurações">⚙️</button>
-        <h1>Cotações B3</h1>
+        <h1>Cotações</h1>
         <div id="headerDate" class="header-date"></div>
     </header>
 
-    <div class="toolbar">
-        <label for="fonteSelect" style="font-weight:600;font-size:0.85rem;">Fonte:</label>
-        <select id="fonteSelect">
-            <option value="brapi">brapi.dev (padrão)</option>
-            <option value="google">Google Finance</option>
-            <option value="yahoo">Yahoo Finance (recomendado)</option>
-        </select>
-        <button id="addRowBtn">➕ Ativo</button>
-        <button id="refreshAllBtn" class="secondary">🔄 Atualizar</button>
-        <button id="toggleNomeColBtn" class="secondary" title="Ocultar coluna Nome da Empresa">👁️ Ocultar Nome</button>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="b3">📈 B3</button>
+        <button class="tab-btn" data-tab="crypto">₿ Crypto</button>
     </div>
 
-    <div class="table-wrapper">
-        <table id="cotacoesTable">
-            <thead>
-                <tr>
-                    <th style="width:90px;">Código</th>
-                    <th>Nome da Empresa</th>
-                    <th style="width:115px;">Cotação (R$)</th>
-                    <th style="width:105px;">Variação (%)</th>
-                    <th style="width:80px;">Qtd.</th>
-                    <th style="width:115px;">Total (R$)</th>
-                    <th style="width:90px;">Hora</th>
-                    <th style="width:70px;">Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-            <tfoot>
-                <tr>
-                    <td class="total-label" title="Total da Carteira (R$)">Total:</td>
-                    <td></td>
-                    <td></td>
-                    <td class="total-var"><span id="variacaoTotal">—</span></td>
-                    <td></td>
-                    <td id="totalCarteira">0,00</td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+    <!-- ================= ABA B3 ================= -->
+    <div id="tab-b3" class="tab-content active">
+        <div class="toolbar">
+            <label for="fonteSelectB3" style="font-weight:600;font-size:0.85rem;">Fonte:</label>
+            <select id="fonteSelectB3">
+                <option value="brapi">brapi.dev (padrão)</option>
+                <option value="google">Google Finance</option>
+                <option value="yahoo">Yahoo Finance</option>
+            </select>
+            <button id="addRowBtnB3">➕ Ativo</button>
+            <button id="refreshAllBtnB3" class="secondary">🔄 Atualizar</button>
+            <button id="toggleNomeColBtnB3" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="table-id" id="cotacoesTableB3">
+                <thead>
+                    <tr>
+                        <th style="width:100px;">Código</th>
+                        <th>Nome da Empresa</th>
+                        <th style="width:115px;">Cotação (R$)</th>
+                        <th style="width:105px;">Variação (%)</th>
+                        <th style="width:85px;">Qtd.</th>
+                        <th style="width:115px;">Total (R$)</th>
+                        <th style="width:90px;">Hora</th>
+                        <th style="width:70px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyB3"></tbody>
+                <tfoot>
+                    <tr>
+                        <td class="total-label" title="Total da Carteira (R$)">Total:</td>
+                        <td></td>
+                        <td></td>
+                        <td class="total-var"><span id="variacaoTotalB3">—</span></td>
+                        <td></td>
+                        <td id="totalCarteiraB3" class="totalCarteira">0,00</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="resumo-mercado">
+            <div class="resumo-card" id="cardCarteiraB3">
+                <div class="label">Variação da Carteira (R$)</div>
+                <div class="carteira-linha">
+                    <span class="rotulo">Total do dia:</span>
+                    <span class="num" id="carteiraTotalHojeB3">0,00</span>
+                </div>
+                <div class="carteira-linha">
+                    <span class="rotulo">Total do dia anterior:</span>
+                    <span class="num" id="carteiraTotalAnteriorB3">0,00</span>
+                </div>
+                <div class="carteira-linha destaque">
+                    <span class="rotulo">Diferença:</span>
+                    <span class="num" id="carteiraDiferencaB3">0,00</span>
+                </div>
+                <div class="detalhe neutro" id="carteiraPercentualB3" style="text-align:right;margin-top:2px;">—</div>
+            </div>
+            <div class="resumo-card" id="cardIbovespa">
+                <div class="label">Ibovespa</div>
+                <div class="valor" id="resumoIbovespaValor">—</div>
+                <div class="detalhe neutro" id="resumoIbovespaDetalhe">—</div>
+            </div>
+            <div class="resumo-card" id="cardDolar">
+                <div class="label">Dólar (USD/BRL)</div>
+                <div class="valor" id="resumoDolarValor">—</div>
+                <div class="detalhe neutro" id="resumoDolarDetalhe">—</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2>📊 Gráficos B3</h2>
+            <div class="chart-card">
+                <h3>Valor da minha carteira por papel</h3>
+                <div class="chart-controls">
+                    <button id="renderVolumeBtnB3">🔄 Atualizar gráfico</button>
+                    <span class="chart-total" id="volumeTotalLabelB3">Total: R$ 0,00</span>
+                </div>
+                <div class="chart-container"><canvas id="volumeChartB3"></canvas></div>
+                <div class="chart-unit">Valores em R$ 1.000</div>
+                <div id="volumeEmptyB3" class="chart-empty" style="display:none;">Adicione ativos com quantidade e cotação para visualizar o gráfico.</div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Evolução individual do papel</h3>
+                <div class="chart-controls">
+                    <label for="ativoGraficoB3">Ativo:</label>
+                    <select id="ativoGraficoB3"></select>
+                    <label for="periodoGraficoB3">Período:</label>
+                    <select id="periodoGraficoB3">
+                        <option value="1d">Dia</option>
+                        <option value="5d">Semana</option>
+                        <option value="1mo" selected>Mês</option>
+                        <option value="1y">Anual</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <span id="customPeriodoB3" style="display:none; gap:6px; align-items:center;">
+                        <input type="date" id="dataInicioB3"><span style="font-size:0.85rem;color:#666;">até</span><input type="date" id="dataFimB3">
+                    </span>
+                    <label for="tipoGraficoB3">Tipo:</label>
+                    <select id="tipoGraficoB3">
+                        <option value="line" selected>Linha</option>
+                        <option value="candlestick">Vela (Candlestick)</option>
+                    </select>
+                    <button id="renderIndividualBtnB3">Gerar gráfico</button>
+                    <span id="individualLoadingB3" style="display:none;color:#0066ff;font-style:italic;">Carregando...</span>
+                </div>
+                <div class="chart-container"><canvas id="individualChartB3"></canvas></div>
+                <div id="individualEmptyB3" class="chart-empty" style="display:none;">Selecione um ativo com cotação para visualizar a evolução.</div>
+                <div class="chart-info" id="individualInfoB3"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="resumo-mercado">
-        <div class="resumo-card" id="cardCarteira">
-            <div class="label">Variação da Carteira (R$)</div>
-            <div class="carteira-linha">
-                <span class="rotulo">Total do dia:</span>
-                <span class="num" id="carteiraTotalHoje">0,00</span>
-            </div>
-            <div class="carteira-linha">
-                <span class="rotulo">Total do dia anterior:</span>
-                <span class="num" id="carteiraTotalAnterior">0,00</span>
-            </div>
-            <div class="carteira-linha destaque">
-                <span class="rotulo">Diferença:</span>
-                <span class="num" id="carteiraDiferenca">0,00</span>
-            </div>
-            <div class="detalhe neutro" id="carteiraPercentual" style="text-align:right;margin-top:2px;">—</div>
-        </div>
-        <div class="resumo-card" id="cardIbovespa">
-            <div class="label">Ibovespa</div>
-            <div class="valor" id="resumoIbovespaValor">—</div>
-            <div class="detalhe neutro" id="resumoIbovespaDetalhe">—</div>
-        </div>
-        <div class="resumo-card" id="cardDolar">
-            <div class="label">Dólar (USD/BRL)</div>
-            <div class="valor" id="resumoDolarValor">—</div>
-            <div class="detalhe neutro" id="resumoDolarDetalhe">—</div>
-        </div>
-    </div>
-
-    <div class="charts-section">
-        <h2>📊 Gráficos</h2>
-
-        <div class="chart-card">
-            <h3>Valor da minha carteira por papel</h3>
-            <div class="chart-controls">
-                <button id="renderVolumeBtn">🔄 Atualizar gráfico</button>
-                <span class="chart-total" id="volumeTotalLabel">Total: R$ 0,00</span>
-            </div>
-            <div class="chart-container">
-                <canvas id="volumeChart"></canvas>
-            </div>
-            <div class="chart-unit">Valores em R$ 1.000</div>
-            <div id="volumeEmpty" class="chart-empty" style="display:none;">
-                Adicione ativos com quantidade e cotação para visualizar o gráfico.
-            </div>
+    <!-- ================= ABA CRYPTO ================= -->
+    <div id="tab-crypto" class="tab-content">
+        <div class="toolbar">
+            <label for="fonteSelectCrypto" style="font-weight:600;font-size:0.85rem;">Fonte:</label>
+            <select id="fonteSelectCrypto">
+                <option value="brapi">brapi.dev (padrão)</option>
+                <option value="coingecko">CoinGecko (sem token)</option>
+            </select>
+            <button id="addRowBtnCrypto">➕ Cripto</button>
+            <button id="refreshAllBtnCrypto" class="secondary">🔄 Atualizar</button>
+            <button id="toggleNomeColBtnCrypto" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
         </div>
 
-        <div class="chart-card">
-            <h3>Evolução individual do papel</h3>
-            <div class="chart-controls">
-                <label for="ativoGrafico">Ativo:</label>
-                <select id="ativoGrafico"></select>
+        <div class="table-wrapper">
+            <table class="table-id" id="cotacoesTableCrypto">
+                <thead>
+                    <tr>
+                        <th style="width:100px;">Código</th>
+                        <th>Nome</th>
+                        <th style="width:115px;">Cotação (R$)</th>
+                        <th style="width:105px;">Variação (%)</th>
+                        <th style="width:120px;">Qtd.</th>
+                        <th style="width:115px;">Total (R$)</th>
+                        <th style="width:90px;">Hora</th>
+                        <th style="width:70px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyCrypto"></tbody>
+                <tfoot>
+                    <tr>
+                        <td class="total-label" title="Total da Carteira (R$)">Total:</td>
+                        <td></td>
+                        <td></td>
+                        <td class="total-var"><span id="variacaoTotalCrypto">—</span></td>
+                        <td></td>
+                        <td id="totalCarteiraCrypto" class="totalCarteira">0,00</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
 
-                <label for="periodoGrafico">Período:</label>
-                <select id="periodoGrafico">
-                    <option value="1d">Dia</option>
-                    <option value="5d">Semana</option>
-                    <option value="1mo" selected>Mês</option>
-                    <option value="1y">Anual</option>
-                    <option value="custom">Personalizado</option>
-                </select>
-
-                <span id="customPeriodo" style="display:none; gap:6px; align-items:center;">
-                    <input type="date" id="dataInicio">
-                    <span style="font-size:0.85rem;color:#666;">até</span>
-                    <input type="date" id="dataFim">
-                </span>
-
-                <label for="tipoGrafico">Tipo:</label>
-                <select id="tipoGrafico">
-                    <option value="line" selected>Linha</option>
-                    <option value="candlestick">Vela (Candlestick)</option>
-                </select>
-
-                <button id="renderIndividualBtn">Gerar gráfico</button>
-                <span id="individualLoading" style="display:none;color:#0066ff;font-style:italic;">Carregando...</span>
+        <div class="resumo-mercado">
+            <div class="resumo-card" id="cardCarteiraCrypto">
+                <div class="label">Variação da Carteira (R$)</div>
+                <div class="carteira-linha">
+                    <span class="rotulo">Total do dia:</span>
+                    <span class="num" id="carteiraTotalHojeCrypto">0,00</span>
+                </div>
+                <div class="carteira-linha">
+                    <span class="rotulo">Total do dia anterior:</span>
+                    <span class="num" id="carteiraTotalAnteriorCrypto">0,00</span>
+                </div>
+                <div class="carteira-linha destaque">
+                    <span class="rotulo">Diferença:</span>
+                    <span class="num" id="carteiraDiferencaCrypto">0,00</span>
+                </div>
+                <div class="detalhe neutro" id="carteiraPercentualCrypto" style="text-align:right;margin-top:2px;">—</div>
             </div>
-            <div class="chart-container">
-                <canvas id="individualChart"></canvas>
+            <div class="resumo-card" id="cardBtc">
+                <div class="label">Bitcoin (BTC)</div>
+                <div class="valor" id="resumoBtcValor">—</div>
+                <div class="detalhe neutro" id="resumoBtcDetalhe">—</div>
             </div>
-            <div id="individualEmpty" class="chart-empty" style="display:none;">
-                Selecione um ativo com cotação para visualizar a evolução.
+            <div class="resumo-card" id="cardEth">
+                <div class="label">Ethereum (ETH)</div>
+                <div class="valor" id="resumoEthValor">—</div>
+                <div class="detalhe neutro" id="resumoEthDetalhe">—</div>
             </div>
-            <div class="chart-info" id="individualInfo"></div>
+        </div>
+
+        <div class="charts-section">
+            <h2>📊 Gráficos Crypto</h2>
+            <div class="chart-card">
+                <h3>Valor da minha carteira por criptoativo</h3>
+                <div class="chart-controls">
+                    <button id="renderVolumeBtnCrypto">🔄 Atualizar gráfico</button>
+                    <span class="chart-total" id="volumeTotalLabelCrypto">Total: R$ 0,00</span>
+                </div>
+                <div class="chart-container"><canvas id="volumeChartCrypto"></canvas></div>
+                <div class="chart-unit">Valores em R$ 1.000</div>
+                <div id="volumeEmptyCrypto" class="chart-empty" style="display:none;">Adicione criptoativos com quantidade e cotação para visualizar o gráfico.</div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Evolução individual do criptoativo</h3>
+                <div class="chart-controls">
+                    <label for="ativoGraficoCrypto">Ativo:</label>
+                    <select id="ativoGraficoCrypto"></select>
+                    <label for="periodoGraficoCrypto">Período:</label>
+                    <select id="periodoGraficoCrypto">
+                        <option value="1d">Dia</option>
+                        <option value="5d">Semana</option>
+                        <option value="1mo" selected>Mês</option>
+                        <option value="1y">Anual</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <span id="customPeriodoCrypto" style="display:none; gap:6px; align-items:center;">
+                        <input type="date" id="dataInicioCrypto"><span style="font-size:0.85rem;color:#666;">até</span><input type="date" id="dataFimCrypto">
+                    </span>
+                    <label for="tipoGraficoCrypto">Tipo:</label>
+                    <select id="tipoGraficoCrypto">
+                        <option value="line" selected>Linha</option>
+                        <option value="candlestick">Vela (Candlestick)</option>
+                    </select>
+                    <button id="renderIndividualBtnCrypto">Gerar gráfico</button>
+                    <span id="individualLoadingCrypto" style="display:none;color:#0066ff;font-style:italic;">Carregando...</span>
+                </div>
+                <div class="chart-container"><canvas id="individualChartCrypto"></canvas></div>
+                <div id="individualEmptyCrypto" class="chart-empty" style="display:none;">Selecione um criptoativo com cotação para visualizar a evolução.</div>
+                <div class="chart-info" id="individualInfoCrypto"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -344,32 +458,20 @@
 <div class="modal-overlay" id="settingsModal">
     <div class="modal">
         <h2>⚙️ Configurações</h2>
-
         <section class="settings-section">
             <h3>💾 Backup de dados</h3>
-            <p class="hint">
-                Exporte um arquivo JSON com todas as posições, quantidade, token e preferências de fonte.
-                Use <strong>Importar</strong> para restaurar em outro dispositivo ou navegador.
-            </p>
+            <p class="hint">Exporte um arquivo JSON com as posições de <strong>ambas as abas</strong> (B3 e Crypto).</p>
             <div class="settings-btn-row">
                 <button id="exportBtn" class="btn-primary">⬇ Exportar JSON</button>
                 <button id="importBtn" class="btn-secondary">⬆ Importar JSON</button>
             </div>
             <input type="file" id="importFile" accept=".json,application/json,text/plain,application/octet-stream" style="display:none">
         </section>
-
         <section class="settings-section">
-            <h3>
-                🔑 Token brapi.dev
-                <span id="tokenBadge" class="status-badge status-warn">Sem token</span>
-            </h3>
+            <h3>🔑 Token brapi.dev <span id="tokenBadge" class="status-badge status-warn">Sem token</span></h3>
             <p class="hint">
-                <code>PETR4</code>, <code>VALE3</code>, <code>MGLU3</code> e <code>ITUB4</code> funcionam sem token.
-                Para os demais tickers, obtenha um token gratuito em
-                <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
-                <br><br>
-                <strong>Dólar:</strong> usa a AwesomeAPI (gratuita, sem token).
-                <strong>Histórico do gráfico:</strong> usa brapi com fallback para Yahoo.
+                Necessário para cripto via brapi e para ações fora do plano gratuito.
+                Obtenha em <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
             </p>
             <label for="tokenInput">Token de acesso</label>
             <input type="text" id="tokenInput" placeholder="Cole seu token aqui" autocomplete="off">
@@ -379,7 +481,6 @@
                 <button class="btn-primary" id="saveTokenBtn">Salvar token</button>
             </div>
         </section>
-
         <div class="modal-actions">
             <button class="btn-secondary" id="closeSettingsBtn">Fechar</button>
         </div>
@@ -389,113 +490,21 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    const STORAGE_KEY = 'b3_cotacoes_data';
-    const tableBody    = document.getElementById('tableBody');
-    const tokenInput   = document.getElementById('tokenInput');
-    const tokenBadge   = document.getElementById('tokenBadge');
-    const tokenStatus  = document.getElementById('tokenStatus');
+    // ============================================================
+    // ESTADO E UTILITÁRIOS
+    // ============================================================
+    const STORAGE_KEY = 'b3_crypto_cotacoes_data';
     const settingsModal = document.getElementById('settingsModal');
-    const headerDate   = document.getElementById('headerDate');
-    const totalCarteiraEl = document.getElementById('totalCarteira');
-    const variacaoTotalEl = document.getElementById('variacaoTotal');
-    const importFile   = document.getElementById('importFile');
-    const fonteSelect  = document.getElementById('fonteSelect');
-    const toggleNomeColBtn = document.getElementById('toggleNomeColBtn');
-    const cotacoesTable = document.getElementById('cotacoesTable');
-
-    const carteiraTotalHoje      = document.getElementById('carteiraTotalHoje');
-    const carteiraTotalAnterior  = document.getElementById('carteiraTotalAnterior');
-    const carteiraDiferenca      = document.getElementById('carteiraDiferenca');
-    const carteiraPercentual     = document.getElementById('carteiraPercentual');
-
-    const resumoIbovespaValor = document.getElementById('resumoIbovespaValor');
-    const resumoIbovespaDetalhe = document.getElementById('resumoIbovespaDetalhe');
-    const resumoDolarValor = document.getElementById('resumoDolarValor');
-    const resumoDolarDetalhe = document.getElementById('resumoDolarDetalhe');
-
-    const volumeChartCanvas = document.getElementById('volumeChart');
-    const individualChartCanvas = document.getElementById('individualChart');
-    const ativoGraficoSelect = document.getElementById('ativoGrafico');
-    const periodoGraficoSelect = document.getElementById('periodoGrafico');
-    const tipoGraficoSelect = document.getElementById('tipoGrafico');
-    const customPeriodoSpan = document.getElementById('customPeriodo');
-    const dataInicioInput = document.getElementById('dataInicio');
-    const dataFimInput = document.getElementById('dataFim');
-    const individualLoading = document.getElementById('individualLoading');
-    const individualInfo = document.getElementById('individualInfo');
-    const volumeTotalLabel = document.getElementById('volumeTotalLabel');
-    const volumeEmpty = document.getElementById('volumeEmpty');
-    const individualEmpty = document.getElementById('individualEmpty');
-
-    let volumeChartInstance = null;
-    let individualChartInstance = null;
+    const headerDate = document.getElementById('headerDate');
+    const tokenInput = document.getElementById('tokenInput');
+    const tokenBadge = document.getElementById('tokenBadge');
+    const tokenStatus = document.getElementById('tokenStatus');
+    const importFile = document.getElementById('importFile');
 
     let state = loadState();
     let token = state.token || '';
-    let fonte = state.fonte || 'brapi';
-    let hideNome = !!state.hideNome;
-    let ultimaCotacaoDate = null;
-    let renderIndividualToken = 0; // token para evitar races
-
-    // Cache de histórico com informações
-    const historyCache = new Map();
-    const CACHE_TTL_MS = 5 * 60 * 1000;
-    function cacheGet(key) {
-        const entry = historyCache.get(key);
-        if (!entry) return null;
-        if (Date.now() - entry.ts > CACHE_TTL_MS) {
-            historyCache.delete(key);
-            return null;
-        }
-        return entry.value;
-    }
-    function cacheSet(key, value) {
-        historyCache.set(key, { value, ts: Date.now() });
-    }
-
-    // ============================================================
-    // ESTRATÉGIAS POR PERÍODO (em ordem de tentativa)
-    // Se uma falhar (dados vazios ou erro), passa para a próxima.
-    // ============================================================
-    const periodAttempts = {
-        '1d': [
-            { source: 'brapi', range: '1d',  interval: '5m',  sampleTo: 15, label: 'Dia' },
-            { source: 'brapi', range: '1d',  interval: '15m', sampleTo: 15, label: 'Dia' },
-            { source: 'brapi', range: '1d',  interval: '30m', sampleTo: 15, label: 'Dia' },
-            { source: 'brapi', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Últimos 5 dias' },
-            { source: 'yahoo', range: '1d',  interval: '5m',  sampleTo: 15, label: 'Dia' },
-            { source: 'yahoo', range: '5d',  interval: '30m', sampleTo: 15, label: 'Últimos 5 dias' }
-        ],
-        '5d': [
-            { source: 'brapi', range: '5d',  interval: '30m', sampleTo: 15, label: 'Semana' },
-            { source: 'brapi', range: '5d',  interval: '1h',  sampleTo: 15, label: 'Semana' },
-            { source: 'brapi', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Semana (diário)' },
-            { source: 'yahoo', range: '5d',  interval: '30m', sampleTo: 15, label: 'Semana' },
-            { source: 'yahoo', range: '5d',  interval: '1d',  sampleTo: 5,  label: 'Semana (diário)' }
-        ],
-        '1mo': [
-            { source: 'brapi', range: '1mo', interval: '1d',  sampleTo: 15, label: 'Mês' },
-            { source: 'brapi', range: '1mo', interval: '1wk', sampleTo: 4,  label: 'Mês' },
-            { source: 'yahoo', range: '1mo', interval: '1d',  sampleTo: 15, label: 'Mês' }
-        ],
-        '1y': [
-            { source: 'brapi', range: '1y',  interval: '1d',  sampleTo: 18, label: 'Anual' },
-            { source: 'brapi', range: '1y',  interval: '1wk', sampleTo: 18, label: 'Anual' },
-            { source: 'brapi', range: '6mo', interval: '1d',  sampleTo: 15, label: 'Últimos 6 meses' },
-            { source: 'yahoo', range: '1y',  interval: '1d',  sampleTo: 18, label: 'Anual' },
-            { source: 'yahoo', range: '1y',  interval: '1wk', sampleTo: 18, label: 'Anual' }
-        ]
-    };
-
-    function sampleData(data, targetPoints) {
-        if (!data || data.length <= targetPoints) return data;
-        const step = (data.length - 1) / (targetPoints - 1);
-        const result = [];
-        for (let i = 0; i < targetPoints; i++) {
-            result.push(data[Math.round(i * step)]);
-        }
-        return result;
-    }
+    let activeTab = state.activeTab || 'b3';
+    let lastQuoteDate = null;
 
     function fmt(v) {
         const n = Number(v);
@@ -503,37 +512,16 @@
         return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    const FERIADOS_B3 = new Set([
-        '2026-01-01', '2026-02-16', '2026-02-17', '2026-04-03', '2026-04-21',
-        '2026-05-01', '2026-06-04', '2026-09-07', '2026-10-12', '2026-11-02',
-        '2026-11-20', '2026-12-24', '2026-12-25', '2026-12-31'
-    ]);
-
-    function toISODate(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-    }
-    function ehDiaUtil(d) {
-        const dow = d.getDay();
-        if (dow === 0 || dow === 6) return false;
-        return !FERIADOS_B3.has(toISODate(d));
-    }
-    function ultimoDiaUtil(d) {
-        const copia = new Date(d.getTime());
-        while (!ehDiaUtil(copia)) copia.setDate(copia.getDate() - 1);
-        return copia;
-    }
+    const FERIADOS_B3 = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-04-03','2026-04-21','2026-05-01','2026-06-04','2026-09-07','2026-10-12','2026-11-02','2026-11-20','2026-12-24','2026-12-25','2026-12-31']);
+    function toISODate(d) { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+    function ehDiaUtil(d) { const dow=d.getDay(); if(dow===0||dow===6) return false; return !FERIADOS_B3.has(toISODate(d)); }
+    function ultimoDiaUtil(d) { const c=new Date(d.getTime()); while(!ehDiaUtil(c)) c.setDate(c.getDate()-1); return c; }
     function formatarDataCabecalho(d) {
-        const diasSemana = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-        const dia = String(d.getDate()).padStart(2, '0');
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const ano = d.getFullYear();
-        return `${dia}.${mes}.${ano} — ${diasSemana[d.getDay()]}`;
+        const dias=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+        return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} — ${dias[d.getDay()]}`;
     }
     function atualizarDataCabecalho() {
-        if (ultimaCotacaoDate) headerDate.textContent = formatarDataCabecalho(ultimaCotacaoDate);
+        if (lastQuoteDate) headerDate.textContent = formatarDataCabecalho(lastQuoteDate);
         else headerDate.textContent = formatarDataCabecalho(ultimoDiaUtil(new Date()));
     }
 
@@ -547,44 +535,45 @@
 
     function loadState() {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { token: '', rows: [], fonte: 'brapi', hideNome: false };
-        } catch { return { token: '', rows: [], fonte: 'brapi', hideNome: false }; }
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (!saved) return { token: '', activeTab: 'b3', b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } };
+            return {
+                token: saved.token || '',
+                activeTab: saved.activeTab || 'b3',
+                b3: { rows: saved.b3?.rows || [], fonte: saved.b3?.fonte || 'brapi', hideNome: !!saved.b3?.hideNome },
+                crypto: { rows: saved.crypto?.rows || [], fonte: saved.crypto?.fonte || 'brapi', hideNome: !!saved.crypto?.hideNome }
+            };
+        } catch { return { token: '', activeTab: 'b3', b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } }; }
     }
     function saveState() {
-        state = { token: token, fonte: fonte, hideNome: hideNome, rows: getRowsData() };
+        state.token = token;
+        state.activeTab = activeTab;
+        state.b3.rows = getRowsData('b3');
+        state.b3.fonte = document.getElementById('fonteSelectB3').value;
+        state.b3.hideNome = document.getElementById('cotacoesTableB3').classList.contains('hide-nome');
+        state.crypto.rows = getRowsData('crypto');
+        state.crypto.fonte = document.getElementById('fonteSelectCrypto').value;
+        state.crypto.hideNome = document.getElementById('cotacoesTableCrypto').classList.contains('hide-nome');
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
-    function getRowsData() {
-        return Array.from(document.querySelectorAll('#tableBody tr')).map(tr => ({
-            codigo:          tr.querySelector('.codigo').value.trim(),
-            nome:            tr.querySelector('.nome-input').value.trim(),
-            cotacao:         tr.querySelector('.cotacao').textContent,
-            variacao:        tr.querySelector('.variacao').textContent,
-            variacaoClass:   tr.querySelector('.variacao').className,
-            variacaoNumber:  tr.dataset.variacao != null ? parseFloat(tr.dataset.variacao) : null,
-            quantidade:      parseFloat(tr.querySelector('.quantidade').value) || 0,
-            dataHora:        tr.querySelector('.data-hora').textContent,
-            price:           parseFloat(tr.dataset.price) || 0
+    function getRowsData(tab) {
+        const tbody = document.getElementById(`tableBody${tab === 'b3' ? 'B3' : 'Crypto'}`);
+        return Array.from(tbody.querySelectorAll('tr')).map(tr => ({
+            codigo: tr.querySelector('.codigo').value.trim(),
+            nome: tr.querySelector('.nome-input').value.trim(),
+            cotacao: tr.querySelector('.cotacao').textContent,
+            variacao: tr.querySelector('.variacao').textContent,
+            variacaoClass: tr.querySelector('.variacao').className,
+            variacaoNumber: tr.dataset.variacao != null ? parseFloat(tr.dataset.variacao) : null,
+            quantidade: parseFloat(tr.querySelector('.quantidade').value) || 0,
+            dataHora: tr.querySelector('.data-hora').textContent,
+            price: parseFloat(tr.dataset.price) || 0
         }));
     }
 
-    function aplicarVisibilidadeNome() {
-        if (hideNome) {
-            cotacoesTable.classList.add('hide-nome');
-            toggleNomeColBtn.textContent = '👁️ Mostrar Nome';
-            toggleNomeColBtn.title = 'Mostrar coluna Nome da Empresa';
-        } else {
-            cotacoesTable.classList.remove('hide-nome');
-            toggleNomeColBtn.textContent = '👁️ Ocultar Nome';
-            toggleNomeColBtn.title = 'Ocultar coluna Nome da Empresa';
-        }
-    }
-    toggleNomeColBtn.addEventListener('click', () => {
-        hideNome = !hideNome;
-        aplicarVisibilidadeNome();
-        saveState();
-    });
-
+    // ============================================================
+    // CONFIGURAÇÕES
+    // ============================================================
     function updateTokenBadge() {
         if (token) {
             tokenBadge.textContent = '✔ Configurado';
@@ -594,140 +583,63 @@
             tokenBadge.className = 'status-badge status-warn';
         }
     }
-    function openSettingsModal() {
+    document.getElementById('openSettingsBtn').addEventListener('click', () => {
         tokenInput.value = token;
-        tokenStatus.textContent = token ? '✅ Token salvo no navegador.' : '⚠️ Nenhum token salvo.';
+        tokenStatus.textContent = token ? '✅ Token salvo.' : '⚠️ Nenhum token salvo.';
         settingsModal.classList.add('active');
-    }
-    function closeSettingsModal() { settingsModal.classList.remove('active'); }
-
-    document.getElementById('openSettingsBtn').addEventListener('click', openSettingsModal);
-    document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+    });
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
     document.getElementById('saveTokenBtn').addEventListener('click', () => {
         token = tokenInput.value.trim();
-        saveState();
         updateTokenBadge();
+        saveState();
         tokenStatus.textContent = '✅ Token salvo com sucesso.';
         historyCache.clear();
     });
     document.getElementById('clearTokenBtn').addEventListener('click', () => {
         token = '';
         tokenInput.value = '';
-        saveState();
         updateTokenBadge();
+        saveState();
         tokenStatus.textContent = 'Token removido.';
         historyCache.clear();
     });
-    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && settingsModal.classList.contains('active')) closeSettingsModal();
-    });
-
-    fonteSelect.addEventListener('change', () => {
-        fonte = fonteSelect.value;
-        saveState();
-        const nome = fonte === 'google' ? 'Google Finance' : (fonte === 'yahoo' ? 'Yahoo Finance' : 'brapi.dev');
-        showToast(`Fonte alterada para ${nome}. Atualizando cotações...`);
-        fetchAllQuotes();
-    });
+    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('active'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsModal.classList.contains('active')) settingsModal.classList.remove('active'); });
 
     // ============================================================
-    // TABELA
+    // NAVEGAÇÃO POR ABAS
     // ============================================================
-    function ordenarLinhas() {
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        rows.sort((a, b) => {
-            const ca = a.querySelector('.codigo').value.trim().toUpperCase();
-            const cb = b.querySelector('.codigo').value.trim().toUpperCase();
-            if (!ca && !cb) return 0;
-            if (!ca) return 1;
-            if (!cb) return -1;
-            return ca.localeCompare(cb, 'pt-BR');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            activeTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            saveState();
         });
-        rows.forEach(tr => tableBody.appendChild(tr));
+    });
+
+    // ============================================================
+    // CACHE E AMOSTRAGEM
+    // ============================================================
+    const historyCache = new Map();
+    const CACHE_TTL_MS = 5 * 60 * 1000;
+    function cacheGet(key) {
+        const entry = historyCache.get(key);
+        if (!entry) return null;
+        if (Date.now() - entry.ts > CACHE_TTL_MS) { historyCache.delete(key); return null; }
+        return entry.value;
     }
-
-    function createRow(data = {}) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><input type="text" class="codigo" placeholder="PETR4" maxlength="12"></td>
-            <td><input type="text" class="nome-input" placeholder="Digite ou deixe em branco"></td>
-            <td class="cotacao"></td>
-            <td class="variacao"></td>
-            <td><input type="number" class="quantidade" min="0" step="1" value="0"></td>
-            <td class="valor-total">0,00</td>
-            <td class="data-hora"></td>
-            <td><button class="remove-btn" title="Remover ativo">✕</button></td>
-        `;
-        tableBody.appendChild(tr);
-
-        const codigoInput     = tr.querySelector('.codigo');
-        const nomeInput       = tr.querySelector('.nome-input');
-        const quantidadeInput = tr.querySelector('.quantidade');
-        const removeBtn       = tr.querySelector('.remove-btn');
-
-        if (data.codigo)              codigoInput.value = data.codigo;
-        if (data.nome)                nomeInput.value = data.nome;
-        if (data.quantidade != null)  quantidadeInput.value = data.quantidade;
-        if (data.cotacao)             tr.querySelector('.cotacao').textContent = data.cotacao;
-        if (data.variacao) {
-            const v = tr.querySelector('.variacao');
-            v.textContent = data.variacao;
-            if (data.variacaoClass) v.className = data.variacaoClass;
-        }
-        if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) {
-            tr.dataset.variacao = data.variacaoNumber;
-        } else if (data.variacao) {
-            const num = parseFloat(String(data.variacao).replace('%','').replace(/\./g,'').replace(',','.'));
-            if (!isNaN(num)) tr.dataset.variacao = num;
-        }
-        if (data.dataHora) {
-            const cell = tr.querySelector('.data-hora');
-            let hora = data.dataHora;
-            if (typeof hora === 'string' && hora.includes('T')) {
-                hora = new Date(hora).toLocaleTimeString('pt-BR', { hour12: false });
-            } else if (typeof hora === 'string' && hora.length > 8) {
-                const partes = hora.split(' ');
-                hora = partes.length > 1 ? partes[1] : hora;
-            }
-            cell.textContent = hora;
-        }
-        if (data.price) tr.dataset.price = data.price;
-
-        atualizarTotal(tr);
-
-        codigoInput.addEventListener('input', () => {
-            codigoInput.value = codigoInput.value.toUpperCase();
-        });
-        codigoInput.addEventListener('blur', () => {
-            const codigo = codigoInput.value.trim();
-            if (codigo && tr.dataset.lastCodigo !== codigo) fetchQuote(codigo, tr);
-            ordenarLinhas();
-            saveState();
-        });
-        codigoInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); }
-        });
-        nomeInput.addEventListener('input', saveState);
-        quantidadeInput.addEventListener('input', () => {
-            atualizarTotal(tr);
-            saveState();
-        });
-
-        removeBtn.addEventListener('click', () => {
-            const codigo = codigoInput.value.trim();
-            const nome   = nomeInput.value.trim();
-            const identificacao = nome || codigo || 'este ativo';
-            if (!confirm(`Excluir "${identificacao}" da carteira?`)) return;
-            tr.remove();
-            calcularTotais();
-            saveState();
-            showToast('🗑️ Ativo removido.');
-            atualizarSelectAtivos();
-            renderVolumeChart();
-        });
-
-        return tr;
+    function cacheSet(key, value) { historyCache.set(key, { value, ts: Date.now() }); }
+    function sampleData(data, targetPoints) {
+        if (!data || data.length <= targetPoints) return data;
+        const step = (data.length - 1) / (targetPoints - 1);
+        const result = [];
+        for (let i = 0; i < targetPoints; i++) result.push(data[Math.round(i * step)]);
+        return result;
     }
 
     // ============================================================
@@ -737,251 +649,1049 @@
         { name: 'allorigins', build: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
         { name: 'cors.eu.org', build: (url) => `https://cors.eu.org/${url}` }
     ];
-
     async function fetchWithProxies(targetUrl) {
-        let lastError = null;
+        let lastError;
         for (const proxy of PROXIES) {
             try {
-                const proxyUrl = proxy.build(targetUrl);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (data && data.chart && data.chart.error) {
-                    throw new Error(data.chart.error.description || 'Erro no Yahoo');
-                }
+                const resp = await fetch(proxy.build(targetUrl));
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                if (data?.chart?.error) throw new Error(data.chart.error.description);
                 return data;
-            } catch (err) {
-                lastError = err;
-                console.warn(`Proxy ${proxy.name} falhou:`, err.message);
-            }
+            } catch (e) { lastError = e; console.warn(`Proxy ${proxy.name}:`, e.message); }
         }
         throw lastError || new Error('Todos os proxies falharam');
     }
 
     // ============================================================
-    // COTAÇÕES NA TABELA
+    // B3 — RENDER VOLUME
     // ============================================================
-    async function fetchQuote(codigo, row) {
-        if (fonte === 'google') return fetchGoogleFinanceQuote(codigo, row);
-        if (fonte === 'yahoo')  return fetchYahooFinanceQuote(codigo, row);
-        return fetchBrapiQuote(codigo, row);
+    let volumeChartInstanceB3 = null;
+    function renderVolumeChartB3() {
+        const tbody = document.getElementById('tableBodyB3');
+        const dados = [];
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const codigo = tr.querySelector('.codigo').value.trim();
+            const qty = parseFloat(tr.querySelector('.quantidade').value) || 0;
+            const price = parseFloat(tr.dataset.price) || 0;
+            if (codigo && qty > 0 && price > 0) dados.push({ codigo, valor: qty * price });
+        });
+        dados.sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR'));
+        const total = dados.reduce((s, d) => s + d.valor, 0);
+        document.getElementById('volumeTotalLabelB3').textContent = `Total: R$ ${fmt(total)}`;
+        const canvas = document.getElementById('volumeChartB3');
+        const empty = document.getElementById('volumeEmptyB3');
+        if (dados.length === 0) {
+            empty.style.display = 'block';
+            if (volumeChartInstanceB3) { volumeChartInstanceB3.destroy(); volumeChartInstanceB3 = null; }
+            return;
+        }
+        empty.style.display = 'none';
+        const labels = dados.map(d => d.codigo);
+        const valuesMil = dados.map(d => d.valor / 1000);
+        const valuesReais = dados.map(d => d.valor);
+        const colors = valuesMil.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 52%)`);
+        if (volumeChartInstanceB3) volumeChartInstanceB3.destroy();
+        volumeChartInstanceB3 = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Valor (R$ mil)', data: valuesMil, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => {
+                        const v = valuesReais[ctx.dataIndex];
+                        const pct = total > 0 ? (v / total) * 100 : 0;
+                        return [`R$ ${fmt(v)}`, `R$ ${fmt(ctx.raw)} mil`, `${fmt(pct)}% da carteira`];
+                    }}}
+                },
+                scales: { y: { beginAtZero: true, ticks: { callback: (v) => Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) } } }
+            }
+        });
     }
 
-    async function fetchBrapiQuote(codigo, row) {
-        const nomeInput    = row.querySelector('.nome-input');
-        const cotacaoCell  = row.querySelector('.cotacao');
+    // ============================================================
+    // B3 — RENDER INDIVIDUAL
+    // ============================================================
+    let individualChartInstanceB3 = null;
+    let renderIndividualTokenB3 = 0;
+    const periodAttemptsB3 = {
+        '1d': [
+            { source: 'brapi', range: '1d', interval: '5m', sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '1d', interval: '15m', sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '1d', interval: '30m', sampleTo: 15, label: 'Dia' },
+            { source: 'brapi', range: '5d', interval: '1d', sampleTo: 5, label: 'Últimos 5 dias' },
+            { source: 'yahoo', range: '1d', interval: '5m', sampleTo: 15, label: 'Dia' },
+            { source: 'yahoo', range: '5d', interval: '30m', sampleTo: 15, label: 'Últimos 5 dias' }
+        ],
+        '5d': [
+            { source: 'brapi', range: '5d', interval: '30m', sampleTo: 15, label: 'Semana' },
+            { source: 'brapi', range: '5d', interval: '1h', sampleTo: 15, label: 'Semana' },
+            { source: 'brapi', range: '5d', interval: '1d', sampleTo: 5, label: 'Semana (diário)' },
+            { source: 'yahoo', range: '5d', interval: '30m', sampleTo: 15, label: 'Semana' }
+        ],
+        '1mo': [
+            { source: 'brapi', range: '1mo', interval: '1d', sampleTo: 15, label: 'Mês' },
+            { source: 'brapi', range: '1mo', interval: '1wk', sampleTo: 4, label: 'Mês' },
+            { source: 'yahoo', range: '1mo', interval: '1d', sampleTo: 15, label: 'Mês' }
+        ],
+        '1y': [
+            { source: 'brapi', range: '1y', interval: '1d', sampleTo: 18, label: 'Anual' },
+            { source: 'brapi', range: '1y', interval: '1wk', sampleTo: 18, label: 'Anual' },
+            { source: 'brapi', range: '6mo', interval: '1d', sampleTo: 15, label: 'Últimos 6 meses' },
+            { source: 'yahoo', range: '1y', interval: '1d', sampleTo: 18, label: 'Anual' }
+        ]
+    };
+
+    async function renderIndividualChartB3() {
+        const ticker = document.getElementById('ativoGraficoB3').value;
+        const periodo = document.getElementById('periodoGraficoB3').value;
+        const tipo = document.getElementById('tipoGraficoB3').value;
+        const loadingEl = document.getElementById('individualLoadingB3');
+        const infoEl = document.getElementById('individualInfoB3');
+        const emptyEl = document.getElementById('individualEmptyB3');
+
+        if (!ticker) {
+            emptyEl.style.display = 'block';
+            return;
+        }
+        const myToken = ++renderIndividualTokenB3;
+        emptyEl.style.display = 'none';
+        infoEl.textContent = '';
+        loadingEl.style.display = 'inline';
+
+        try {
+            let rawData = null, usedSource = '', usedLabel = '', sampleTo = 15;
+
+            if (periodo === 'custom') {
+                const inicio = document.getElementById('dataInicioB3').value;
+                const fim = document.getElementById('dataFimB3').value;
+                if (!inicio || !fim) { loadingEl.style.display = 'none'; return; }
+                const cacheKey = `${ticker}|custom|${inicio}|${fim}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
+                else {
+                    const spanDays = (new Date(fim) - new Date(inicio)) / (1000 * 60 * 60 * 24);
+                    const intervals = spanDays <= 7 ? ['15m', '30m', '1h', '1d'] : ['1d', '1wk'];
+                    for (const interval of intervals) {
+                        try {
+                            const d = await fetchBrapiHistoryByDateB3(ticker, inicio, fim, interval);
+                            if (d && d.length > 0) { rawData = d; usedSource = 'brapi'; usedLabel = 'Personalizado'; sampleTo = 15; break; }
+                        } catch (e) { console.warn(e); }
+                    }
+                    if (!rawData || rawData.length === 0) {
+                        for (const interval of intervals) {
+                            try {
+                                const d = await fetchYahooHistoryByDateB3(ticker, inicio, fim, interval);
+                                if (d && d.length > 0) { rawData = d; usedSource = 'Yahoo'; usedLabel = 'Personalizado'; sampleTo = 15; break; }
+                            } catch (e) { console.warn(e); }
+                        }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
+                }
+            } else {
+                const attempts = periodAttemptsB3[periodo];
+                const cacheKey = `${ticker}|${periodo}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
+                else {
+                    for (const att of attempts) {
+                        try {
+                            let d;
+                            if (att.source === 'brapi') d = await fetchBrapiHistoryB3(ticker, att.range, att.interval);
+                            else d = await fetchYahooHistoryB3(ticker, att.range, att.interval);
+                            if (d && d.length > 0) {
+                                rawData = d; usedSource = att.source; usedLabel = att.label; sampleTo = att.sampleTo;
+                                break;
+                            }
+                        } catch (e) { console.warn(e); }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
+                }
+            }
+
+            if (myToken !== renderIndividualTokenB3) return;
+            if (!rawData || rawData.length === 0) {
+                showToast('Nenhum dado encontrado para este período.', true);
+                infoEl.textContent = 'Sem dados disponíveis.';
+                loadingEl.style.display = 'none';
+                return;
+            }
+
+            const data = sampleData(rawData, sampleTo);
+            infoEl.textContent = `${data.length} pontos (de ${rawData.length}) · ${usedLabel} · Fonte: ${usedSource}`;
+
+            const spanMs = data[data.length - 1].time - data[0].time;
+            const spanHoras = spanMs / (1000 * 60 * 60);
+            let timeUnit = 'day';
+            if (spanHoras <= 48) timeUnit = 'hour';
+            else if (spanHoras <= 24 * 60) timeUnit = 'day';
+            else if (spanHoras <= 24 * 365) timeUnit = 'month';
+            else timeUnit = 'year';
+
+            if (individualChartInstanceB3) individualChartInstanceB3.destroy();
+            const ctx = document.getElementById('individualChartB3').getContext('2d');
+
+            if (tipo === 'candlestick') {
+                const ohlc = data.map(b => ({ x: b.time, o: b.open, h: b.high, l: b.low, c: b.close }));
+                individualChartInstanceB3 = new Chart(ctx, {
+                    type: 'candlestick',
+                    data: { datasets: [{ label: ticker, data: ohlc,
+                        color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
+                        borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
+                        scales: {
+                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+                            y: { type: 'linear', position: 'right' }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => {
+                                const d = ctx.raw;
+                                return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
+                            }}}
+                        }
+                    }
+                });
+            } else {
+                const lineData = data.map(b => ({ x: b.time, y: b.close }));
+                individualChartInstanceB3 = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#0066ff',
+                        backgroundColor: 'rgba(0,102,255,0.08)', fill: true, tension: 0.2,
+                        pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
+                        scales: {
+                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+                            y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } }
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            if (myToken === renderIndividualTokenB3) {
+                showToast('Erro no gráfico: ' + e.message, true);
+                infoEl.textContent = 'Erro ao carregar.';
+            }
+        } finally {
+            if (myToken === renderIndividualTokenB3) loadingEl.style.display = 'none';
+        }
+    }
+
+    // ============================================================
+    // B3 — FETCH HELPERS
+    // ============================================================
+    async function fetchBrapiHistoryB3(ticker, range, interval) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results?.[0];
+        if (!data?.historicalDataPrice) return [];
+        return data.historicalDataPrice.map(b => ({
+            time: new Date(b.date * 1000).getTime(),
+            open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0
+        })).filter(b => b.close != null);
+    }
+    async function fetchBrapiHistoryByDateB3(ticker, inicio, fim, interval) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?startDate=${inicio}&endDate=${fim}&interval=${interval}`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results?.[0];
+        if (!data?.historicalDataPrice) return [];
+        return data.historicalDataPrice.map(b => ({
+            time: new Date(b.date * 1000).getTime(),
+            open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0
+        })).filter(b => b.close != null);
+    }
+    async function fetchYahooHistoryB3(ticker, range, interval) {
+        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&range=${range}`;
+        const json = await fetchWithProxies(url);
+        const result = json?.chart?.result?.[0];
+        if (!result?.timestamp) return [];
+        const q = result.indicators?.quote?.[0];
+        if (!q) return [];
+        return result.timestamp.map((ts, i) => ({
+            time: ts * 1000,
+            open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null,
+            close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0
+        })).filter(b => b.close != null);
+    }
+    async function fetchYahooHistoryByDateB3(ticker, inicio, fim, interval) {
+        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
+        const p1 = Math.floor(new Date(inicio + 'T00:00:00').getTime() / 1000);
+        const p2 = Math.floor(new Date(fim + 'T23:59:59').getTime() / 1000);
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&period1=${p1}&period2=${p2}`;
+        const json = await fetchWithProxies(url);
+        const result = json?.chart?.result?.[0];
+        if (!result?.timestamp) return [];
+        const q = result.indicators?.quote?.[0];
+        if (!q) return [];
+        return result.timestamp.map((ts, i) => ({
+            time: ts * 1000,
+            open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null,
+            close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0
+        })).filter(b => b.close != null);
+    }
+
+    // ============================================================
+    // CRYPTO — RENDER VOLUME
+    // ============================================================
+    let volumeChartInstanceCrypto = null;
+    function renderVolumeChartCrypto() {
+        const tbody = document.getElementById('tableBodyCrypto');
+        const dados = [];
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const codigo = tr.querySelector('.codigo').value.trim();
+            const qty = parseFloat(tr.querySelector('.quantidade').value) || 0;
+            const price = parseFloat(tr.dataset.price) || 0;
+            if (codigo && qty > 0 && price > 0) dados.push({ codigo, valor: qty * price });
+        });
+        dados.sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR'));
+        const total = dados.reduce((s, d) => s + d.valor, 0);
+        document.getElementById('volumeTotalLabelCrypto').textContent = `Total: R$ ${fmt(total)}`;
+        const canvas = document.getElementById('volumeChartCrypto');
+        const empty = document.getElementById('volumeEmptyCrypto');
+        if (dados.length === 0) {
+            empty.style.display = 'block';
+            if (volumeChartInstanceCrypto) { volumeChartInstanceCrypto.destroy(); volumeChartInstanceCrypto = null; }
+            return;
+        }
+        empty.style.display = 'none';
+        const labels = dados.map(d => d.codigo);
+        const valuesMil = dados.map(d => d.valor / 1000);
+        const valuesReais = dados.map(d => d.valor);
+        const colors = valuesMil.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 52%)`);
+        if (volumeChartInstanceCrypto) volumeChartInstanceCrypto.destroy();
+        volumeChartInstanceCrypto = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Valor (R$ mil)', data: valuesMil, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => {
+                        const v = valuesReais[ctx.dataIndex];
+                        const pct = total > 0 ? (v / total) * 100 : 0;
+                        return [`R$ ${fmt(v)}`, `R$ ${fmt(ctx.raw)} mil`, `${fmt(pct)}% da carteira`];
+                    }}}
+                },
+                scales: { y: { beginAtZero: true, ticks: { callback: (v) => Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) } } }
+            }
+        });
+    }
+
+    // ============================================================
+    // CRYPTO — RENDER INDIVIDUAL
+    // ============================================================
+    let individualChartInstanceCrypto = null;
+    let renderIndividualTokenCrypto = 0;
+
+    async function renderIndividualChartCrypto() {
+        const ticker = document.getElementById('ativoGraficoCrypto').value;
+        const periodo = document.getElementById('periodoGraficoCrypto').value;
+        const tipo = document.getElementById('tipoGraficoCrypto').value;
+        const loadingEl = document.getElementById('individualLoadingCrypto');
+        const infoEl = document.getElementById('individualInfoCrypto');
+        const emptyEl = document.getElementById('individualEmptyCrypto');
+        const fonteCrypto = document.getElementById('fonteSelectCrypto').value;
+
+        if (!ticker) { emptyEl.style.display = 'block'; return; }
+        const myToken = ++renderIndividualTokenCrypto;
+        emptyEl.style.display = 'none';
+        infoEl.textContent = '';
+        loadingEl.style.display = 'inline';
+
+        try {
+            let rawData = null, usedSource = '', usedLabel = '', sampleTo = 15;
+
+            if (periodo === 'custom') {
+                const inicio = document.getElementById('dataInicioCrypto').value;
+                const fim = document.getElementById('dataFimCrypto').value;
+                if (!inicio || !fim) { loadingEl.style.display = 'none'; return; }
+                const cacheKey = `${ticker}|custom|${inicio}|${fim}|${fonteCrypto}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
+                else {
+                    if (fonteCrypto === 'brapi') {
+                        try { rawData = await fetchBrapiCryptoHistoryByDate(ticker, inicio, fim); usedSource = 'brapi'; usedLabel = 'Personalizado'; }
+                        catch (e) { console.warn(e); }
+                    }
+                    if (!rawData || rawData.length === 0) {
+                        try { rawData = await fetchCoinGeckoHistoryByDate(ticker, inicio, fim); usedSource = 'CoinGecko'; usedLabel = 'Personalizado'; }
+                        catch (e) { console.warn(e); }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo: 15 });
+                }
+            } else {
+                const cacheKey = `${ticker}|${periodo}|${fonteCrypto}`;
+                const cached = cacheGet(cacheKey);
+                if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
+                else {
+                    const labels = { '1d': 'Dia', '5d': 'Semana', '1mo': 'Mês', '1y': 'Anual' };
+                    if (fonteCrypto === 'brapi') {
+                        try { rawData = await fetchBrapiCryptoHistory(ticker, periodo); usedSource = 'brapi'; usedLabel = labels[periodo]; }
+                        catch (e) { console.warn('brapi crypto falhou:', e); }
+                    }
+                    if (!rawData || rawData.length === 0) {
+                        try { rawData = await fetchCoinGeckoHistory(ticker, periodo); usedSource = 'CoinGecko'; usedLabel = labels[periodo]; }
+                        catch (e) { console.warn('CoinGecko falhou:', e); }
+                    }
+                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo: 15 });
+                }
+            }
+
+            if (myToken !== renderIndividualTokenCrypto) return;
+            if (!rawData || rawData.length === 0) {
+                showToast('Nenhum dado encontrado para este período.', true);
+                infoEl.textContent = 'Sem dados disponíveis.';
+                loadingEl.style.display = 'none';
+                return;
+            }
+
+            const data = sampleData(rawData, sampleTo);
+            infoEl.textContent = `${data.length} pontos (de ${rawData.length}) · ${usedLabel} · Fonte: ${usedSource}`;
+
+            const spanMs = data[data.length - 1].time - data[0].time;
+            const spanHoras = spanMs / (1000 * 60 * 60);
+            let timeUnit = 'day';
+            if (spanHoras <= 48) timeUnit = 'hour';
+            else if (spanHoras <= 24 * 60) timeUnit = 'day';
+            else if (spanHoras <= 24 * 365) timeUnit = 'month';
+            else timeUnit = 'year';
+
+            if (individualChartInstanceCrypto) individualChartInstanceCrypto.destroy();
+            const ctx = document.getElementById('individualChartCrypto').getContext('2d');
+
+            if (tipo === 'candlestick') {
+                const ohlc = data.map(b => ({ x: b.time, o: b.open, h: b.high, l: b.low, c: b.close }));
+                individualChartInstanceCrypto = new Chart(ctx, {
+                    type: 'candlestick',
+                    data: { datasets: [{ label: ticker, data: ohlc,
+                        color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
+                        borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
+                        scales: {
+                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+                            y: { type: 'linear', position: 'right' }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => {
+                                const d = ctx.raw;
+                                return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
+                            }}}
+                        }
+                    }
+                });
+            } else {
+                const lineData = data.map(b => ({ x: b.time, y: b.close }));
+                individualChartInstanceCrypto = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#f7931a',
+                        backgroundColor: 'rgba(247,147,26,0.08)', fill: true, tension: 0.2,
+                        pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
+                        scales: {
+                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+                            y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } }
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            if (myToken === renderIndividualTokenCrypto) {
+                showToast('Erro no gráfico: ' + e.message, true);
+                infoEl.textContent = 'Erro ao carregar.';
+            }
+        } finally {
+            if (myToken === renderIndividualTokenCrypto) loadingEl.style.display = 'none';
+        }
+    }
+
+    // ============================================================
+    // CRYPTO — HISTÓRICO
+    // ============================================================
+    async function fetchBrapiCryptoHistory(ticker, periodo) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const rangeMap = { '1d': '1d', '5d': '5d', '1mo': '1mo', '1y': '1y' };
+        const intervalMap = { '1d': '5m', '5d': '30m', '1mo': '1d', '1y': '1d' };
+        const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(ticker)}&currency=BRL&range=${rangeMap[periodo]}&interval=${intervalMap[periodo]}`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results?.[0]?.data || json.results?.[0];
+        if (!data) return [];
+        const hist = data.historicalDataPrice || data.historical || [];
+        return hist.map(b => ({
+            time: new Date((b.date || b.timestamp) * 1000).getTime(),
+            open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price,
+            close: b.close ?? b.price, volume: b.volume || 0
+        })).filter(b => b.close != null);
+    }
+    async function fetchBrapiCryptoHistoryByDate(ticker, inicio, fim) {
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(ticker)}&currency=BRL&startDate=${inicio}&endDate=${fim}&interval=1d`;
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const data = json.results?.[0]?.data || json.results?.[0];
+        if (!data) return [];
+        const hist = data.historicalDataPrice || data.historical || [];
+        return hist.map(b => ({
+            time: new Date((b.date || b.timestamp) * 1000).getTime(),
+            open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price,
+            close: b.close ?? b.price, volume: b.volume || 0
+        })).filter(b => b.close != null);
+    }
+
+    const COINGECKO_IDS = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', ADA: 'cardano', XRP: 'ripple', DOGE: 'dogecoin', DOT: 'polkadot', LINK: 'chainlink', LTC: 'litecoin', BCH: 'bitcoin-cash', MATIC: 'matic-network', AVAX: 'avalanche-2', SHIB: 'shiba-inu', TRX: 'tron', ATOM: 'cosmos' };
+    function coingeckoId(symbol) {
+        const upper = symbol.toUpperCase();
+        return COINGECKO_IDS[upper] || upper.toLowerCase();
+    }
+
+    async function fetchCoinGeckoHistory(ticker, periodo) {
+        const id = coingeckoId(ticker);
+        const daysMap = { '1d': 1, '5d': 7, '1mo': 30, '1y': 365 };
+        const days = daysMap[periodo] || 30;
+        const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=brl&days=${days}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const prices = json.prices || [];
+        return prices.map(([ts, price]) => ({
+            time: ts, open: price, high: price, low: price, close: price, volume: 0
+        }));
+    }
+    async function fetchCoinGeckoHistoryByDate(ticker, inicio, fim) {
+        const id = coingeckoId(ticker);
+        const from = Math.floor(new Date(inicio + 'T00:00:00').getTime() / 1000);
+        const to = Math.floor(new Date(fim + 'T23:59:59').getTime() / 1000);
+        const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart/range?vs_currency=brl&from=${from}&to=${to}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const prices = json.prices || [];
+        return prices.map(([ts, price]) => ({
+            time: ts, open: price, high: price, low: price, close: price, volume: 0
+        }));
+    }
+
+    // ============================================================
+    // B3 — COTAÇÃO
+    // ============================================================
+    async function fetchQuoteB3(codigo, row) {
+        const fonteB3 = document.getElementById('fonteSelectB3').value;
+        if (fonteB3 === 'google') return fetchGoogleQuoteB3(codigo, row);
+        if (fonteB3 === 'yahoo') return fetchYahooQuoteB3(codigo, row);
+        return fetchBrapiQuoteB3(codigo, row);
+    }
+
+    async function fetchBrapiQuoteB3(codigo, row) {
+        const nomeInput = row.querySelector('.nome-input');
+        const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-
         nomeInput.classList.add('loading');
         nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando (brapi)...';
-
+        nomeInput.placeholder = 'Carregando...';
         try {
             const headers = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
-
             const url = `https://brapi.dev/api/quote/${encodeURIComponent(codigo)}`;
-            const response = await fetch(url, { headers });
-            if (!response.ok) throw new Error(`Erro ${response.status}`);
-
-            const json = await response.json();
-            const data = json.results && json.results[0];
-            if (!data) throw new Error('Ticker não encontrado');
-
-            if (!nomeInput.value.trim() && data.longName) nomeInput.value = data.longName;
-            else if (!nomeInput.value.trim() && data.shortName) nomeInput.value = data.shortName;
-            nomeInput.placeholder = 'Digite ou deixe em branco';
-
+            const resp = await fetch(url, { headers });
+            if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+            const json = await resp.json();
+            const data = json.results?.[0];
+            if (!data) throw new Error('Não encontrado');
+            if (!nomeInput.value.trim()) nomeInput.value = data.longName || data.shortName || '';
+            nomeInput.placeholder = 'Nome';
             const price = data.regularMarketPrice;
-            const changePercent = data.regularMarketChangePercent;
-
+            const change = data.regularMarketChangePercent;
             cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
-
-            if (changePercent != null) {
-                variacaoCell.textContent = fmt(changePercent) + '%';
-                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = changePercent;
+            if (change != null) {
+                variacaoCell.textContent = fmt(change) + '%';
+                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = change;
             } else {
                 variacaoCell.textContent = 'N/A';
                 delete row.dataset.variacao;
             }
-
             if (data.regularMarketTime) {
                 const d = new Date(data.regularMarketTime);
-                ultimaCotacaoDate = ultimoDiaUtil(d);
+                lastQuoteDate = d;
                 atualizarDataCabecalho();
                 dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
             }
-
             row.dataset.price = price || 0;
             row.dataset.lastCodigo = codigo;
-            atualizarTotal(row);
-            ordenarLinhas();
+            atualizarTotalB3(row);
+            ordenarLinhasB3();
             saveState();
-            atualizarSelectAtivos();
-
-        } catch (error) {
-            nomeInput.placeholder = `Erro brapi: ${error.message}`;
+            atualizarSelectAtivosB3();
+        } catch (e) {
+            nomeInput.placeholder = `Erro: ${e.message}`;
             nomeInput.classList.add('error');
-            console.error(error);
-        } finally {
-            nomeInput.classList.remove('loading');
-        }
+        } finally { nomeInput.classList.remove('loading'); }
     }
 
-    async function fetchGoogleFinanceQuote(codigo, row) {
-        const nomeInput    = row.querySelector('.nome-input');
-        const cotacaoCell  = row.querySelector('.cotacao');
+    async function fetchGoogleQuoteB3(codigo, row) {
+        const nomeInput = row.querySelector('.nome-input');
+        const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-
         nomeInput.classList.add('loading');
         nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando (Google Finance)...';
-
-        const simboloGF = `${codigo}:BVMF`;
-        const urlGF = `https://www.google.com/finance/quote/${encodeURIComponent(simboloGF)}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlGF)}`;
-
+        nomeInput.placeholder = 'Carregando...';
         try {
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error(`Erro ${response.status} no proxy`);
-
-            const html = await response.text();
-            if (!html || html.length < 500) throw new Error('Resposta vazia do proxy');
-
+            const urlGF = `https://www.google.com/finance/quote/${encodeURIComponent(codigo)}:BVMF`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlGF)}`;
+            const resp = await fetch(proxyUrl);
+            if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+            const html = await resp.text();
             let price = null;
-            const priceMatch = html.match(/<div class="YMlKec fxKbKc">([^<]+)<\/div>/);
-            if (priceMatch) {
-                const raw = priceMatch[1].trim().replace(/,/g, '');
-                price = parseFloat(raw);
-            }
-            if (price == null) {
-                const fallbackMatch = html.match(/data-last-price="([\d.]+)"/);
-                if (fallbackMatch) price = parseFloat(fallbackMatch[1]);
-            }
-            if (price == null) {
-                const jsonMatch = html.match(/"price"\s*:\s*"?([\d.,]+)"?/);
-                if (jsonMatch) price = parseFloat(jsonMatch[1].replace(/,/g, ''));
-            }
-            if (price == null || isNaN(price)) throw new Error('Preço não encontrado no HTML');
-
-            let changePercent = null;
-            const pctMatch = html.match(/([+-]?\d+[.,]\d+)\s*%/);
-            if (pctMatch) changePercent = parseFloat(pctMatch[1].replace(',', '.'));
-
+            const m1 = html.match(/<div class="YMlKec fxKbKc">([^<]+)<\/div>/);
+            if (m1) price = parseFloat(m1[1].trim().replace(/,/g, ''));
+            if (price == null) { const m2 = html.match(/data-last-price="([\d.]+)"/); if (m2) price = parseFloat(m2[1]); }
+            if (price == null) throw new Error('Preço não encontrado');
+            let change = null;
+            const mp = html.match(/([+-]?\d+[.,]\d+)\s*%/);
+            if (mp) change = parseFloat(mp[1].replace(',', '.'));
             if (!nomeInput.value.trim()) {
-                const nameMatch = html.match(/<div class="zzDege">([^<]+)<\/div>/) ||
-                                  html.match(/<h1[^>]*>([^<]+)<\/h1>/);
-                if (nameMatch) nomeInput.value = nameMatch[1].trim();
+                const nm = html.match(/<div class="zzDege">([^<]+)<\/div>/);
+                if (nm) nomeInput.value = nm[1].trim();
             }
-            nomeInput.placeholder = 'Digite ou deixe em branco';
-
+            nomeInput.placeholder = 'Nome';
             cotacaoCell.textContent = fmt(price);
-
-            if (changePercent != null && !isNaN(changePercent)) {
-                variacaoCell.textContent = fmt(changePercent) + '%';
-                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = changePercent;
-            } else {
-                variacaoCell.textContent = 'N/A';
-                delete row.dataset.variacao;
-            }
-
+            if (change != null) {
+                variacaoCell.textContent = fmt(change) + '%';
+                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = change;
+            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
             const agora = new Date();
-            ultimaCotacaoDate = ultimoDiaUtil(agora);
+            lastQuoteDate = agora;
             atualizarDataCabecalho();
             dataHoraCell.textContent = agora.toLocaleTimeString('pt-BR', { hour12: false });
-
             row.dataset.price = price;
             row.dataset.lastCodigo = codigo;
-            atualizarTotal(row);
-            ordenarLinhas();
+            atualizarTotalB3(row);
+            ordenarLinhasB3();
             saveState();
-            atualizarSelectAtivos();
-
-        } catch (error) {
-            nomeInput.placeholder = `Erro Google: ${error.message}`;
+            atualizarSelectAtivosB3();
+        } catch (e) {
+            nomeInput.placeholder = `Erro Google: ${e.message}`;
             nomeInput.classList.add('error');
-            console.error(error);
-        } finally {
-            nomeInput.classList.remove('loading');
-        }
+        } finally { nomeInput.classList.remove('loading'); }
     }
 
-    async function fetchYahooFinanceQuote(codigo, row) {
-        const nomeInput    = row.querySelector('.nome-input');
-        const cotacaoCell  = row.querySelector('.cotacao');
+    async function fetchYahooQuoteB3(codigo, row) {
+        const nomeInput = row.querySelector('.nome-input');
+        const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-
         nomeInput.classList.add('loading');
         nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando (Yahoo Finance)...';
-
-        const simboloYF = `${codigo}.SA`;
-        const urlYF = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simboloYF)}?interval=1d&range=1d`;
-
+        nomeInput.placeholder = 'Carregando...';
         try {
-            const json = await fetchWithProxies(urlYF);
-            const result = json && json.chart && json.chart.result && json.chart.result[0];
-            if (!result || !result.meta) throw new Error('Dados não encontrados no Yahoo');
-
-            const meta = result.meta;
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(codigo + '.SA')}?interval=1d&range=1d`;
+            const json = await fetchWithProxies(url);
+            const meta = json?.chart?.result?.[0]?.meta;
+            if (!meta) throw new Error('Dados não encontrados');
             const price = meta.regularMarketPrice;
-            const changePercent = meta.regularMarketChangePercent;
-
-            if (price == null || isNaN(price)) throw new Error('Preço não disponível');
-
-            if (!nomeInput.value.trim()) {
-                const nome = meta.longName || meta.shortName;
-                if (nome) nomeInput.value = nome;
-            }
-            nomeInput.placeholder = 'Digite ou deixe em branco';
-
+            const change = meta.regularMarketChangePercent;
+            if (price == null) throw new Error('Preço indisponível');
+            if (!nomeInput.value.trim()) nomeInput.value = meta.longName || meta.shortName || '';
+            nomeInput.placeholder = 'Nome';
             cotacaoCell.textContent = fmt(price);
-
-            if (changePercent != null && !isNaN(changePercent)) {
-                variacaoCell.textContent = fmt(changePercent) + '%';
-                variacaoCell.className = 'variacao ' + (changePercent >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = changePercent;
-            } else {
-                variacaoCell.textContent = 'N/A';
-                delete row.dataset.variacao;
-            }
-
+            if (change != null) {
+                variacaoCell.textContent = fmt(change) + '%';
+                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = change;
+            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
             if (meta.regularMarketTime) {
                 const d = new Date(meta.regularMarketTime * 1000);
-                ultimaCotacaoDate = ultimoDiaUtil(d);
+                lastQuoteDate = d;
                 atualizarDataCabecalho();
                 dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
             }
-
             row.dataset.price = price;
             row.dataset.lastCodigo = codigo;
-            atualizarTotal(row);
-            ordenarLinhas();
+            atualizarTotalB3(row);
+            ordenarLinhasB3();
             saveState();
-            atualizarSelectAtivos();
-
-        } catch (error) {
-            nomeInput.placeholder = `Erro Yahoo: ${error.message}`;
+            atualizarSelectAtivosB3();
+        } catch (e) {
+            nomeInput.placeholder = `Erro Yahoo: ${e.message}`;
             nomeInput.classList.add('error');
-            console.error(error);
-        } finally {
-            nomeInput.classList.remove('loading');
-        }
+        } finally { nomeInput.classList.remove('loading'); }
     }
 
     // ============================================================
-    // RESUMO DE MERCADO
+    // CRYPTO — COTAÇÃO
     // ============================================================
-    async function fetchMarketSummary() {
+    async function fetchQuoteCrypto(codigo, row) {
+        const fonteCrypto = document.getElementById('fonteSelectCrypto').value;
+        if (fonteCrypto === 'coingecko') return fetchCoinGeckoQuote(codigo, row);
+        return fetchBrapiCryptoQuote(codigo, row);
+    }
+
+    async function fetchBrapiCryptoQuote(codigo, row) {
+        const nomeInput = row.querySelector('.nome-input');
+        const cotacaoCell = row.querySelector('.cotacao');
+        const variacaoCell = row.querySelector('.variacao');
+        const dataHoraCell = row.querySelector('.data-hora');
+        nomeInput.classList.add('loading');
+        nomeInput.classList.remove('error');
+        nomeInput.placeholder = 'Carregando...';
+        try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(codigo)}&currency=BRL`;
+            const resp = await fetch(url, { headers });
+            if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+            const json = await resp.json();
+            const data = json.results?.[0]?.data || json.results?.[0];
+            if (!data) throw new Error('Cripto não encontrada');
+            const price = data.regularMarketPrice ?? data.price;
+            const change = data.regularMarketChangePercent ?? data.changePercent;
+            if (!nomeInput.value.trim()) nomeInput.value = data.name || data.coinName || codigo;
+            nomeInput.placeholder = 'Nome';
+            cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
+            if (change != null) {
+                variacaoCell.textContent = fmt(change) + '%';
+                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = change;
+            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            const d = new Date(data.regularMarketTime || Date.now());
+            lastQuoteDate = d;
+            atualizarDataCabecalho();
+            dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            row.dataset.price = price || 0;
+            row.dataset.lastCodigo = codigo;
+            atualizarTotalCrypto(row);
+            ordenarLinhasCrypto();
+            saveState();
+            atualizarSelectAtivosCrypto();
+        } catch (e) {
+            nomeInput.placeholder = `Erro brapi: ${e.message}`;
+            nomeInput.classList.add('error');
+        } finally { nomeInput.classList.remove('loading'); }
+    }
+
+    async function fetchCoinGeckoQuote(codigo, row) {
+        const nomeInput = row.querySelector('.nome-input');
+        const cotacaoCell = row.querySelector('.cotacao');
+        const variacaoCell = row.querySelector('.variacao');
+        const dataHoraCell = row.querySelector('.data-hora');
+        nomeInput.classList.add('loading');
+        nomeInput.classList.remove('error');
+        nomeInput.placeholder = 'Carregando...';
+        try {
+            const id = coingeckoId(codigo);
+            const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+            const json = await resp.json();
+            const data = json[id];
+            if (!data) throw new Error('Moeda não encontrada');
+            const price = data.brl;
+            const change = data.brl_24h_change;
+            if (!nomeInput.value.trim()) nomeInput.value = codigo.toUpperCase();
+            nomeInput.placeholder = 'Nome';
+            cotacaoCell.textContent = fmt(price);
+            if (change != null) {
+                variacaoCell.textContent = fmt(change) + '%';
+                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
+                row.dataset.variacao = change;
+            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            const d = new Date();
+            lastQuoteDate = d;
+            atualizarDataCabecalho();
+            dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            row.dataset.price = price;
+            row.dataset.lastCodigo = codigo;
+            atualizarTotalCrypto(row);
+            ordenarLinhasCrypto();
+            saveState();
+            atualizarSelectAtivosCrypto();
+        } catch (e) {
+            nomeInput.placeholder = `Erro CoinGecko: ${e.message}`;
+            nomeInput.classList.add('error');
+        } finally { nomeInput.classList.remove('loading'); }
+    }
+
+    // ============================================================
+    // TABELA B3 — Linhas e cálculos
+    // ============================================================
+    function ordenarLinhasB3() {
+        const tbody = document.getElementById('tableBodyB3');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const ca = a.querySelector('.codigo').value.trim().toUpperCase();
+            const cb = b.querySelector('.codigo').value.trim().toUpperCase();
+            if (!ca && !cb) return 0;
+            if (!ca) return 1;
+            if (!cb) return -1;
+            return ca.localeCompare(cb, 'pt-BR');
+        });
+        rows.forEach(tr => tbody.appendChild(tr));
+    }
+
+    function createRowB3(data = {}) {
+        const tbody = document.getElementById('tableBodyB3');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="codigo" placeholder="PETR4" maxlength="12"></td>
+            <td><input type="text" class="nome-input" placeholder="Nome"></td>
+            <td class="cotacao"></td>
+            <td class="variacao"></td>
+            <td><input type="number" class="quantidade" min="0" step="1" value="0"></td>
+            <td class="valor-total">0,00</td>
+            <td class="data-hora"></td>
+            <td><button class="remove-btn" title="Remover">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+
+        const codigoInput = tr.querySelector('.codigo');
+        const nomeInput = tr.querySelector('.nome-input');
+        const quantidadeInput = tr.querySelector('.quantidade');
+        const removeBtn = tr.querySelector('.remove-btn');
+
+        if (data.codigo) codigoInput.value = data.codigo;
+        if (data.nome) nomeInput.value = data.nome;
+        if (data.quantidade != null) quantidadeInput.value = data.quantidade;
+        if (data.cotacao) tr.querySelector('.cotacao').textContent = data.cotacao;
+        if (data.variacao) {
+            const v = tr.querySelector('.variacao');
+            v.textContent = data.variacao;
+            if (data.variacaoClass) v.className = data.variacaoClass;
+        }
+        if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) tr.dataset.variacao = data.variacaoNumber;
+        if (data.dataHora) tr.querySelector('.data-hora').textContent = data.dataHora;
+        if (data.price) tr.dataset.price = data.price;
+
+        codigoInput.addEventListener('input', () => { codigoInput.value = codigoInput.value.toUpperCase(); });
+        codigoInput.addEventListener('blur', () => {
+            const c = codigoInput.value.trim();
+            if (c && tr.dataset.lastCodigo !== c) fetchQuoteB3(c, tr);
+            ordenarLinhasB3();
+            saveState();
+        });
+        codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
+        nomeInput.addEventListener('input', saveState);
+        quantidadeInput.addEventListener('input', () => { atualizarTotalB3(tr); saveState(); });
+        removeBtn.addEventListener('click', () => {
+            const c = codigoInput.value.trim();
+            const n = nomeInput.value.trim();
+            const ident = n || c || 'este ativo';
+            if (!confirm(`Excluir "${ident}" da carteira?`)) return;
+            tr.remove();
+            calcularTotaisB3();
+            saveState();
+            atualizarSelectAtivosB3();
+            renderVolumeChartB3();
+            showToast('Ativo removido.');
+        });
+
+        atualizarTotalB3(tr);
+        return tr;
+    }
+
+    function atualizarTotalB3(row) {
+        const price = parseFloat(row.dataset.price) || 0;
+        const qty = parseFloat(row.querySelector('.quantidade').value) || 0;
+        row.querySelector('.valor-total').textContent = fmt(price * qty);
+        calcularTotaisB3();
+    }
+
+    function calcularTotaisB3() {
+        let total = 0, totalAnterior = 0;
+        document.querySelectorAll('#tableBodyB3 tr').forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const qty = parseFloat(row.querySelector('.quantidade').value) || 0;
+            const vp = parseFloat(row.dataset.variacao);
+            const valor = price * qty;
+            total += valor;
+            if (!isNaN(vp) && (1 + vp / 100) !== 0) totalAnterior += valor / (1 + vp / 100);
+            else totalAnterior += valor;
+        });
+        document.getElementById('totalCarteiraB3').textContent = fmt(total);
+        const diff = total - totalAnterior;
+        const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
+        document.getElementById('carteiraTotalHojeB3').textContent = fmt(total);
+        document.getElementById('carteiraTotalAnteriorB3').textContent = fmt(totalAnterior);
+        document.getElementById('carteiraDiferencaB3').textContent = (diff >= 0 ? '+' : '') + fmt(diff);
+        document.getElementById('carteiraDiferencaB3').className = 'num ' + (diff > 0 ? 'positivo' : (diff < 0 ? 'negativo' : ''));
+        document.getElementById('carteiraPercentualB3').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
+        document.getElementById('carteiraPercentualB3').className = 'detalhe ' + (pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : 'neutro'));
+        document.getElementById('variacaoTotalB3').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
+        document.getElementById('variacaoTotalB3').className = pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : '');
+    }
+
+    function atualizarSelectAtivosB3() {
+        const select = document.getElementById('ativoGraficoB3');
+        const current = select.value;
+        const tickers = [...new Set(Array.from(document.querySelectorAll('#tableBodyB3 .codigo')).map(i => i.value.trim()).filter(Boolean))];
+        select.innerHTML = tickers.length ? '' : '<option value="">— Nenhum ativo —</option>';
+        tickers.sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            select.appendChild(opt);
+        });
+        if (tickers.includes(current)) select.value = current;
+    }
+
+    // ============================================================
+    // TABELA CRYPTO — Linhas e cálculos
+    // ============================================================
+    function ordenarLinhasCrypto() {
+        const tbody = document.getElementById('tableBodyCrypto');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const ca = a.querySelector('.codigo').value.trim().toUpperCase();
+            const cb = b.querySelector('.codigo').value.trim().toUpperCase();
+            if (!ca && !cb) return 0;
+            if (!ca) return 1;
+            if (!cb) return -1;
+            return ca.localeCompare(cb, 'pt-BR');
+        });
+        rows.forEach(tr => tbody.appendChild(tr));
+    }
+
+    function createRowCrypto(data = {}) {
+        const tbody = document.getElementById('tableBodyCrypto');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" class="codigo" placeholder="BTC" maxlength="10"></td>
+            <td><input type="text" class="nome-input" placeholder="Bitcoin"></td>
+            <td class="cotacao"></td>
+            <td class="variacao"></td>
+            <td><input type="number" class="quantidade" min="0" step="0.00000001" value="0"></td>
+            <td class="valor-total">0,00</td>
+            <td class="data-hora"></td>
+            <td><button class="remove-btn" title="Remover">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+
+        const codigoInput = tr.querySelector('.codigo');
+        const nomeInput = tr.querySelector('.nome-input');
+        const quantidadeInput = tr.querySelector('.quantidade');
+        const removeBtn = tr.querySelector('.remove-btn');
+
+        if (data.codigo) codigoInput.value = data.codigo;
+        if (data.nome) nomeInput.value = data.nome;
+        if (data.quantidade != null) quantidadeInput.value = data.quantidade;
+        if (data.cotacao) tr.querySelector('.cotacao').textContent = data.cotacao;
+        if (data.variacao) {
+            const v = tr.querySelector('.variacao');
+            v.textContent = data.variacao;
+            if (data.variacaoClass) v.className = data.variacaoClass;
+        }
+        if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) tr.dataset.variacao = data.variacaoNumber;
+        if (data.dataHora) tr.querySelector('.data-hora').textContent = data.dataHora;
+        if (data.price) tr.dataset.price = data.price;
+
+        codigoInput.addEventListener('input', () => { codigoInput.value = codigoInput.value.toUpperCase(); });
+        codigoInput.addEventListener('blur', () => {
+            const c = codigoInput.value.trim();
+            if (c && tr.dataset.lastCodigo !== c) fetchQuoteCrypto(c, tr);
+            ordenarLinhasCrypto();
+            saveState();
+        });
+        codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
+        nomeInput.addEventListener('input', saveState);
+        quantidadeInput.addEventListener('input', () => { atualizarTotalCrypto(tr); saveState(); });
+        removeBtn.addEventListener('click', () => {
+            const c = codigoInput.value.trim();
+            const n = nomeInput.value.trim();
+            const ident = n || c || 'este criptoativo';
+            if (!confirm(`Excluir "${ident}" da carteira?`)) return;
+            tr.remove();
+            calcularTotaisCrypto();
+            saveState();
+            atualizarSelectAtivosCrypto();
+            renderVolumeChartCrypto();
+            showToast('Criptoativo removido.');
+        });
+
+        atualizarTotalCrypto(tr);
+        return tr;
+    }
+
+    function atualizarTotalCrypto(row) {
+        const price = parseFloat(row.dataset.price) || 0;
+        const qty = parseFloat(row.querySelector('.quantidade').value) || 0;
+        row.querySelector('.valor-total').textContent = fmt(price * qty);
+        calcularTotaisCrypto();
+    }
+
+    function calcularTotaisCrypto() {
+        let total = 0, totalAnterior = 0;
+        document.querySelectorAll('#tableBodyCrypto tr').forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const qty = parseFloat(row.querySelector('.quantidade').value) || 0;
+            const vp = parseFloat(row.dataset.variacao);
+            const valor = price * qty;
+            total += valor;
+            if (!isNaN(vp) && (1 + vp / 100) !== 0) totalAnterior += valor / (1 + vp / 100);
+            else totalAnterior += valor;
+        });
+        document.getElementById('totalCarteiraCrypto').textContent = fmt(total);
+        const diff = total - totalAnterior;
+        const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
+        document.getElementById('carteiraTotalHojeCrypto').textContent = fmt(total);
+        document.getElementById('carteiraTotalAnteriorCrypto').textContent = fmt(totalAnterior);
+        document.getElementById('carteiraDiferencaCrypto').textContent = (diff >= 0 ? '+' : '') + fmt(diff);
+        document.getElementById('carteiraDiferencaCrypto').className = 'num ' + (diff > 0 ? 'positivo' : (diff < 0 ? 'negativo' : ''));
+        document.getElementById('carteiraPercentualCrypto').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
+        document.getElementById('carteiraPercentualCrypto').className = 'detalhe ' + (pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : 'neutro'));
+        document.getElementById('variacaoTotalCrypto').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
+        document.getElementById('variacaoTotalCrypto').className = pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : '');
+    }
+
+    function atualizarSelectAtivosCrypto() {
+        const select = document.getElementById('ativoGraficoCrypto');
+        const current = select.value;
+        const tickers = [...new Set(Array.from(document.querySelectorAll('#tableBodyCrypto .codigo')).map(i => i.value.trim()).filter(Boolean))];
+        select.innerHTML = tickers.length ? '' : '<option value="">— Nenhum criptoativo —</option>';
+        tickers.sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            select.appendChild(opt);
+        });
+        if (tickers.includes(current)) select.value = current;
+    }
+
+    // ============================================================
+    // RESUMO MERCADO B3
+    // ============================================================
+    async function fetchMarketSummaryB3() {
         fetchDolarAwesome();
         fetchIbovespaComFallback();
     }
-
     async function fetchDolarAwesome() {
         try {
             const resp = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
@@ -989,26 +1699,21 @@
             const json = await resp.json();
             const d = json.USDBRL;
             if (!d) throw new Error('Dados vazios');
-
-            resumoDolarValor.textContent = Number(d.bid).toLocaleString('pt-BR', {
-                minimumFractionDigits: 4, maximumFractionDigits: 4
-            });
+            document.getElementById('resumoDolarValor').textContent = Number(d.bid).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
             const pct = Number(d.pctChange);
             if (isFinite(pct)) {
-                resumoDolarDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-                resumoDolarDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+                document.getElementById('resumoDolarDetalhe').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+                document.getElementById('resumoDolarDetalhe').className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
             } else {
-                resumoDolarDetalhe.textContent = '—';
-                resumoDolarDetalhe.className = 'detalhe neutro';
+                document.getElementById('resumoDolarDetalhe').textContent = '—';
+                document.getElementById('resumoDolarDetalhe').className = 'detalhe neutro';
             }
         } catch (e) {
-            resumoDolarValor.textContent = 'Indisponível';
-            resumoDolarDetalhe.textContent = e.message;
-            resumoDolarDetalhe.className = 'detalhe negativo';
-            console.error('Erro Dólar (AwesomeAPI):', e);
+            document.getElementById('resumoDolarValor').textContent = 'Indisponível';
+            document.getElementById('resumoDolarDetalhe').textContent = e.message;
+            document.getElementById('resumoDolarDetalhe').className = 'detalhe negativo';
         }
     }
-
     async function fetchIbovespaComFallback() {
         try {
             const headers = {};
@@ -1016,589 +1721,197 @@
             const resp = await fetch('https://brapi.dev/api/quote/%5EBVSP', { headers });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const json = await resp.json();
-            const data = json.results && json.results[0];
+            const data = json.results?.[0];
             if (!data) throw new Error('Dados vazios');
-            resumoIbovespaValor.textContent = data.regularMarketPrice.toLocaleString('pt-BR', {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            });
+            document.getElementById('resumoIbovespaValor').textContent = data.regularMarketPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const pct = data.regularMarketChangePercent;
-            resumoIbovespaDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-            resumoIbovespaDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            document.getElementById('resumoIbovespaDetalhe').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
             return;
-        } catch (e) {
-            console.warn('brapi Ibovespa falhou:', e.message);
-        }
+        } catch (e) { console.warn('brapi Ibovespa:', e.message); }
         try {
             const url = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1d&range=1d';
             const json = await fetchWithProxies(url);
             const meta = json.chart.result[0].meta;
-            resumoIbovespaValor.textContent = meta.regularMarketPrice.toLocaleString('pt-BR', {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            });
+            document.getElementById('resumoIbovespaValor').textContent = meta.regularMarketPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const pct = meta.regularMarketChangePercent;
-            resumoIbovespaDetalhe.textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-            resumoIbovespaDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            document.getElementById('resumoIbovespaDetalhe').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
         } catch (e) {
-            resumoIbovespaValor.textContent = 'Indisponível';
-            resumoIbovespaDetalhe.textContent = 'Tente novamente';
-            resumoIbovespaDetalhe.className = 'detalhe negativo';
-            console.error('Erro Ibovespa:', e);
+            document.getElementById('resumoIbovespaValor').textContent = 'Indisponível';
+            document.getElementById('resumoIbovespaDetalhe').textContent = 'Tente novamente';
+            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe negativo';
         }
     }
 
     // ============================================================
-    // CÁLCULOS
+    // RESUMO MERCADO CRYPTO
     // ============================================================
-    function calcularVariacaoCarteira() {
-        let totalHoje = 0;
-        let totalAnterior = 0;
-
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const price = parseFloat(row.dataset.price) || 0;
-            const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
-            const variacaoPct = parseFloat(row.dataset.variacao);
-
-            if (price > 0 && qty > 0) {
-                const valorHoje = price * qty;
-                totalHoje += valorHoje;
-
-                if (!isNaN(variacaoPct) && (1 + variacaoPct / 100) !== 0) {
-                    totalAnterior += valorHoje / (1 + variacaoPct / 100);
-                } else {
-                    totalAnterior += valorHoje;
-                }
+    async function fetchMarketSummaryCrypto() {
+        fetchCryptoSummaryCard('BTC', 'resumoBtcValor', 'resumoBtcDetalhe');
+        fetchCryptoSummaryCard('ETH', 'resumoEthValor', 'resumoEthDetalhe');
+    }
+    async function fetchCryptoSummaryCard(symbol, valorId, detalheId) {
+        // Tenta brapi primeiro
+        try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const resp = await fetch(`https://brapi.dev/api/v2/crypto?coin=${symbol}&currency=BRL`, { headers });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const data = json.results?.[0]?.data || json.results?.[0];
+            if (!data) throw new Error('Sem dados');
+            const price = data.regularMarketPrice ?? data.price;
+            const change = data.regularMarketChangePercent ?? data.changePercent;
+            document.getElementById(valorId).textContent = 'R$ ' + fmt(price);
+            if (change != null) {
+                document.getElementById(detalheId).textContent = `${change >= 0 ? '+' : ''}${fmt(change)}%`;
+                document.getElementById(detalheId).className = 'detalhe ' + (change >= 0 ? 'positivo' : 'negativo');
             }
-        });
-
-        const diferenca = totalHoje - totalAnterior;
-        const percentual = totalAnterior > 0 ? (diferenca / totalAnterior) * 100 : 0;
-
-        carteiraTotalHoje.textContent = fmt(totalHoje);
-        carteiraTotalHoje.className = 'num';
-
-        carteiraTotalAnterior.textContent = fmt(totalAnterior);
-        carteiraTotalAnterior.className = 'num';
-
-        carteiraDiferenca.textContent = (diferenca >= 0 ? '+' : '') + fmt(diferenca);
-        carteiraDiferenca.className = 'num ' + (diferenca > 0 ? 'positivo' : (diferenca < 0 ? 'negativo' : ''));
-
-        if (totalAnterior > 0) {
-            carteiraPercentual.textContent = `${percentual >= 0 ? '+' : ''}${fmt(percentual)}%`;
-            carteiraPercentual.className = 'detalhe ' + (percentual > 0 ? 'positivo' : (percentual < 0 ? 'negativo' : 'neutro'));
-
-            variacaoTotalEl.textContent = `${percentual >= 0 ? '+' : ''}${fmt(percentual)}%`;
-            variacaoTotalEl.className = percentual > 0 ? 'positivo' : (percentual < 0 ? 'negativo' : '');
-        } else {
-            carteiraPercentual.textContent = '—';
-            carteiraPercentual.className = 'detalhe neutro';
-            variacaoTotalEl.textContent = '—';
-            variacaoTotalEl.className = '';
+            return;
+        } catch (e) { console.warn(`brapi ${symbol} falhou:`, e.message); }
+        // Fallback CoinGecko
+        try {
+            const id = coingeckoId(symbol);
+            const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const data = json[id];
+            if (!data) throw new Error('Sem dados');
+            document.getElementById(valorId).textContent = 'R$ ' + fmt(data.brl);
+            const pct = data.brl_24h_change;
+            if (pct != null) {
+                document.getElementById(detalheId).textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+                document.getElementById(detalheId).className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            }
+        } catch (e) {
+            document.getElementById(valorId).textContent = 'Indisponível';
+            document.getElementById(detalheId).textContent = '—';
+            document.getElementById(detalheId).className = 'detalhe negativo';
         }
     }
 
-    function atualizarTotal(row) {
-        const price = parseFloat(row.dataset.price) || 0;
-        const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
-        row.querySelector('.valor-total').textContent = fmt(price * qty);
-        calcularTotais();
-    }
-    function calcularTotais() {
-        let totalCarteira = 0;
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const price = parseFloat(row.dataset.price) || 0;
-            const qty   = parseFloat(row.querySelector('.quantidade').value) || 0;
-            totalCarteira += price * qty;
-        });
-        totalCarteiraEl.textContent = fmt(totalCarteira);
-        calcularVariacaoCarteira();
-    }
-
-    function fetchAllQuotes() {
-        const rows = Array.from(document.querySelectorAll('#tableBody tr')).filter(
-            tr => tr.querySelector('.codigo').value.trim()
-        );
-        let pending = rows.length;
-        if (pending === 0) { renderVolumeChart(); return; }
+    // ============================================================
+    // AÇÕES B3
+    // ============================================================
+    document.getElementById('addRowBtnB3').addEventListener('click', () => {
+        createRowB3(); ordenarLinhasB3(); saveState();
+    });
+    document.getElementById('refreshAllBtnB3').addEventListener('click', () => {
+        const rows = Array.from(document.querySelectorAll('#tableBodyB3 tr')).filter(tr => tr.querySelector('.codigo').value.trim());
+        let pend = rows.length;
+        if (pend === 0) { renderVolumeChartB3(); return; }
         rows.forEach((tr, i) => {
             setTimeout(async () => {
-                const codigo = tr.querySelector('.codigo').value.trim();
-                if (codigo) await fetchQuote(codigo, tr);
-                pending--;
-                if (pending === 0) renderVolumeChart();
+                const c = tr.querySelector('.codigo').value.trim();
+                if (c) await fetchQuoteB3(c, tr);
+                pend--;
+                if (pend === 0) renderVolumeChartB3();
             }, i * 400);
         });
-        fetchMarketSummary();
-    }
-
-    document.getElementById('addRowBtn').addEventListener('click', () => {
-        createRow(); ordenarLinhas(); saveState();
+        fetchMarketSummaryB3();
     });
-    document.getElementById('refreshAllBtn').addEventListener('click', () => {
-        fetchAllQuotes();
+    document.getElementById('renderVolumeBtnB3').addEventListener('click', renderVolumeChartB3);
+    document.getElementById('renderIndividualBtnB3').addEventListener('click', renderIndividualChartB3);
+
+    document.getElementById('fonteSelectB3').addEventListener('change', () => {
+        saveState();
+        showToast('Fonte alterada. Atualizando cotações...');
+        document.getElementById('refreshAllBtnB3').click();
+    });
+
+    document.getElementById('toggleNomeColBtnB3').addEventListener('click', () => {
+        const t = document.getElementById('cotacoesTableB3');
+        t.classList.toggle('hide-nome');
+        const hid = t.classList.contains('hide-nome');
+        document.getElementById('toggleNomeColBtnB3').textContent = hid ? '👁️ Mostrar Nome' : '👁️ Ocultar Nome';
+        saveState();
+    });
+
+    document.getElementById('ativoGraficoB3').addEventListener('change', () => {
+        if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
+    });
+    document.getElementById('tipoGraficoB3').addEventListener('change', () => {
+        if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
+    });
+    document.getElementById('periodoGraficoB3').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoB3').value;
+        document.getElementById('customPeriodoB3').style.display = p === 'custom' ? 'inline-flex' : 'none';
+        if (p !== 'custom' && document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
+    });
+    document.getElementById('dataInicioB3').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoB3').value;
+        const i = document.getElementById('dataInicioB3').value;
+        const f = document.getElementById('dataFimB3').value;
+        if (p === 'custom' && i && f && document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
+    });
+    document.getElementById('dataFimB3').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoB3').value;
+        const i = document.getElementById('dataInicioB3').value;
+        const f = document.getElementById('dataFimB3').value;
+        if (p === 'custom' && i && f && document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
     });
 
     // ============================================================
-    // GRÁFICO 1: VALOR DA CARTEIRA POR PAPEL (em R$ 1.000)
+    // AÇÕES CRYPTO
     // ============================================================
-    function renderVolumeChart() {
-        const dados = [];
-        document.querySelectorAll('#tableBody tr').forEach(tr => {
-            const codigo = tr.querySelector('.codigo').value.trim();
-            const qty = parseFloat(tr.querySelector('.quantidade').value) || 0;
-            const price = parseFloat(tr.dataset.price) || 0;
-            if (codigo && qty > 0 && price > 0) {
-                dados.push({ codigo, valor: qty * price });
-            }
+    document.getElementById('addRowBtnCrypto').addEventListener('click', () => {
+        createRowCrypto(); ordenarLinhasCrypto(); saveState();
+    });
+    document.getElementById('refreshAllBtnCrypto').addEventListener('click', () => {
+        const rows = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).filter(tr => tr.querySelector('.codigo').value.trim());
+        let pend = rows.length;
+        if (pend === 0) { renderVolumeChartCrypto(); return; }
+        rows.forEach((tr, i) => {
+            setTimeout(async () => {
+                const c = tr.querySelector('.codigo').value.trim();
+                if (c) await fetchQuoteCrypto(c, tr);
+                pend--;
+                if (pend === 0) renderVolumeChartCrypto();
+            }, i * 400);
         });
-
-        dados.sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR'));
-
-        const total = dados.reduce((s, d) => s + d.valor, 0);
-        volumeTotalLabel.textContent = `Total: R$ ${fmt(total)}`;
-
-        if (dados.length === 0) {
-            volumeEmpty.style.display = 'block';
-            if (volumeChartInstance) { volumeChartInstance.destroy(); volumeChartInstance = null; }
-            return;
-        }
-        volumeEmpty.style.display = 'none';
-
-        const labels = dados.map(d => d.codigo);
-        const valuesMil = dados.map(d => d.valor / 1000);
-        const valuesReais = dados.map(d => d.valor);
-        const colors = valuesMil.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 52%)`);
-
-        if (volumeChartInstance) volumeChartInstance.destroy();
-
-        const ctx = volumeChartCanvas.getContext('2d');
-        volumeChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Valor na carteira (R$ mil)',
-                    data: valuesMil,
-                    backgroundColor: colors,
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => {
-                                const idx = ctx.dataIndex;
-                                const valorReal = valuesReais[idx];
-                                const pct = total > 0 ? (valorReal / total) * 100 : 0;
-                                return [
-                                    `R$ ${fmt(valorReal)}`,
-                                    `R$ ${fmt(ctx.raw)} mil`,
-                                    `${fmt(pct)}% da carteira`
-                                ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (v) => Number(v).toLocaleString('pt-BR', {
-                                minimumFractionDigits: 0, maximumFractionDigits: 2
-                            })
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    document.getElementById('renderVolumeBtn').addEventListener('click', renderVolumeChart);
-
-    // ============================================================
-    // GRÁFICO 2: EVOLUÇÃO INDIVIDUAL
-    // ============================================================
-    async function renderIndividualChart() {
-        const ticker = ativoGraficoSelect.value;
-        const periodo = periodoGraficoSelect.value;
-        const tipo = tipoGraficoSelect.value;
-
-        if (!ticker) {
-            showToast('Selecione um ativo para o gráfico individual.', true);
-            individualEmpty.style.display = 'block';
-            return;
-        }
-
-        // token de controle para evitar renders obsoletos quando o usuário troca rápido
-        const myToken = ++renderIndividualToken;
-
-        individualEmpty.style.display = 'none';
-        individualInfo.textContent = '';
-        individualLoading.style.display = 'inline';
-
-        try {
-            let rawData = null;
-            let usedSource = '';
-            let usedLabel = '';
-            let sampleTo = 15;
-
-            if (periodo === 'custom') {
-                const inicio = dataInicioInput.value;
-                const fim = dataFimInput.value;
-                if (!inicio || !fim) {
-                    showToast('Informe as datas de início e fim.', true);
-                    individualLoading.style.display = 'none';
-                    return;
-                }
-                const cacheKey = `${ticker}|custom|${inicio}|${fim}`;
-                const cached = cacheGet(cacheKey);
-                if (cached) {
-                    rawData = cached.data;
-                    usedSource = cached.source;
-                    usedLabel = cached.label;
-                    sampleTo = cached.sampleTo;
-                } else {
-                    const spanDays = (new Date(fim) - new Date(inicio)) / (1000 * 60 * 60 * 24);
-                    const intervals = spanDays <= 7 ? ['15m', '30m', '1h', '1d'] : ['1d', '1wk'];
-
-                    for (const interval of intervals) {
-                        try {
-                            const d = await fetchBrapiHistoryByDate(ticker, inicio, fim, interval);
-                            if (d && d.length > 0) {
-                                rawData = d;
-                                usedSource = 'brapi';
-                                usedLabel = 'Personalizado';
-                                sampleTo = 15;
-                                break;
-                            }
-                        } catch (e) { console.warn(`brapi custom ${interval} falhou:`, e.message); }
-                    }
-                    if (!rawData || rawData.length === 0) {
-                        for (const interval of intervals) {
-                            try {
-                                const d = await fetchYahooHistoryByDate(ticker, inicio, fim, interval);
-                                if (d && d.length > 0) {
-                                    rawData = d;
-                                    usedSource = 'Yahoo';
-                                    usedLabel = 'Personalizado';
-                                    sampleTo = 15;
-                                    break;
-                                }
-                            } catch (e) { console.warn(`yahoo custom ${interval} falhou:`, e.message); }
-                        }
-                    }
-                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
-                }
-            } else {
-                const attempts = periodAttempts[periodo];
-                const cacheKey = `${ticker}|${periodo}`;
-                const cached = cacheGet(cacheKey);
-                if (cached) {
-                    rawData = cached.data;
-                    usedSource = cached.source;
-                    usedLabel = cached.label;
-                    sampleTo = cached.sampleTo;
-                } else {
-                    for (const att of attempts) {
-                        try {
-                            let d;
-                            if (att.source === 'brapi') {
-                                d = await fetchBrapiHistory(ticker, att.range, att.interval);
-                            } else {
-                                d = await fetchYahooHistory(ticker, att.range, att.interval);
-                            }
-                            if (d && d.length > 0) {
-                                rawData = d;
-                                usedSource = att.source;
-                                usedLabel = att.label;
-                                sampleTo = att.sampleTo;
-                                break;
-                            }
-                        } catch (e) {
-                            console.warn(`Tentativa ${att.source} ${att.range}/${att.interval} falhou:`, e.message);
-                        }
-                    }
-                    if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
-                }
-            }
-
-            // ignora resultado se outra requisição foi disparada depois desta
-            if (myToken !== renderIndividualToken) return;
-
-            if (!rawData || rawData.length === 0) {
-                showToast('Nenhum dado encontrado para o período selecionado.', true);
-                individualInfo.textContent = 'Sem dados disponíveis para este período.';
-                individualLoading.style.display = 'none';
-                return;
-            }
-
-            const data = sampleData(rawData, sampleTo);
-
-            if (myToken !== renderIndividualToken) return;
-
-            individualInfo.textContent = `${data.length} pontos exibidos (de ${rawData.length} carregados) · ${usedLabel} · Fonte: ${usedSource}`;
-
-            // Detecta unidade do eixo X pelo span real dos dados
-            const spanMs = data[data.length - 1].time - data[0].time;
-            const spanHoras = spanMs / (1000 * 60 * 60);
-            let timeUnit;
-            if (spanHoras <= 48) timeUnit = 'hour';
-            else if (spanHoras <= 24 * 60) timeUnit = 'day';
-            else if (spanHoras <= 24 * 365) timeUnit = 'month';
-            else timeUnit = 'year';
-
-            if (individualChartInstance) individualChartInstance.destroy();
-            const ctx = individualChartCanvas.getContext('2d');
-
-            if (tipo === 'candlestick') {
-                const ohlcData = data.map(bar => ({
-                    x: bar.time, o: bar.open, h: bar.high, l: bar.low, c: bar.close
-                }));
-                individualChartInstance = new Chart(ctx, {
-                    type: 'candlestick',
-                    data: {
-                        datasets: [{
-                            label: ticker,
-                            data: ohlcData,
-                            color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
-                            borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' }
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        parsing: false,
-                        animation: { duration: 300 },
-                        scales: {
-                            x: {
-                                type: 'timeseries',
-                                time: { unit: timeUnit },
-                                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
-                            },
-                            y: { type: 'linear', position: 'right' }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => {
-                                        const d = ctx.raw;
-                                        return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                const lineData = data.map(bar => ({ x: bar.time, y: bar.close }));
-                individualChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: ticker,
-                            data: lineData,
-                            borderColor: '#0066ff',
-                            backgroundColor: 'rgba(0,102,255,0.08)',
-                            fill: true, tension: 0.2,
-                            pointRadius: 3, pointHoverRadius: 6, borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        parsing: false,
-                        animation: { duration: 300 },
-                        scales: {
-                            x: {
-                                type: 'timeseries',
-                                time: { unit: timeUnit },
-                                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
-                            },
-                            y: {
-                                type: 'linear', position: 'right',
-                                ticks: { callback: (v) => 'R$ ' + fmt(v) }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` }
-                            }
-                        }
-                    }
-                });
-            }
-
-        } catch (error) {
-            if (myToken === renderIndividualToken) {
-                showToast('Erro ao gerar gráfico individual: ' + error.message, true);
-                individualInfo.textContent = 'Erro ao carregar dados.';
-                console.error(error);
-            }
-        } finally {
-            if (myToken === renderIndividualToken) {
-                individualLoading.style.display = 'none';
-            }
-        }
-    }
-
-    // Botão manual ainda funciona
-    document.getElementById('renderIndividualBtn').addEventListener('click', renderIndividualChart);
-
-    // Auto-atualização ao mudar qualquer controle
-    ativoGraficoSelect.addEventListener('change', () => {
-        if (ativoGraficoSelect.value) renderIndividualChart();
+        fetchMarketSummaryCrypto();
     });
-    tipoGraficoSelect.addEventListener('change', () => {
-        if (ativoGraficoSelect.value) renderIndividualChart();
-    });
-    periodoGraficoSelect.addEventListener('change', () => {
-        customPeriodoSpan.style.display = periodoGraficoSelect.value === 'custom' ? 'inline-flex' : 'none';
-        if (periodoGraficoSelect.value !== 'custom' && ativoGraficoSelect.value) {
-            renderIndividualChart();
-        } else if (periodoGraficoSelect.value === 'custom'
-                   && dataInicioInput.value && dataFimInput.value) {
-            renderIndividualChart();
-        }
-    });
-    dataInicioInput.addEventListener('change', () => {
-        if (periodoGraficoSelect.value === 'custom'
-            && dataInicioInput.value && dataFimInput.value) {
-            renderIndividualChart();
-        }
-    });
-    dataFimInput.addEventListener('change', () => {
-        if (periodoGraficoSelect.value === 'custom'
-            && dataInicioInput.value && dataFimInput.value) {
-            renderIndividualChart();
-        }
+    document.getElementById('renderVolumeBtnCrypto').addEventListener('click', renderVolumeChartCrypto);
+    document.getElementById('renderIndividualBtnCrypto').addEventListener('click', renderIndividualChartCrypto);
+
+    document.getElementById('fonteSelectCrypto').addEventListener('change', () => {
+        saveState();
+        showToast('Fonte alterada. Atualizando cotações...');
+        document.getElementById('refreshAllBtnCrypto').click();
     });
 
-    // ============================================================
-    // HISTÓRICO VIA brapi
-    // ============================================================
-    async function fetchBrapiHistory(ticker, range, interval) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
-        const resp = await fetch(url, { headers });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const json = await resp.json();
-        const data = json.results && json.results[0];
-        if (!data || !data.historicalDataPrice) return [];
+    document.getElementById('toggleNomeColBtnCrypto').addEventListener('click', () => {
+        const t = document.getElementById('cotacoesTableCrypto');
+        t.classList.toggle('hide-nome');
+        const hid = t.classList.contains('hide-nome');
+        document.getElementById('toggleNomeColBtnCrypto').textContent = hid ? '👁️ Mostrar Nome' : '👁️ Ocultar Nome';
+        saveState();
+    });
 
-        return data.historicalDataPrice.map(bar => ({
-            time: new Date(bar.date * 1000).getTime(),
-            open: bar.open,
-            high: bar.high,
-            low: bar.low,
-            close: bar.close,
-            volume: bar.volume || 0
-        })).filter(b => b.close != null);
-    }
-
-    async function fetchBrapiHistoryByDate(ticker, dataInicio, dataFim, interval) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?startDate=${dataInicio}&endDate=${dataFim}&interval=${interval}`;
-        const resp = await fetch(url, { headers });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const json = await resp.json();
-        const data = json.results && json.results[0];
-        if (!data || !data.historicalDataPrice) return [];
-
-        return data.historicalDataPrice.map(bar => ({
-            time: new Date(bar.date * 1000).getTime(),
-            open: bar.open,
-            high: bar.high,
-            low: bar.low,
-            close: bar.close,
-            volume: bar.volume || 0
-        })).filter(b => b.close != null);
-    }
-
-    // ============================================================
-    // HISTÓRICO VIA Yahoo (fallback)
-    // ============================================================
-    async function fetchYahooHistory(ticker, range, interval) {
-        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&range=${range}`;
-        const json = await fetchWithProxies(url);
-        const result = json && json.chart && json.chart.result && json.chart.result[0];
-        if (!result || !result.timestamp) return [];
-
-        const timestamps = result.timestamp;
-        const quote = result.indicators && result.indicators.quote && result.indicators.quote[0];
-        if (!quote) return [];
-
-        return timestamps.map((ts, i) => ({
-            time: ts * 1000,
-            open: quote.open && quote.open[i] != null ? quote.open[i] : null,
-            high: quote.high && quote.high[i] != null ? quote.high[i] : null,
-            low: quote.low && quote.low[i] != null ? quote.low[i] : null,
-            close: quote.close && quote.close[i] != null ? quote.close[i] : null,
-            volume: quote.volume && quote.volume[i] != null ? quote.volume[i] : 0
-        })).filter(bar => bar.close != null);
-    }
-
-    async function fetchYahooHistoryByDate(ticker, dataInicio, dataFim, interval) {
-        const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
-        const period1 = Math.floor(new Date(dataInicio + 'T00:00:00').getTime() / 1000);
-        const period2 = Math.floor(new Date(dataFim + 'T23:59:59').getTime() / 1000);
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(simbolo)}?interval=${interval}&period1=${period1}&period2=${period2}`;
-        const json = await fetchWithProxies(url);
-        const result = json && json.chart && json.chart.result && json.chart.result[0];
-        if (!result || !result.timestamp) return [];
-
-        const timestamps = result.timestamp;
-        const quote = result.indicators && result.indicators.quote && result.indicators.quote[0];
-        if (!quote) return [];
-
-        return timestamps.map((ts, i) => ({
-            time: ts * 1000,
-            open: quote.open && quote.open[i] != null ? quote.open[i] : null,
-            high: quote.high && quote.high[i] != null ? quote.high[i] : null,
-            low: quote.low && quote.low[i] != null ? quote.low[i] : null,
-            close: quote.close && quote.close[i] != null ? quote.close[i] : null,
-            volume: quote.volume && quote.volume[i] != null ? quote.volume[i] : 0
-        })).filter(bar => bar.close != null);
-    }
-
-    // ============================================================
-    // SELECT DE ATIVOS
-    // ============================================================
-    function atualizarSelectAtivos() {
-        const tickers = [];
-        document.querySelectorAll('#tableBody tr').forEach(tr => {
-            const codigo = tr.querySelector('.codigo').value.trim();
-            if (codigo && !tickers.includes(codigo)) tickers.push(codigo);
-        });
-
-        const currentValue = ativoGraficoSelect.value;
-        ativoGraficoSelect.innerHTML = '';
-
-        if (tickers.length === 0) {
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = '— Nenhum ativo —';
-            ativoGraficoSelect.appendChild(opt);
-            individualEmpty.style.display = 'block';
-        } else {
-            tickers.sort((a, b) => a.localeCompare(b, 'pt-BR'));
-            tickers.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.textContent = t;
-                ativoGraficoSelect.appendChild(opt);
-            });
-            if (tickers.includes(currentValue)) ativoGraficoSelect.value = currentValue;
-        }
-    }
+    document.getElementById('ativoGraficoCrypto').addEventListener('change', () => {
+        if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
+    });
+    document.getElementById('tipoGraficoCrypto').addEventListener('change', () => {
+        if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
+    });
+    document.getElementById('periodoGraficoCrypto').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoCrypto').value;
+        document.getElementById('customPeriodoCrypto').style.display = p === 'custom' ? 'inline-flex' : 'none';
+        if (p !== 'custom' && document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
+    });
+    document.getElementById('dataInicioCrypto').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoCrypto').value;
+        const i = document.getElementById('dataInicioCrypto').value;
+        const f = document.getElementById('dataFimCrypto').value;
+        if (p === 'custom' && i && f && document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
+    });
+    document.getElementById('dataFimCrypto').addEventListener('change', () => {
+        const p = document.getElementById('periodoGraficoCrypto').value;
+        const i = document.getElementById('dataInicioCrypto').value;
+        const f = document.getElementById('dataFimCrypto').value;
+        if (p === 'custom' && i && f && document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
+    });
 
     // ============================================================
     // EXPORTAR / IMPORTAR
@@ -1609,12 +1922,12 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `cotacoes-b3-${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `cotacoes-b3-crypto-${new Date().toISOString().slice(0,10)}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast('✅ Arquivo JSON exportado com sucesso!');
+        showToast('✅ JSON exportado com sucesso!');
     });
 
     document.getElementById('importBtn').addEventListener('click', () => {
@@ -1622,82 +1935,117 @@
         importFile.click();
     });
     importFile.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) { showToast('Nenhum arquivo selecionado.', true); return; }
+        const file = e.target.files?.[0];
+        if (!file) return;
         const reader = new FileReader();
-        reader.onerror = () => { showToast('Erro ao ler o arquivo.', true); importFile.value = ''; };
         reader.onload = (ev) => {
             try {
-                const texto = ev.target.result;
-                if (!texto || !texto.trim()) throw new Error('Arquivo vazio');
-                let imported;
-                try { imported = JSON.parse(texto); }
-                catch { throw new Error('O arquivo não é um JSON válido'); }
+                const imported = JSON.parse(ev.target.result);
+                if (!imported) throw new Error('Arquivo inválido');
+                if (!confirm('Importar dados? Isso substituirá tudo.')) { importFile.value = ''; return; }
 
-                let rows, importedToken, importedFonte;
-                if (Array.isArray(imported)) {
-                    rows = imported; importedToken = token; importedFonte = fonte;
-                } else if (imported && Array.isArray(imported.rows)) {
-                    rows = imported.rows;
-                    importedToken = imported.token || '';
-                    importedFonte = imported.fonte || 'brapi';
-                } else throw new Error('Estrutura inválida');
+                // Suporta tanto o formato novo { b3, crypto } quanto o antigo (array ou {rows})
+                let b3rows = [], cryptorows = [], newToken = token;
+                if (imported.b3 || imported.crypto) {
+                    b3rows = imported.b3?.rows || [];
+                    cryptorows = imported.crypto?.rows || [];
+                    newToken = imported.token || token;
+                    if (imported.b3?.fonte) state.b3.fonte = imported.b3.fonte;
+                    if (imported.crypto?.fonte) state.crypto.fonte = imported.crypto.fonte;
+                } else if (Array.isArray(imported)) {
+                    b3rows = imported;
+                } else if (Array.isArray(imported.rows)) {
+                    b3rows = imported.rows;
+                    newToken = imported.token || token;
+                }
 
-                if (!confirm('Importar dados? Isso substituirá os dados atuais.')) { importFile.value = ''; return; }
-
-                tableBody.innerHTML = '';
-                token = importedToken;
-                fonte = importedFonte;
-                fonteSelect.value = fonte;
+                token = newToken;
                 updateTokenBadge();
                 tokenInput.value = token;
-                if (rows.length === 0) createRow();
-                else rows.forEach(r => createRow(r));
-                ordenarLinhas();
-                calcularTotais();
+
+                // Limpa e recria B3
+                document.getElementById('tableBodyB3').innerHTML = '';
+                if (b3rows.length === 0) createRowB3(); else b3rows.forEach(r => createRowB3(r));
+                ordenarLinhasB3();
+                calcularTotaisB3();
+                atualizarSelectAtivosB3();
+                renderVolumeChartB3();
+
+                // Limpa e recria Crypto
+                document.getElementById('tableBodyCrypto').innerHTML = '';
+                if (cryptorows.length === 0) createRowCrypto(); else cryptorows.forEach(r => createRowCrypto(r));
+                ordenarLinhasCrypto();
+                calcularTotaisCrypto();
+                atualizarSelectAtivosCrypto();
+                renderVolumeChartCrypto();
+
+                document.getElementById('fonteSelectB3').value = state.b3.fonte || 'brapi';
+                document.getElementById('fonteSelectCrypto').value = state.crypto.fonte || 'brapi';
                 saveState();
-                atualizarSelectAtivos();
-                renderVolumeChart();
                 showToast('✅ Dados importados com sucesso!');
             } catch (err) {
                 showToast('Erro ao importar: ' + err.message, true);
-                console.error(err);
-            } finally { importFile.value = ''; }
+            } finally {
+                importFile.value = '';
+            }
         };
         reader.readAsText(file, 'utf-8');
     });
 
     // ============================================================
-    // INICIALIZAÇÃO
+    // INIT
     // ============================================================
     updateTokenBadge();
-    fonteSelect.value = fonte;
-    aplicarVisibilidadeNome();
-
-    if (state.rows && state.rows.length > 0) state.rows.forEach(r => createRow(r));
-    else createRow();
-
-    ordenarLinhas();
-    calcularTotais();
     atualizarDataCabecalho();
-    atualizarSelectAtivos();
-    renderVolumeChart();
 
+    // Restaura B3
+    document.getElementById('fonteSelectB3').value = state.b3.fonte;
+    if (state.b3.rows.length === 0) createRowB3();
+    else state.b3.rows.forEach(r => createRowB3(r));
+    ordenarLinhasB3();
+    calcularTotaisB3();
+    atualizarSelectAtivosB3();
+    renderVolumeChartB3();
+    if (state.b3.hideNome) {
+        document.getElementById('cotacoesTableB3').classList.add('hide-nome');
+        document.getElementById('toggleNomeColBtnB3').textContent = '👁️ Mostrar Nome';
+    }
+
+    // Restaura Crypto
+    document.getElementById('fonteSelectCrypto').value = state.crypto.fonte;
+    if (state.crypto.rows.length === 0) createRowCrypto();
+    else state.crypto.rows.forEach(r => createRowCrypto(r));
+    ordenarLinhasCrypto();
+    calcularTotaisCrypto();
+    atualizarSelectAtivosCrypto();
+    renderVolumeChartCrypto();
+    if (state.crypto.hideNome) {
+        document.getElementById('cotacoesTableCrypto').classList.add('hide-nome');
+        document.getElementById('toggleNomeColBtnCrypto').textContent = '👁️ Mostrar Nome';
+    }
+
+    // Ativa a aba salva
+    if (activeTab === 'crypto') document.querySelector('[data-tab="crypto"]').click();
+    else document.querySelector('[data-tab="b3"]').click();
+
+    // Busca inicial
     setTimeout(() => {
-        const temCodigos = Array.from(document.querySelectorAll('#tableBody tr'))
-            .some(tr => tr.querySelector('.codigo').value.trim());
-        if (temCodigos) {
-            const nomeFonte = fonte === 'google' ? 'Google Finance' : (fonte === 'yahoo' ? 'Yahoo Finance' : 'brapi.dev');
-            showToast(`Buscando cotações via ${nomeFonte}...`);
-            fetchAllQuotes();
+        // B3
+        const temB3 = Array.from(document.querySelectorAll('#tableBodyB3 tr')).some(tr => tr.querySelector('.codigo').value.trim());
+        if (temB3) {
+            showToast('Buscando cotações B3...');
+            document.getElementById('refreshAllBtnB3').click();
+        } else {
+            fetchMarketSummaryB3();
         }
-        fetchMarketSummary();
-
-        // Render inicial do gráfico individual se houver ticker selecionado
-        if (ativoGraficoSelect.value) {
-            setTimeout(renderIndividualChart, 800);
+        // Crypto
+        const temCrypto = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).some(tr => tr.querySelector('.codigo').value.trim());
+        if (temCrypto) {
+            document.getElementById('refreshAllBtnCrypto').click();
+        } else {
+            fetchMarketSummaryCrypto();
         }
-    }, 300);
+    }, 400);
 </script>
 </body>
 </html>
