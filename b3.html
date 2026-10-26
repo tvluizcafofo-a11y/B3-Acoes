@@ -22,6 +22,47 @@
         .app-header h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
         .header-date { font-size: clamp(1.2rem, 3.6vw, 1.8rem); color: #444; font-weight: 500; text-transform: capitalize; }
 
+        /* ===== TOTAIS NO CABEÇALHO (caixinhas com borda) ===== */
+        .header-totals {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .header-total-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #fff;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+        }
+        .header-total-label {
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        .header-total-value {
+            font-weight: 700;
+            color: #0066ff;
+            font-variant-numeric: tabular-nums;
+            font-size: 1.15rem;
+        }
+        .header-total-item.crypto { border-color: #ffd9a6; }
+        .header-total-item.crypto .header-total-value { color: #f7931a; }
+        .header-total-item.geral {
+            background: #fafafa;
+            border-color: #d8d8d8;
+        }
+        .header-total-item.geral .header-total-value {
+            color: #1a1a1a;
+            font-size: 1.25rem;
+        }
+
         .settings-btn {
             position: absolute; top: 4px; right: 0;
             width: 46px; height: 46px;
@@ -106,11 +147,11 @@
         #cotacoesTableCrypto td:nth-child(2) {
             min-width: 200px;
         }
-/* ===== COLUNA NOME DA EMPRESA (B3) ===== */
+        /* ===== COLUNA NOME DA EMPRESA (B3) ===== */
         #cotacoesTableB3 th:nth-child(2),
-         #cotacoesTableB3 td:nth-child(2) {
-             min-width: 200px;
-}
+        #cotacoesTableB3 td:nth-child(2) {
+            min-width: 200px;
+        }
         input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
         input.codigo { width: 90px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
         input.quantidade { width: 85px; text-align: right; }
@@ -119,6 +160,7 @@
 
         .loading { color: #0066ff; font-style: italic; }
         .error { color: #dc3545; border-color: #dc3545 !important; }
+        .sem-info { color: #c62828; font-style: italic; font-size: 0.82rem; font-weight: 600; }
         .remove-btn { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 5px 11px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .remove-btn:hover { background: #a71d2a; }
         .positivo { color: #0a7a3e; font-weight: 600; }
@@ -217,6 +259,10 @@
             .chart-container { height: 280px; }
             .chart-total { margin-left: 0; width: 100%; }
             .tab-btn { padding: 10px 18px; font-size: 1.1rem; }
+            .header-totals { gap: 8px; }
+            .header-total-item { padding: 6px 12px; }
+            .header-total-value { font-size: 1rem; }
+            .header-total-item.geral .header-total-value { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -226,6 +272,20 @@
         <button id="openSettingsBtn" class="settings-btn" title="Configurações" aria-label="Configurações">⚙️</button>
         <h1>Cotações</h1>
         <div id="headerDate" class="header-date"></div>
+        <div class="header-totals">
+            <div class="header-total-item">
+                <span class="header-total-label">B3</span>
+                <span class="header-total-value" id="headerTotalB3">R$ 0,00</span>
+            </div>
+            <div class="header-total-item crypto">
+                <span class="header-total-label">Crypto</span>
+                <span class="header-total-value" id="headerTotalCrypto">R$ 0,00</span>
+            </div>
+            <div class="header-total-item geral">
+                <span class="header-total-label">Total Geral</span>
+                <span class="header-total-value" id="headerTotalGeral">R$ 0,00</span>
+            </div>
+        </div>
     </header>
 
     <div class="tabs">
@@ -518,10 +578,35 @@
     let activeTab = state.activeTab || 'b3';
     let lastQuoteDate = null;
 
+    let totalB3Num = 0;
+    let totalCryptoNum = 0;
+
     function fmt(v) {
         const n = Number(v);
         if (!isFinite(n)) return '0,00';
         return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function atualizarTotalGeralHeader() {
+        const el = document.getElementById('headerTotalGeral');
+        if (el) el.textContent = 'R$ ' + fmt(totalB3Num + totalCryptoNum);
+    }
+
+    // Marca uma linha crypto como "sem informação"
+    function marcarCryptoSemInfo(tr) {
+        const cotacaoCell = tr.querySelector('.cotacao');
+        const variacaoCell = tr.querySelector('.variacao');
+        if (cotacaoCell) {
+            cotacaoCell.textContent = '(sem informação)';
+            cotacaoCell.classList.add('sem-info');
+        }
+        if (variacaoCell) {
+            variacaoCell.textContent = '';
+            variacaoCell.className = 'variacao';
+        }
+        delete tr.dataset.variacao;
+        delete tr.dataset.price;
+        atualizarTotalCrypto(tr);
     }
 
     const FERIADOS_B3 = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-04-03','2026-04-21','2026-05-01','2026-06-04','2026-09-07','2026-10-12','2026-11-02','2026-11-20','2026-12-24','2026-12-25','2026-12-31']);
@@ -1389,9 +1474,11 @@
         try {
             await fetchCoinGeckoQuote(codigo, row);
         } catch (e) {
+            // Ambas as fontes falharam → mostra aviso visível
             const nomeInput = row.querySelector('.nome-input');
             nomeInput.classList.add('error');
             nomeInput.placeholder = `Erro: ${e.message}`;
+            marcarCryptoSemInfo(row);
         }
     }
 
@@ -1417,6 +1504,7 @@
             if (price == null) throw new Error('Preço indisponível');
             if (!nomeInput.value.trim()) nomeInput.value = data.name || data.coinName || codigo;
             nomeInput.placeholder = 'Nome';
+            cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
@@ -1457,6 +1545,7 @@
             if (price == null) throw new Error('Preço indisponível');
             if (!nomeInput.value.trim()) nomeInput.value = codigo.toUpperCase();
             nomeInput.placeholder = 'Nome';
+            cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
             if (change != null) {
                 variacaoCell.textContent = fmt(change) + '%';
@@ -1489,6 +1578,7 @@
         nomeInput.classList.remove('error', 'loading');
         nomeInput.placeholder = 'Nome';
 
+        cotacaoCell.classList.remove('sem-info');
         cotacaoCell.textContent = fmt(price);
         if (change != null && !isNaN(change)) {
             variacaoCell.textContent = fmt(change) + '%';
@@ -1547,6 +1637,7 @@
                     const nomeInput = tr.querySelector('.nome-input');
                     nomeInput.classList.add('error');
                     nomeInput.placeholder = 'Não encontrada no CoinGecko';
+                    marcarCryptoSemInfo(tr);
                     return;
                 }
                 applyCryptoQuote(tr, c, d.brl, d.brl_24h_change);
@@ -1557,11 +1648,15 @@
             renderVolumeChartCrypto();
 
             if (falhas.length > 0) {
-                showToast(`✅ ${sucessos} atualizadas · ⚠️ ${falhas.length} não encontradas: ${falhas.join(', ')}`);
+                showToast(`✅ ${sucessos} atualizadas · ⚠️ ${falhas.length} sem informação: ${falhas.join(', ')}`);
             } else {
                 showToast(`✅ ${sucessos} criptoativos atualizados`);
             }
         } catch (e) {
+            // Falha total do CoinGecko → marca todos como "sem informação"
+            rows.forEach(tr => marcarCryptoSemInfo(tr));
+            saveState();
+            renderVolumeChartCrypto();
             showToast('Erro CoinGecko: ' + e.message, true);
         }
     }
@@ -1662,6 +1757,9 @@
             else totalAnterior += valor;
         });
         document.getElementById('totalCarteiraB3').textContent = fmt(total);
+        document.getElementById('headerTotalB3').textContent = 'R$ ' + fmt(total);
+        totalB3Num = total;
+        atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
         const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
         document.getElementById('carteiraTotalHojeB3').textContent = fmt(total);
@@ -1728,7 +1826,11 @@
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
-        if (data.cotacao) tr.querySelector('.cotacao').textContent = data.cotacao;
+        if (data.cotacao) {
+            const cell = tr.querySelector('.cotacao');
+            cell.textContent = data.cotacao;
+            if (data.cotacao === '(sem informação)') cell.classList.add('sem-info');
+        }
         if (data.variacao) {
             const v = tr.querySelector('.variacao');
             v.textContent = data.variacao;
@@ -1784,6 +1886,9 @@
             else totalAnterior += valor;
         });
         document.getElementById('totalCarteiraCrypto').textContent = fmt(total);
+        document.getElementById('headerTotalCrypto').textContent = 'R$ ' + fmt(total);
+        totalCryptoNum = total;
+        atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
         const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
         document.getElementById('carteiraTotalHojeCrypto').textContent = fmt(total);
