@@ -74,26 +74,55 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
+        /* ===== ABAS COLORIDAS ===== */
         .tabs {
             display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #eef1f5;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding: 0;
         }
         .tab-btn {
-            padding: 14px 32px;
-            border: none;
-            background: transparent;
+            padding: 16px 44px;
+            border: 2px solid transparent;
+            background: #f1f4f8;
             font-size: 1.35rem;
             font-weight: 800;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
             color: #666;
             cursor: pointer;
-            border-bottom: 4px solid transparent;
-            transition: color 0.2s, border-color 0.2s;
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
         }
-        .tab-btn:hover { color: #0066ff; }
-        .tab-btn.active { color: #0066ff; border-bottom-color: #0066ff; }
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .tab-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .tab-btn:hover::before { opacity: 1; }
+        .tab-btn[data-tab="b3"].active {
+            background: linear-gradient(135deg, #0066ff 0%, #7c3aed 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.45);
+            transform: translateY(-3px);
+        }
+        .tab-btn[data-tab="crypto"].active {
+            background: linear-gradient(135deg, #f7931a 0%, #fbbf24 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(247, 147, 26, 0.45);
+            transform: translateY(-3px);
+        }
+        .tab-btn:active { transform: translateY(-1px) scale(0.98); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -256,7 +285,7 @@
             .container { padding: 16px; }
             .chart-container { height: 280px; }
             .chart-total { margin-left: 0; width: 100%; }
-            .tab-btn { padding: 10px 18px; font-size: 1.1rem; }
+            .tab-btn { padding: 12px 24px; font-size: 1.1rem; }
             .header-totals { gap: 8px; }
             .header-total-item { padding: 6px 12px; }
             .header-total-value { font-size: 1rem; }
@@ -1261,7 +1290,6 @@
         })).filter(b => b.close != null);
     }
 
-    // ===== MAPA DE IDs DA COINGECKO (com USDC, USDT, GALOFT, TNSR) =====
     const COINGECKO_IDS = {
         BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', ADA: 'cardano', XRP: 'ripple',
         DOGE: 'dogecoin', DOT: 'polkadot', LINK: 'chainlink', LTC: 'litecoin', BCH: 'bitcoin-cash',
@@ -1276,7 +1304,6 @@
         TIA: 'celestia', JUP: 'jupiter-exchange-solana', PYTH: 'pyth-network',
         STRK: 'starknet', WLD: 'worldcoin-wld', MEME: 'memecoin', ORDI: 'ordinals',
         RON: 'ronin', GMT: 'stepn', GALA: 'gala', ENJ: 'enjincoin', CHZ: 'chiliz',
-        // Novas adições
         USDC: 'usd-coin',
         USDT: 'tether',
         GALOFT: 'clube-atletico-mineiro-fan-token',
