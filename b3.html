@@ -22,7 +22,7 @@
         .app-header h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
         .header-date { font-size: clamp(1.2rem, 3.6vw, 1.8rem); color: #444; font-weight: 500; text-transform: capitalize; }
 
-        /* ===== TOTAIS NO CABEÇALHO (caixinhas com borda) ===== */
+        /* ===== TOTAIS NO CABEÇALHO ===== */
         .header-totals {
             display: flex;
             gap: 16px;
@@ -74,7 +74,6 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); }
 
-        /* ===== ABAS MAIORES E EM NEGRITO ===== */
         .tabs {
             display: flex;
             gap: 4px;
@@ -142,12 +141,10 @@
         .table-id.hide-nome th:nth-child(2),
         .table-id.hide-nome td:nth-child(2) { display: none; }
 
-        /* ===== COLUNA NOME DA CRYPTO ===== */
         #cotacoesTableCrypto th:nth-child(2),
         #cotacoesTableCrypto td:nth-child(2) {
             min-width: 200px;
         }
-        /* ===== COLUNA NOME DA EMPRESA (B3) ===== */
         #cotacoesTableB3 th:nth-child(2),
         #cotacoesTableB3 td:nth-child(2) {
             min-width: 200px;
@@ -563,9 +560,6 @@
 <div id="toast" class="toast"></div>
 
 <script>
-    // ============================================================
-    // ESTADO E UTILITÁRIOS
-    // ============================================================
     const STORAGE_KEY = 'b3_crypto_cotacoes_data';
     const settingsModal = document.getElementById('settingsModal');
     const headerDate = document.getElementById('headerDate');
@@ -593,7 +587,6 @@
         if (el) el.textContent = 'R$ ' + fmt(totalB3Num + totalCryptoNum);
     }
 
-    // Aplica valor em um elemento com aviso opcional entre parênteses
     function aplicarTotalComAviso(el, valorNum, count, comPrefixoR$) {
         if (!el) return;
         const valorTxt = (comPrefixoR$ ? 'R$ ' : '') + fmt(valorNum);
@@ -604,7 +597,6 @@
         }
     }
 
-    // Conta quantas linhas (com código preenchido) estão sem informação
     function contarSemInfo(tab) {
         const tbody = document.getElementById('tableBody' + (tab === 'b3' ? 'B3' : 'Crypto'));
         if (!tbody) return 0;
@@ -708,9 +700,6 @@
         }));
     }
 
-    // ============================================================
-    // CONFIGURAÇÕES
-    // ============================================================
     function updateTokenBadge() {
         if (token) {
             tokenBadge.textContent = '✔ Configurado';
@@ -744,9 +733,6 @@
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('active'); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsModal.classList.contains('active')) settingsModal.classList.remove('active'); });
 
-    // ============================================================
-    // NAVEGAÇÃO POR ABAS
-    // ============================================================
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.tab;
@@ -759,9 +745,6 @@
         });
     });
 
-    // ============================================================
-    // CACHE E AMOSTRAGEM
-    // ============================================================
     const historyCache = new Map();
     const CACHE_TTL_MS = 5 * 60 * 1000;
     function cacheGet(key) {
@@ -779,9 +762,6 @@
         return result;
     }
 
-    // ============================================================
-    // PROXIES
-    // ============================================================
     const PROXIES = [
         { name: 'allorigins', build: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
         { name: 'cors.eu.org', build: (url) => `https://cors.eu.org/${url}` }
@@ -800,9 +780,6 @@
         throw lastError || new Error('Todos os proxies falharam');
     }
 
-    // ============================================================
-    // B3 — RENDER VOLUME
-    // ============================================================
     let volumeChartInstanceB3 = null;
     function renderVolumeChartB3() {
         const tbody = document.getElementById('tableBodyB3');
@@ -847,9 +824,6 @@
         });
     }
 
-    // ============================================================
-    // B3 — RENDER INDIVIDUAL
-    // ============================================================
     let individualChartInstanceB3 = null;
     let renderIndividualTokenB3 = 0;
     const periodAttemptsB3 = {
@@ -1018,9 +992,6 @@
         }
     }
 
-    // ============================================================
-    // B3 — FETCH HELPERS
-    // ============================================================
     async function fetchBrapiHistoryB3(ticker, range, interval) {
         const headers = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -1080,9 +1051,6 @@
         })).filter(b => b.close != null);
     }
 
-    // ============================================================
-    // CRYPTO — RENDER VOLUME
-    // ============================================================
     let volumeChartInstanceCrypto = null;
     function renderVolumeChartCrypto() {
         const tbody = document.getElementById('tableBodyCrypto');
@@ -1127,9 +1095,6 @@
         });
     }
 
-    // ============================================================
-    // CRYPTO — RENDER INDIVIDUAL
-    // ============================================================
     let individualChartInstanceCrypto = null;
     let renderIndividualTokenCrypto = 0;
 
@@ -1261,9 +1226,6 @@
         }
     }
 
-    // ============================================================
-    // CRYPTO — HISTÓRICO
-    // ============================================================
     async function fetchBrapiCryptoHistory(ticker, periodo) {
         const headers = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -1299,9 +1261,7 @@
         })).filter(b => b.close != null);
     }
 
-    // ============================================================
-    // COINGECKO — MAPA DE IDs (EXPANDIDO)
-    // ============================================================
+    // ===== MAPA DE IDs DA COINGECKO (com USDC, USDT, GALOFT, TNSR) =====
     const COINGECKO_IDS = {
         BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', ADA: 'cardano', XRP: 'ripple',
         DOGE: 'dogecoin', DOT: 'polkadot', LINK: 'chainlink', LTC: 'litecoin', BCH: 'bitcoin-cash',
@@ -1315,7 +1275,12 @@
         CAKE: 'pancakeswap-token', RNDR: 'render-token', INJ: 'injective-protocol', SEI: 'sei-network',
         TIA: 'celestia', JUP: 'jupiter-exchange-solana', PYTH: 'pyth-network',
         STRK: 'starknet', WLD: 'worldcoin-wld', MEME: 'memecoin', ORDI: 'ordinals',
-        RON: 'ronin', GMT: 'stepn', GALA: 'gala', ENJ: 'enjincoin', CHZ: 'chiliz'
+        RON: 'ronin', GMT: 'stepn', GALA: 'gala', ENJ: 'enjincoin', CHZ: 'chiliz',
+        // Novas adições
+        USDC: 'usd-coin',
+        USDT: 'tether',
+        GALOFT: 'clube-atletico-mineiro-fan-token',
+        TNSR: 'tensor'
     };
     function coingeckoId(symbol) {
         const upper = symbol.toUpperCase();
@@ -1349,9 +1314,6 @@
         }));
     }
 
-    // ============================================================
-    // B3 — COTAÇÃO
-    // ============================================================
     async function fetchQuoteB3(codigo, row) {
         const fonteB3 = document.getElementById('fonteSelectB3').value;
         if (fonteB3 === 'google') return fetchGoogleQuoteB3(codigo, row);
@@ -1507,9 +1469,6 @@
         } finally { nomeInput.classList.remove('loading'); }
     }
 
-    // ============================================================
-    // CRYPTO — COTAÇÃO (com fallback)
-    // ============================================================
     async function fetchQuoteCrypto(codigo, row) {
         const fonte = document.getElementById('fonteSelectCrypto').value;
         if (fonte === 'brapi') {
@@ -1614,9 +1573,6 @@
         } finally { nomeInput.classList.remove('loading'); }
     }
 
-    // ============================================================
-    // CRYPTO — BATCH (resolve rate limit)
-    // ============================================================
     function applyCryptoQuote(tr, symbol, price, change) {
         const nomeInput = tr.querySelector('.nome-input');
         const cotacaoCell = tr.querySelector('.cotacao');
@@ -1709,9 +1665,6 @@
         }
     }
 
-    // ============================================================
-    // TABELA B3 — Linhas e cálculos
-    // ============================================================
     function ordenarLinhasB3() {
         const tbody = document.getElementById('tableBodyB3');
         const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -1839,9 +1792,6 @@
         if (tickers.includes(current)) select.value = current;
     }
 
-    // ============================================================
-    // TABELA CRYPTO — Linhas e cálculos
-    // ============================================================
     function ordenarLinhasCrypto() {
         const tbody = document.getElementById('tableBodyCrypto');
         const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -1969,9 +1919,6 @@
         if (tickers.includes(current)) select.value = current;
     }
 
-    // ============================================================
-    // RESUMO MERCADO B3
-    // ============================================================
     async function fetchMarketSummaryB3() {
         fetchDolarAwesome();
         fetchIbovespaComFallback();
@@ -2028,9 +1975,6 @@
         }
     }
 
-    // ============================================================
-    // RESUMO MERCADO CRYPTO
-    // ============================================================
     async function fetchMarketSummaryCrypto() {
         fetchCryptoSummaryCard('BTC', 'resumoBtcValor', 'resumoBtcDetalhe');
         fetchCryptoSummaryCard('ETH', 'resumoEthValor', 'resumoEthDetalhe');
@@ -2074,9 +2018,6 @@
         }
     }
 
-    // ============================================================
-    // AÇÕES B3
-    // ============================================================
     document.getElementById('addRowBtnB3').addEventListener('click', () => {
         createRowB3(); ordenarLinhasB3(); saveState();
     });
@@ -2135,9 +2076,6 @@
         if (p === 'custom' && i && f && document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
     });
 
-    // ============================================================
-    // AÇÕES CRYPTO
-    // ============================================================
     document.getElementById('addRowBtnCrypto').addEventListener('click', () => {
         createRowCrypto(); ordenarLinhasCrypto(); saveState();
     });
@@ -2186,9 +2124,6 @@
         if (p === 'custom' && i && f && document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
     });
 
-    // ============================================================
-    // EXPORTAR / IMPORTAR
-    // ============================================================
     document.getElementById('exportBtn').addEventListener('click', () => {
         saveState();
         const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -2262,9 +2197,6 @@
         reader.readAsText(file, 'utf-8');
     });
 
-    // ============================================================
-    // INIT
-    // ============================================================
     updateTokenBadge();
     atualizarDataCabecalho();
 
