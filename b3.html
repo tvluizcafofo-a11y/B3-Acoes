@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- AVISO AO ANDROID WEBVIEW: FORÇAR MODO CLARO -->
     <meta name="color-scheme" content="light only">
     <meta name="theme-color" content="#f4f6f9">
     <title>Cotações B3 & Crypto</title>
@@ -61,7 +60,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* ===== BARRA GLOBAL (AUTO-REFRESH) ===== */
         .global-bar {
             display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
             padding: 12px 16px; margin-bottom: 16px; background: #f8f9fa;
@@ -100,7 +98,6 @@
         .table-id tfoot td:first-child { background: #f8f9fa; z-index: 3; }
         .table-id tbody tr:hover td:first-child { background: #fafbfc; }
 
-        /* Bolinha vermelha quando quantidade = 0 */
         .table-id td:first-child.codigo-cell { display: flex; align-items: center; gap: 5px; }
         .table-id td:first-child.codigo-cell input.codigo { flex-shrink: 0; }
         .qty-zero-dot {
@@ -110,7 +107,6 @@
         }
         .qty-zero-dot.visible { visibility: visible; }
 
-        /* Legenda da bolinha */
         .table-legend {
             display: flex; align-items: center; gap: 8px;
             padding: 10px 12px; margin: 8px 0 18px 0;
@@ -229,7 +225,6 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { background: #c62828; }
 
-        /* ===== SETAS DE SCROLL (LADO DIREITO) ===== */
         .scroll-nav {
             position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
             display: flex; flex-direction: column; gap: 10px;
@@ -267,7 +262,6 @@
 </head>
 <body>
 
-<!-- ===== SETAS DE SCROLL FIXAS NO LADO DIREITO ===== -->
 <div class="scroll-nav" aria-label="Navegação por scroll">
     <button id="scrollUpBtn" class="scroll-btn" title="Rolar para cima" aria-label="Rolar para cima">▲</button>
     <button id="scrollDownBtn" class="scroll-btn" title="Rolar para baixo" aria-label="Rolar para baixo">▼</button>
@@ -299,7 +293,6 @@
         <button class="tab-btn" data-tab="crypto">₿ Crypto</button>
     </div>
 
-    <!-- ===== BARRA GLOBAL: AUTO-REFRESH ===== -->
     <div class="global-bar">
         <label for="intervaloAutoSelect">⏱️ Auto-atualização:</label>
         <select id="intervaloAutoSelect">
@@ -313,7 +306,6 @@
         <span class="auto-refresh-hint">💡 brapi grátis: ~15.000 req/mês. Use ≥ 15 min (poucas ações) ou ≥ 30 min (muitas).</span>
     </div>
 
-    <!-- ================= ABA B3 ================= -->
     <div id="tab-b3" class="tab-content active">
         <div class="toolbar">
             <label for="fonteSelectB3" style="font-weight:600;font-size:0.85rem;color:#222;">Fonte:</label>
@@ -435,7 +427,6 @@
         </div>
     </div>
 
-    <!-- ================= ABA CRYPTO ================= -->
     <div id="tab-crypto" class="tab-content">
         <div class="toolbar">
             <label for="fonteSelectCrypto" style="font-weight:600;font-size:0.85rem;color:#222;">Fonte:</label>
@@ -609,7 +600,7 @@
     let totalCryptoNum = 0;
 
     // Auto-refresh
-    let autoRefreshTimer = null;
+    let autoRefreshTimer = null; // setTimeout recursivo
     let countdownInterval = null;
     let nextAutoRefreshTime = null;
 
@@ -792,9 +783,9 @@
         window.scrollBy({ top: Math.round(window.innerHeight * 0.8), behavior: 'smooth' });
     });
 
-    // ===== AUTO-REFRESH =====
+    // ===== AUTO-REFRESH (corrigido: countdown nunca trava em 0) =====
     function agendarAutoRefresh() {
-        if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+        if (autoRefreshTimer) { clearTimeout(autoRefreshTimer); autoRefreshTimer = null; }
         const ms = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
         const label = document.getElementById('nextUpdateLabel');
         if (ms <= 0) {
@@ -802,11 +793,20 @@
             if (label) label.textContent = '';
             return;
         }
-        nextAutoRefreshTime = Date.now() + ms;
-        autoRefreshTimer = setInterval(() => {
-            executarAtualizacaoAutomatica();
+        // Ciclo recursivo com setTimeout:
+        // - nextAutoRefreshTime é renovado ANTES de executar a atualização (assíncrona),
+        //   então o countdown nunca fica travado em 0:00 enquanto os fetches acontecem.
+        // - o próximo setTimeout é agendado imediatamente após o disparo (sem esperar
+        //   a execução assíncrona terminar), mantendo o intervalo consistente.
+        const ciclo = () => {
             nextAutoRefreshTime = Date.now() + ms;
-        }, ms);
+            autoRefreshTimer = setTimeout(() => {
+                try { executarAtualizacaoAutomatica(); }
+                catch (e) { console.warn('Auto-refresh erro:', e); }
+                ciclo();
+            }, ms);
+        };
+        ciclo();
     }
 
     function iniciarCountdown() {
@@ -820,11 +820,10 @@
             const m = Math.floor(seg / 60);
             const s = seg % 60;
             el.textContent = `⏱️ Próxima: ${m}:${String(s).padStart(2, '0')}`;
-        }, 1000);
+        }, 500);
     }
 
     function executarAtualizacaoAutomatica() {
-        // Evita conflito com o usuário digitando um código
         const focused = document.activeElement;
         if (focused && focused.classList && focused.classList.contains('codigo')) {
             console.log('Auto-refresh pausado: usuário editando código.');
@@ -836,7 +835,6 @@
             .some(tr => tr.querySelector('.codigo').value.trim());
         if (temB3) document.getElementById('refreshAllBtnB3').click();
         if (temCrypto) document.getElementById('refreshAllBtnCrypto').click();
-        // Se não houver códigos, atualiza só o resumo de mercado
         if (!temB3) fetchMarketSummaryB3();
         if (!temCrypto) fetchMarketSummaryCrypto();
     }
@@ -1767,7 +1765,6 @@
         }
     }
 
-    // ===== ORDENAÇÃO: quantidade 0 vai para o final =====
     function ordenarLinhasB3() {
         const tbody = document.getElementById('tableBodyB3');
         const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -1778,13 +1775,10 @@
             const qb = parseFloat(b.querySelector('.quantidade').value) || 0;
             const aZero = qa <= 0;
             const bZero = qb <= 0;
-            // Linhas vazias (sem código) sempre no final
             if (!ca && !cb) return 0;
             if (!ca) return 1;
             if (!cb) return -1;
-            // Com código: quantidade 0 vai para o final
             if (aZero !== bZero) return aZero ? 1 : -1;
-            // Mesmo grupo: alfabético
             return ca.localeCompare(cb, 'pt-BR');
         });
         rows.forEach(tr => tbody.appendChild(tr));
@@ -1848,10 +1842,7 @@
         codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
         nomeInput.addEventListener('input', saveState);
         quantidadeInput.addEventListener('input', () => { atualizarTotalB3(tr); saveState(); });
-        // Reordena ao sair do campo quantidade (para mover qty=0 para o final)
-        quantidadeInput.addEventListener('change', () => {
-            setTimeout(() => { ordenarLinhasB3(); }, 0);
-        });
+        quantidadeInput.addEventListener('change', () => { setTimeout(() => { ordenarLinhasB3(); }, 0); });
         removeBtn.addEventListener('click', () => {
             const c = codigoInput.value.trim();
             const n = nomeInput.value.trim();
@@ -1988,9 +1979,7 @@
         codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
         nomeInput.addEventListener('input', saveState);
         quantidadeInput.addEventListener('input', () => { atualizarTotalCrypto(tr); saveState(); });
-        quantidadeInput.addEventListener('change', () => {
-            setTimeout(() => { ordenarLinhasCrypto(); }, 0);
-        });
+        quantidadeInput.addEventListener('change', () => { setTimeout(() => { ordenarLinhasCrypto(); }, 0); });
         removeBtn.addEventListener('click', () => {
             const c = codigoInput.value.trim();
             const n = nomeInput.value.trim();
