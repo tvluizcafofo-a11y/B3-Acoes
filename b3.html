@@ -43,6 +43,31 @@
         }
         .settings-btn:hover { background: #0066ff; border-color: #0066ff; transform: rotate(60deg); color: #fff; }
 
+        .minimize-btn { right: 54px; }
+        .minimize-btn:hover { background: #7c3aed; border-color: #7c3aed; transform: scale(1.1); }
+
+        .restore-btn {
+            display: none;
+            position: fixed; inset: 0;
+            width: 100%; height: 100%;
+            border: none;
+            background: linear-gradient(135deg, #0066ff 0%, #7c3aed 100%);
+            color: #fff;
+            cursor: pointer;
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 22px;
+            font-family: inherit;
+        }
+        body.app-minimized .restore-btn { display: flex; }
+        body.app-minimized .container,
+        body.app-minimized .scroll-nav { display: none !important; }
+        .restore-icon { font-size: 5rem; line-height: 1; }
+        .restore-text { font-size: 1.8rem; font-weight: 600; letter-spacing: 0.5px; }
+        .restore-hint { font-size: 1rem; opacity: 0.85; font-weight: 400; }
+
         .tabs { display: flex; gap: 14px; margin-bottom: 24px; padding: 0; }
         .tab-btn {
             padding: 16px 44px; border: 2px solid transparent; background: #f1f4f8;
@@ -246,6 +271,7 @@
 
         @media (max-width: 600px) {
             .settings-btn { width: 40px; height: 40px; font-size: 1.25rem; }
+            .minimize-btn { right: 46px; }
             .container { padding: 16px; }
             .chart-container { height: 280px; }
             .chart-total { margin-left: 0; width: 100%; }
@@ -257,6 +283,8 @@
             .scroll-nav { right: 8px; }
             .scroll-btn { width: 40px; height: 40px; font-size: 1rem; }
             .auto-refresh-hint { margin-left: 0; }
+            .restore-icon { font-size: 4rem; }
+            .restore-text { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -269,6 +297,7 @@
 
 <div class="container">
     <header class="app-header">
+        <button id="minimizeBtn" class="settings-btn minimize-btn" title="Minimizar" aria-label="Minimizar">➖</button>
         <button id="openSettingsBtn" class="settings-btn" title="Configurações" aria-label="Configurações">⚙️</button>
         <h1>Cotações</h1>
         <div id="headerDate" class="header-date"></div>
@@ -297,13 +326,15 @@
         <label for="intervaloAutoSelect">⏱️ Auto-atualização:</label>
         <select id="intervaloAutoSelect">
             <option value="0">Desativada (manual)</option>
+            <option value="2000">2 segundos</option>
+            <option value="60000">1 minuto</option>
             <option value="300000">5 minutos</option>
             <option value="900000">15 minutos</option>
             <option value="1800000">30 minutos</option>
             <option value="3600000">1 hora</option>
         </select>
         <span id="nextUpdateLabel" class="next-update"></span>
-        <span class="auto-refresh-hint">💡 brapi grátis: ~15.000 req/mês. Use ≥ 15 min (poucas ações) ou ≥ 30 min (muitas).</span>
+        <span class="auto-refresh-hint">💡 brapi grátis: ~15.000 req/mês. Use ≥ 15 min (poucas ações) ou ≥ 30 min (muitas). Intervalos curtos (2s/1min) esgotam a cota rapidamente.</span>
     </div>
 
     <div id="tab-b3" class="tab-content active">
@@ -548,6 +579,12 @@
     </div>
 </div>
 
+<button id="restoreBtn" class="restore-btn" aria-label="Restaurar app">
+    <span class="restore-icon">📈</span>
+    <span class="restore-text">Toque para voltar ao B3</span>
+    <span class="restore-hint">O app atualizará as cotações automaticamente</span>
+</button>
+
 <div class="modal-overlay" id="settingsModal">
     <div class="modal">
         <h2>⚙️ Configurações</h2>
@@ -777,10 +814,34 @@
 
     // ===== SETAS DE SCROLL =====
     document.getElementById('scrollUpBtn').addEventListener('click', () => {
-        window.scrollBy({ top: -Math.round(window.innerHeight * 0.8), behavior: 'smooth' });
+        window.scrollBy({ top: -Math.round(window.innerHeight * 0.4), behavior: 'smooth' });
     });
     document.getElementById('scrollDownBtn').addEventListener('click', () => {
-        window.scrollBy({ top: Math.round(window.innerHeight * 0.8), behavior: 'smooth' });
+        window.scrollBy({ top: Math.round(window.innerHeight * 0.4), behavior: 'smooth' });
+    });
+
+    // ===== MINIMIZAR / RESTAURAR =====
+    document.getElementById('minimizeBtn').addEventListener('click', () => {
+        document.body.classList.add('app-minimized');
+    });
+    document.getElementById('restoreBtn').addEventListener('click', () => {
+        document.body.classList.remove('app-minimized');
+        // Ao voltar, tenta atualizar imediatamente (caso o sistema tenha pausado os timers)
+        try { executarAtualizacaoAutomatica(); }
+        catch (e) { console.warn('Refresh ao restaurar:', e); }
+    });
+
+    // ===== REFRESH AO VOLTAR (visibilitychange) =====
+    // Quando o WebView volta ao primeiro plano, dispara atualização imediata
+    // (sem esperar o próximo ciclo do timer, que pode ter sido pausado em background).
+    let lastAutoRefreshOnVisible = Date.now();
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        const now = Date.now();
+        if (now - lastAutoRefreshOnVisible < 5000) return; // evita duplo disparo em flapping
+        lastAutoRefreshOnVisible = now;
+        try { executarAtualizacaoAutomatica(); }
+        catch (e) { console.warn('Refresh ao voltar:', e); }
     });
 
     // ===== AUTO-REFRESH (corrigido: countdown nunca trava em 0) =====
@@ -844,7 +905,10 @@
         agendarAutoRefresh();
         const ms = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
         if (ms > 0) {
-            showToast(`⏱️ Auto-atualização ativada a cada ${Math.round(ms/60000)} min`);
+            const txt = ms < 60000
+                ? `${ms / 1000} segundo${ms === 1000 ? '' : 's'}`
+                : `${Math.round(ms / 60000)} min`;
+            showToast(`⏱️ Auto-atualização ativada a cada ${txt}`);
         } else {
             showToast('⏱️ Auto-atualização desativada');
         }
