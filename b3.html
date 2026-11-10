@@ -34,6 +34,19 @@
         .header-total-item.geral { background: #fafafa; border-color: #d8d8d8; }
         .header-total-item.geral .header-total-value { color: #1a1a1a; font-size: 1.25rem; }
 
+        .header-index {
+            display: inline-flex; align-items: baseline; gap: 12px;
+            margin-top: 12px; padding: 8px 20px;
+            background: #f5f0fa; border: 1px solid #e0d0f0; border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(142, 68, 173, 0.08);
+        }
+        .header-index-label { font-weight: 600; color: #8e44ad; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+        .header-index-value { font-weight: 700; color: #222; font-variant-numeric: tabular-nums; font-size: 1.15rem; }
+        .header-index-change { font-weight: 600; font-size: 0.95rem; }
+        .header-index-change.positivo { color: #0a7a3e; }
+        .header-index-change.negativo { color: #c62828; }
+        .header-index-change.neutro { color: #666; }
+
         .settings-btn {
             position: absolute; top: 4px; right: 0; width: 46px; height: 46px;
             border: 1px solid #d0d7de; background: #f8f9fa; border-radius: 50%;
@@ -110,6 +123,26 @@
         .toolbar select { background: #fff; color: #222; border: 1px solid #ccc; }
         .toolbar select:focus { outline: 2px solid #0066ff; }
 
+        .toolbar button.add-btn {
+            background: #ffc107;
+            color: #1a1a1a;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.45);
+            border: 1px solid #e0a800;
+        }
+        .toolbar button.add-btn:hover {
+            background: #ffb300;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.65);
+        }
+
+        .toolbar button.edit-btn.active {
+            background: #0a7a3e;
+        }
+        .toolbar button.edit-btn.active:hover {
+            background: #065a2c;
+        }
+
         .table-wrapper { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; margin-bottom: 8px; }
         table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.9rem; }
         th { padding: 10px 8px; background: #f1f4f8; font-weight: 700; color: #222; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 2px solid #d8dee8; text-align: left; vertical-align: middle; white-space: nowrap; }
@@ -163,6 +196,18 @@
         input.quantidade { width: 85px; text-align: right; }
         input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; color: #222; }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
+
+        input.codigo:disabled,
+        input.quantidade:disabled,
+        input.nome-input:disabled {
+            background: #f0f2f5;
+            color: #444;
+            opacity: 1;
+            cursor: default;
+            border-color: #e0e0e0;
+        }
+        input.codigo:disabled { color: #0a3d8f; }
+        input:disabled::placeholder { color: #aaa; }
 
         .loading { color: #0066ff; font-style: italic; }
         .error { color: #dc3545; border-color: #dc3545 !important; }
@@ -280,6 +325,8 @@
             .header-total-item { padding: 6px 12px; }
             .header-total-value { font-size: 1rem; }
             .header-total-item.geral .header-total-value { font-size: 1.1rem; }
+            .header-index { padding: 6px 14px; gap: 8px; }
+            .header-index-value { font-size: 1rem; }
             .scroll-nav { right: 8px; }
             .scroll-btn { width: 40px; height: 40px; font-size: 1rem; }
             .auto-refresh-hint { margin-left: 0; }
@@ -315,6 +362,11 @@
                 <span class="header-total-value" id="headerTotalGeral">R$ 0,00</span>
             </div>
         </div>
+        <div class="header-index">
+            <span class="header-index-label">📊 Ibovespa</span>
+            <span class="header-index-value" id="headerIbovespaValor">—</span>
+            <span class="header-index-change neutro" id="headerIbovespaDetalhe">—</span>
+        </div>
     </header>
 
     <div class="tabs">
@@ -345,8 +397,9 @@
                 <option value="google">Google Finance</option>
                 <option value="yahoo">Yahoo Finance</option>
             </select>
-            <button id="addRowBtnB3">➕ Ativo</button>
+            <button id="addRowBtnB3" class="add-btn">➕ Ativo</button>
             <button id="refreshAllBtnB3" class="secondary">🔄 Atualizar</button>
+            <button id="toggleEditBtnB3" class="edit-btn">✏️ Editar</button>
             <button id="toggleNomeColBtnB3" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
         </div>
 
@@ -465,8 +518,9 @@
                 <option value="brapi">brapi.dev (padrão)</option>
                 <option value="coingecko">CoinGecko (sem token)</option>
             </select>
-            <button id="addRowBtnCrypto">➕ Cripto</button>
+            <button id="addRowBtnCrypto" class="add-btn">➕ Cripto</button>
             <button id="refreshAllBtnCrypto" class="secondary">🔄 Atualizar</button>
+            <button id="toggleEditBtnCrypto" class="edit-btn">✏️ Editar</button>
             <button id="toggleNomeColBtnCrypto" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
         </div>
 
@@ -636,8 +690,12 @@
     let totalB3Num = 0;
     let totalCryptoNum = 0;
 
+    // Modo edição (bloqueado por padrão, por segurança)
+    let editModeB3 = false;
+    let editModeCrypto = false;
+
     // Auto-refresh
-    let autoRefreshTimer = null; // setTimeout recursivo
+    let autoRefreshTimer = null;
     let countdownInterval = null;
     let nextAutoRefreshTime = null;
 
@@ -826,25 +884,50 @@
     });
     document.getElementById('restoreBtn').addEventListener('click', () => {
         document.body.classList.remove('app-minimized');
-        // Ao voltar, tenta atualizar imediatamente (caso o sistema tenha pausado os timers)
         try { executarAtualizacaoAutomatica(); }
         catch (e) { console.warn('Refresh ao restaurar:', e); }
     });
 
     // ===== REFRESH AO VOLTAR (visibilitychange) =====
-    // Quando o WebView volta ao primeiro plano, dispara atualização imediata
-    // (sem esperar o próximo ciclo do timer, que pode ter sido pausado em background).
     let lastAutoRefreshOnVisible = Date.now();
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'visible') return;
         const now = Date.now();
-        if (now - lastAutoRefreshOnVisible < 5000) return; // evita duplo disparo em flapping
+        if (now - lastAutoRefreshOnVisible < 5000) return;
         lastAutoRefreshOnVisible = now;
         try { executarAtualizacaoAutomatica(); }
         catch (e) { console.warn('Refresh ao voltar:', e); }
     });
 
-    // ===== AUTO-REFRESH (corrigido: countdown nunca trava em 0) =====
+    // ===== MODO EDIÇÃO =====
+    function aplicarModoEdicaoTab(tab) {
+        const isB3 = tab === 'b3';
+        const editMode = isB3 ? editModeB3 : editModeCrypto;
+        const tbody = document.getElementById(isB3 ? 'tableBodyB3' : 'tableBodyCrypto');
+        const btn = document.getElementById(isB3 ? 'toggleEditBtnB3' : 'toggleEditBtnCrypto');
+        if (tbody) {
+            tbody.querySelectorAll('.codigo, .nome-input, .quantidade').forEach(inp => {
+                inp.disabled = !editMode;
+            });
+        }
+        if (btn) {
+            btn.classList.toggle('active', editMode);
+            btn.textContent = editMode ? '✅ Finalizar' : '✏️ Editar';
+        }
+    }
+
+    document.getElementById('toggleEditBtnB3').addEventListener('click', () => {
+        editModeB3 = !editModeB3;
+        aplicarModoEdicaoTab('b3');
+        showToast(editModeB3 ? '✏️ Edição ativada (B3)' : '🔒 Edição bloqueada (B3)');
+    });
+    document.getElementById('toggleEditBtnCrypto').addEventListener('click', () => {
+        editModeCrypto = !editModeCrypto;
+        aplicarModoEdicaoTab('crypto');
+        showToast(editModeCrypto ? '✏️ Edição ativada (Crypto)' : '🔒 Edição bloqueada (Crypto)');
+    });
+
+    // ===== AUTO-REFRESH =====
     function agendarAutoRefresh() {
         if (autoRefreshTimer) { clearTimeout(autoRefreshTimer); autoRefreshTimer = null; }
         const ms = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
@@ -854,11 +937,6 @@
             if (label) label.textContent = '';
             return;
         }
-        // Ciclo recursivo com setTimeout:
-        // - nextAutoRefreshTime é renovado ANTES de executar a atualização (assíncrona),
-        //   então o countdown nunca fica travado em 0:00 enquanto os fetches acontecem.
-        // - o próximo setTimeout é agendado imediatamente após o disparo (sem esperar
-        //   a execução assíncrona terminar), mantendo o intervalo consistente.
         const ciclo = () => {
             nextAutoRefreshTime = Date.now() + ms;
             autoRefreshTimer = setTimeout(() => {
@@ -886,7 +964,7 @@
 
     function executarAtualizacaoAutomatica() {
         const focused = document.activeElement;
-        if (focused && focused.classList && focused.classList.contains('codigo')) {
+        if (focused && focused.classList && focused.classList.contains('codigo') && !focused.disabled) {
             console.log('Auto-refresh pausado: usuário editando código.');
             return;
         }
@@ -1876,6 +1954,10 @@
         const quantidadeInput = tr.querySelector('.quantidade');
         const removeBtn = tr.querySelector('.remove-btn');
 
+        codigoInput.disabled = !editModeB3;
+        nomeInput.disabled = !editModeB3;
+        quantidadeInput.disabled = !editModeB3;
+
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
@@ -2013,6 +2095,10 @@
         const quantidadeInput = tr.querySelector('.quantidade');
         const removeBtn = tr.querySelector('.remove-btn');
 
+        codigoInput.disabled = !editModeCrypto;
+        nomeInput.disabled = !editModeCrypto;
+        quantidadeInput.disabled = !editModeCrypto;
+
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
@@ -2146,24 +2232,52 @@
             const json = await resp.json();
             const data = json.results?.[0];
             if (!data) throw new Error('Dados vazios');
-            document.getElementById('resumoIbovespaValor').textContent = data.regularMarketPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const pct = data.regularMarketChangePercent;
-            document.getElementById('resumoIbovespaDetalhe').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            atualizarIbovespaNaTela(data.regularMarketPrice, data.regularMarketChangePercent);
             return;
         } catch (e) { console.warn('brapi Ibovespa:', e.message); }
         try {
             const url = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBVSP?interval=1d&range=1d';
             const json = await fetchWithProxies(url);
             const meta = json.chart.result[0].meta;
-            document.getElementById('resumoIbovespaValor').textContent = meta.regularMarketPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const pct = meta.regularMarketChangePercent;
-            document.getElementById('resumoIbovespaDetalhe').textContent = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
-            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            atualizarIbovespaNaTela(meta.regularMarketPrice, meta.regularMarketChangePercent);
         } catch (e) {
-            document.getElementById('resumoIbovespaValor').textContent = 'Indisponível';
-            document.getElementById('resumoIbovespaDetalhe').textContent = 'Tente novamente';
-            document.getElementById('resumoIbovespaDetalhe').className = 'detalhe negativo';
+            atualizarIbovespaNaTela(null, null);
+        }
+    }
+    function atualizarIbovespaNaTela(preco, pct) {
+        const resumoValor = document.getElementById('resumoIbovespaValor');
+        const resumoDetalhe = document.getElementById('resumoIbovespaDetalhe');
+        const headerValor = document.getElementById('headerIbovespaValor');
+        const headerDetalhe = document.getElementById('headerIbovespaDetalhe');
+        if (preco == null) {
+            resumoValor.textContent = 'Indisponível';
+            resumoDetalhe.textContent = 'Tente novamente';
+            resumoDetalhe.className = 'detalhe negativo';
+            if (headerValor) headerValor.textContent = '—';
+            if (headerDetalhe) {
+                headerDetalhe.textContent = '—';
+                headerDetalhe.className = 'header-index-change neutro';
+            }
+            return;
+        }
+        const valorTxt = preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        resumoValor.textContent = valorTxt;
+        if (headerValor) headerValor.textContent = valorTxt;
+        if (pct != null && isFinite(pct)) {
+            const pctTxt = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
+            resumoDetalhe.textContent = pctTxt;
+            resumoDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
+            if (headerDetalhe) {
+                headerDetalhe.textContent = pctTxt;
+                headerDetalhe.className = 'header-index-change ' + (pct >= 0 ? 'positivo' : 'negativo');
+            }
+        } else {
+            resumoDetalhe.textContent = '—';
+            resumoDetalhe.className = 'detalhe neutro';
+            if (headerDetalhe) {
+                headerDetalhe.textContent = '—';
+                headerDetalhe.className = 'header-index-change neutro';
+            }
         }
     }
 
@@ -2211,7 +2325,14 @@
     }
 
     document.getElementById('addRowBtnB3').addEventListener('click', () => {
-        createRowB3(); ordenarLinhasB3(); saveState();
+        if (!editModeB3) {
+            editModeB3 = true;
+            aplicarModoEdicaoTab('b3');
+        }
+        const newRow = createRowB3();
+        ordenarLinhasB3();
+        saveState();
+        try { newRow.querySelector('.codigo').focus(); } catch (e) {}
     });
     document.getElementById('refreshAllBtnB3').addEventListener('click', () => {
         const rows = Array.from(document.querySelectorAll('#tableBodyB3 tr')).filter(tr => tr.querySelector('.codigo').value.trim());
@@ -2269,7 +2390,14 @@
     });
 
     document.getElementById('addRowBtnCrypto').addEventListener('click', () => {
-        createRowCrypto(); ordenarLinhasCrypto(); saveState();
+        if (!editModeCrypto) {
+            editModeCrypto = true;
+            aplicarModoEdicaoTab('crypto');
+        }
+        const newRow = createRowCrypto();
+        ordenarLinhasCrypto();
+        saveState();
+        try { newRow.querySelector('.codigo').focus(); } catch (e) {}
     });
     document.getElementById('refreshAllBtnCrypto').addEventListener('click', async () => {
         await refreshAllCryptoBatch();
@@ -2369,6 +2497,7 @@
                 calcularTotaisB3();
                 atualizarSelectAtivosB3();
                 renderVolumeChartB3();
+                aplicarModoEdicaoTab('b3');
 
                 document.getElementById('tableBodyCrypto').innerHTML = '';
                 if (cryptorows.length === 0) createRowCrypto(); else cryptorows.forEach(r => createRowCrypto(r));
@@ -2376,6 +2505,7 @@
                 calcularTotaisCrypto();
                 atualizarSelectAtivosCrypto();
                 renderVolumeChartCrypto();
+                aplicarModoEdicaoTab('crypto');
 
                 document.getElementById('fonteSelectB3').value = state.b3.fonte || 'brapi';
                 document.getElementById('fonteSelectCrypto').value = state.crypto.fonte || 'brapi';
@@ -2406,6 +2536,7 @@
         document.getElementById('cotacoesTableB3').classList.add('hide-nome');
         document.getElementById('toggleNomeColBtnB3').textContent = '👁️ Mostrar Nome';
     }
+    aplicarModoEdicaoTab('b3');
 
     document.getElementById('fonteSelectCrypto').value = state.crypto.fonte;
     if (state.crypto.rows.length === 0) createRowCrypto();
@@ -2418,11 +2549,11 @@
         document.getElementById('cotacoesTableCrypto').classList.add('hide-nome');
         document.getElementById('toggleNomeColBtnCrypto').textContent = '👁️ Mostrar Nome';
     }
+    aplicarModoEdicaoTab('crypto');
 
     if (activeTab === 'crypto') document.querySelector('[data-tab="crypto"]').click();
     else document.querySelector('[data-tab="b3"]').click();
 
-    // Restaurar auto-refresh salvo
     document.getElementById('intervaloAutoSelect').value = String(state.autoRefreshMs || 0);
     agendarAutoRefresh();
     iniciarCountdown();
