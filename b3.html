@@ -17,6 +17,18 @@
         body { font-family: system-ui, Arial, sans-serif; margin: 12px; }
         .container { max-width: 1800px; margin: 0 auto; background: #fff; padding: 20px 28px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
+        .alert-banner {
+            display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 6000;
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%); color: #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35); animation: slideDown 0.35s ease-out;
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+        .alert-banner-content { display: flex; align-items: center; gap: 12px; padding: 14px 20px; max-width: 1800px; margin: 0 auto; }
+        .alert-banner-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .alert-banner-text { flex: 1; font-size: 0.95rem; line-height: 1.5; }
+        .alert-banner-close { background: rgba(255,255,255,0.22); border: none; color: #fff; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 1.15rem; font-weight: 700; flex-shrink: 0; }
+        .alert-banner-close:hover { background: rgba(255,255,255,0.4); }
+
         .app-header {
             position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; gap: 8px; margin-bottom: 16px; padding-bottom: 16px;
@@ -60,23 +72,13 @@
         .minimize-btn:hover { background: #7c3aed; border-color: #7c3aed; transform: scale(1.1); }
 
         .restore-btn {
-            display: none;
-            position: fixed; inset: 0;
-            width: 100%; height: 100%;
-            border: none;
-            background: linear-gradient(135deg, #0066ff 0%, #7c3aed 100%);
-            color: #fff;
-            cursor: pointer;
-            z-index: 5000;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 22px;
-            font-family: inherit;
+            display: none; position: fixed; inset: 0; width: 100%; height: 100%;
+            border: none; background: linear-gradient(135deg, #0066ff 0%, #7c3aed 100%);
+            color: #fff; cursor: pointer; z-index: 5000;
+            align-items: center; justify-content: center; flex-direction: column; gap: 22px; font-family: inherit;
         }
         body.app-minimized .restore-btn { display: flex; }
-        body.app-minimized .container,
-        body.app-minimized .scroll-nav { display: none !important; }
+        body.app-minimized .container, body.app-minimized .scroll-nav { display: none !important; }
         .restore-icon { font-size: 5rem; line-height: 1; }
         .restore-text { font-size: 1.8rem; font-weight: 600; letter-spacing: 0.5px; }
         .restore-hint { font-size: 1rem; opacity: 0.85; font-weight: 400; }
@@ -104,16 +106,15 @@
             border: 1px solid #e0e6ed; border-radius: 8px; font-size: 0.88rem;
         }
         .global-bar label { font-weight: 600; color: #333; }
-        .global-bar select {
-            padding: 7px 12px; border: 1px solid #ccc; border-radius: 6px;
-            background: #fff; color: #222; font-size: 0.88rem; cursor: pointer;
-        }
+        .global-bar select { padding: 7px 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; color: #222; font-size: 0.88rem; cursor: pointer; }
         .global-bar select:focus { outline: 2px solid #0066ff; }
-        .next-update {
-            font-weight: 600; color: #0066ff; font-variant-numeric: tabular-nums;
-            min-width: 160px; font-size: 0.88rem;
-        }
+        .next-update { font-weight: 600; color: #0066ff; font-variant-numeric: tabular-nums; min-width: 160px; font-size: 0.88rem; }
         .auto-refresh-hint { margin-left: auto; font-size: 0.78rem; color: #888; font-style: italic; }
+
+        .lance-badge { display: none; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+        .lance-badge.ativo { display: inline-flex; background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .lance-badge.atingido { display: inline-flex; background: #c62828; color: #fff; border: 1px solid #a71d2a; animation: pulseBadge 1.5s infinite; }
+        @keyframes pulseBadge { 0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.5); } 50% { box-shadow: 0 0 0 8px rgba(198, 40, 40, 0); } }
 
         .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
         .toolbar button, .toolbar select { padding: 9px 16px; border: none; border-radius: 6px; background: #0066ff; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.9rem; }
@@ -123,25 +124,14 @@
         .toolbar select { background: #fff; color: #222; border: 1px solid #ccc; }
         .toolbar select:focus { outline: 2px solid #0066ff; }
 
-        .toolbar button.add-btn {
-            background: #ffc107;
-            color: #1a1a1a;
-            font-weight: 800;
-            font-size: 0.95rem;
-            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.45);
-            border: 1px solid #e0a800;
-        }
-        .toolbar button.add-btn:hover {
-            background: #ffb300;
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.65);
-        }
-
-        .toolbar button.edit-btn.active {
-            background: #0a7a3e;
-        }
-        .toolbar button.edit-btn.active:hover {
-            background: #065a2c;
-        }
+        .toolbar button.add-btn { background: #ffc107; color: #1a1a1a; font-weight: 800; font-size: 0.95rem; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.45); border: 1px solid #e0a800; }
+        .toolbar button.add-btn:hover { background: #ffb300; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.65); }
+        .toolbar button.edit-btn.active { background: #0a7a3e; }
+        .toolbar button.edit-btn.active:hover { background: #065a2c; }
+        .toolbar button.lance-btn { background: #8e44ad; color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(142, 68, 173, 0.35); }
+        .toolbar button.lance-btn:hover { background: #6c3483; }
+        .toolbar button.lance-btn.alerta { background: #c62828; animation: pulseBadge 1.5s infinite; }
+        .toolbar button.lance-btn.alerta:hover { background: #a71d2a; }
 
         .table-wrapper { overflow-x: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; margin-bottom: 8px; }
         table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 0.9rem; }
@@ -150,62 +140,120 @@
         tr:hover td { background: #fafbfc; }
         tfoot td { background: #f8f9fa; border-top: 2px solid #0066ff; padding: 12px 8px; }
 
-        .table-id th:first-child,
-        .table-id td:first-child { position: sticky; left: 0; background: #fff; z-index: 2; box-shadow: 3px 0 5px -3px rgba(0,0,0,0.18); }
+        .table-id th:first-child, .table-id td:first-child { position: sticky; left: 0; background: #fff; z-index: 2; box-shadow: 3px 0 5px -3px rgba(0,0,0,0.18); }
         .table-id thead th:first-child { background: #f1f4f8; z-index: 3; }
         .table-id tfoot td:first-child { background: #f8f9fa; z-index: 3; }
         .table-id tbody tr:hover td:first-child { background: #fafbfc; }
 
         .table-id td:first-child.codigo-cell { display: flex; align-items: center; gap: 5px; }
         .table-id td:first-child.codigo-cell input.codigo { flex-shrink: 0; }
-        .qty-zero-dot {
-            display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-            background: #c62828; box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.15);
-            flex-shrink: 0; visibility: hidden; transition: box-shadow 0.2s;
-        }
+        .qty-zero-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #c62828; box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.15); flex-shrink: 0; visibility: hidden; transition: box-shadow 0.2s; }
         .qty-zero-dot.visible { visibility: visible; }
 
+        .lance-indicator { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #ccc; flex-shrink: 0; visibility: hidden; transition: background 0.2s, box-shadow 0.2s, transform 0.2s; }
+        .lance-indicator.ativo { visibility: visible; background: #facc15; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4), 0 0 0 1px #b45309 inset; cursor: pointer; }
+        .lance-indicator.atingido { visibility: visible; background: #dc2626; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(220, 38, 38, 0.7); animation: pulseLanceAtingido 1s infinite; cursor: pointer; }
+        @keyframes pulseLanceAtingido {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(220, 38, 38, 0.7); }
+            50% { transform: scale(1.35); box-shadow: 0 0 0 2px #ffffff, 0 0 0 7px rgba(220, 38, 38, 0.25); }
+        }
+
         .table-legend {
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
             padding: 10px 12px; margin: 8px 0 18px 0;
             background: #fff8f8; border: 1px solid #ffd0d0; border-radius: 8px;
             font-size: 0.85rem; color: #555;
         }
         .table-legend .qty-zero-dot { visibility: visible; width: 12px; height: 12px; }
+        .table-legend .lance-indicator { visibility: visible; }
         .table-legend strong { color: #c62828; }
+        .table-legend .legend-sep { color: #ccc; margin: 0 6px; }
+        .legend-lances { display: contents; }
 
-        .table-id thead th:nth-child(3),
-        .table-id thead th:nth-child(4),
-        .table-id thead th:nth-child(6),
-        .table-id td.cotacao,
-        .table-id td.variacao,
-        .table-id td.valor-total,
-        .table-id tfoot .totalCarteira,
-        .table-id tfoot .total-var { text-align: right; }
+        /* ===== PAINEL DE LANCES EM ABERTO (abaixo da planilha) ===== */
+        .open-lances-panel {
+            margin: 10px 0 14px 0;
+            padding: 14px 16px;
+            background: #fffdf5;
+            border: 1px solid #ffe8a1;
+            border-radius: 10px;
+            border-left: 5px solid #facc15;
+            box-shadow: 0 2px 8px rgba(250, 204, 21, 0.12);
+        }
+        .open-lances-header {
+            font-weight: 800;
+            font-size: 0.82rem;
+            color: #78350f;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .open-lances-list { display: flex; flex-direction: column; gap: 6px; }
+        .open-lance-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 12px;
+            background: #fff;
+            border: 1px solid #ffe8a1;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+        .open-lance-item:hover {
+            background: #fff9e6;
+            border-color: #facc15;
+            box-shadow: 0 2px 8px rgba(250, 204, 21, 0.25);
+            transform: translateY(-1px);
+        }
+        .open-lance-item.atingido {
+            background: #fff5f5;
+            border-color: #ffb3b3;
+            border-left: 4px solid #dc2626;
+        }
+        .open-lance-item.atingido:hover {
+            background: #ffe8e8;
+            border-color: #ff8f8f;
+        }
+        .open-lance-op {
+            font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+            border-radius: 8px; text-transform: uppercase; flex-shrink: 0;
+        }
+        .open-lance-op.compra { background: #d4edda; color: #155724; }
+        .open-lance-op.venda { background: #f8d7da; color: #721c24; }
+        .open-lance-code { font-weight: 800; color: #0a3d8f; font-size: 0.95rem; }
+        .open-lance-info { color: #444; }
+        .open-lance-info strong { color: #222; }
+        .open-lance-validade {
+            font-size: 0.76rem; color: #856404; font-style: italic;
+            padding: 2px 8px; background: #fff8e1; border-radius: 8px;
+            border: 1px solid #ffe8a1;
+        }
+        .open-lance-status {
+            font-size: 0.74rem; font-weight: 700;
+            padding: 3px 9px; border-radius: 10px;
+            flex-shrink: 0; margin-left: auto;
+        }
+        .open-lance-status.ativo { background: #fff3cd; color: #856404; }
+        .open-lance-status.atingido { background: #c62828; color: #fff; animation: pulseBadge 1.5s infinite; }
 
-        .table-id.hide-nome th:nth-child(2),
-        .table-id.hide-nome td:nth-child(2) { display: none; }
+        .table-id thead th:nth-child(3), .table-id thead th:nth-child(4), .table-id thead th:nth-child(6),
+        .table-id td.cotacao, .table-id td.variacao, .table-id td.valor-total,
+        .table-id tfoot .totalCarteira, .table-id tfoot .total-var { text-align: right; }
 
-        #cotacoesTableCrypto th:nth-child(2),
-        #cotacoesTableCrypto td:nth-child(2) { min-width: 200px; }
-        #cotacoesTableB3 th:nth-child(2),
-        #cotacoesTableB3 td:nth-child(2) { min-width: 200px; }
+        .table-id.hide-nome th:nth-child(2), .table-id.hide-nome td:nth-child(2) { display: none; }
+        #cotacoesTableCrypto th:nth-child(2), #cotacoesTableCrypto td:nth-child(2) { min-width: 200px; }
+        #cotacoesTableB3 th:nth-child(2), #cotacoesTableB3 td:nth-child(2) { min-width: 200px; }
 
         input.codigo, input.quantidade { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; color: #222; background: #fff; }
         input.codigo { width: 90px; text-transform: uppercase; font-weight: 700; color: #0a3d8f; }
         input.quantidade { width: 85px; text-align: right; }
         input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; color: #222; }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
-
-        input.codigo:disabled,
-        input.quantidade:disabled,
-        input.nome-input:disabled {
-            background: #f0f2f5;
-            color: #444;
-            opacity: 1;
-            cursor: default;
-            border-color: #e0e0e0;
-        }
+        input.codigo:disabled, input.quantidade:disabled, input.nome-input:disabled { background: #f0f2f5; color: #444; opacity: 1; cursor: default; border-color: #e0e0e0; }
         input.codigo:disabled { color: #0a3d8f; }
         input:disabled::placeholder { color: #aaa; }
 
@@ -271,16 +319,102 @@
         .settings-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
         .settings-btn-row button { flex: 1; min-width: 130px; padding: 11px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.92rem; }
         .modal label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
-        .modal input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; margin-bottom: 4px; color: #222; background: #fff; }
-        .modal input[type="text"]:focus { border-color: #0066ff; outline: none; }
+        .modal input[type="text"], .modal input[type="number"], .modal input[type="date"] { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; margin-bottom: 4px; color: #222; background: #fff; }
+        .modal input[type="text"]:focus, .modal input[type="number"]:focus, .modal input[type="date"]:focus { border-color: #0066ff; outline: none; }
         .modal .hint { font-size: 0.85rem; color: #555; margin-bottom: 10px; line-height: 1.55; }
         .modal .hint a { color: #0066ff; }
-        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
         .modal-actions button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
         .btn-primary { background: #0066ff; color: #fff; }
         .btn-primary:hover { background: #0047b3; }
         .btn-secondary { background: #6c757d; color: #fff; }
         .btn-secondary:hover { background: #4e555b; }
+        .btn-warn { background: #f59e0b; color: #fff; }
+        .btn-warn:hover { background: #d97706; }
+
+        .back-btn {
+            background: transparent; border: 1px solid #ccc; color: #444;
+            padding: 6px 14px; border-radius: 6px; cursor: pointer;
+            font-size: 0.88rem; margin-bottom: 14px; font-weight: 600;
+        }
+        .back-btn:hover { background: #f0f2f5; border-color: #999; }
+
+        .lance-form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .lance-form-row label { flex: 0 0 92px; margin: 0; font-size: 0.88rem; }
+        .lance-form-row input, .lance-form-row select { flex: 1; padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.92rem; background: #fff; color: #222; }
+        .lance-form-row input:focus, .lance-form-row select:focus { border-color: #0066ff; outline: none; }
+
+        .lance-list { margin-bottom: 8px; }
+        .lance-item {
+            padding: 12px 14px; border: 1px solid #e0e6ed; border-radius: 10px;
+            margin-bottom: 8px; background: #fafbfc; cursor: pointer;
+            transition: all 0.15s; position: relative;
+            border-left: 5px solid #facc15;
+        }
+        .lance-item:hover { background: #f4f7fb; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .lance-item.atingido { border-left-color: #dc2626; background: #fff5f5; }
+        .lance-item.atingido:hover { background: #ffe8e8; }
+        .lance-item.executado { border-left-color: #0a7a3e; background: #f0faf4; }
+        .lance-item.executado:hover { background: #e3f5ea; }
+        .lance-item.nao_executado { border-left-color: #f59e0b; background: #fffaf0; }
+        .lance-item.nao_executado:hover { background: #fff3d6; }
+        .lance-item.cancelado { border-left-color: #9ca3af; background: #f5f6f8; opacity: 0.75; }
+        .lance-item.cancelado:hover { background: #eef0f2; }
+        .lance-item.expirado { border-left-color: #d1d5db; background: #f9fafb; opacity: 0.6; }
+        .lance-item.expirado:hover { background: #f0f1f3; }
+
+        .lance-item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+        .lance-item-tab { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #e0e6ed; color: #333; text-transform: uppercase; letter-spacing: 0.3px; }
+        .lance-item-code { font-weight: 700; font-size: 1.05rem; color: #0a3d8f; }
+        .lance-item-op { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+        .lance-item-op.compra { background: #d4edda; color: #155724; }
+        .lance-item-op.venda { background: #f8d7da; color: #721c24; }
+        .lance-item-info { font-size: 0.85rem; color: #444; margin-bottom: 4px; }
+        .lance-item-status { font-size: 0.82rem; font-weight: 600; }
+        .lance-item-status.ativo { color: #b8730a; }
+        .lance-item-status.atingido { color: #c62828; }
+        .lance-item-status.executado { color: #0a7a3e; }
+        .lance-item-status.nao_executado { color: #b45309; }
+        .lance-item-status.cancelado { color: #6b7280; }
+        .lance-item-status.expirado { color: #6b7280; }
+
+        .lance-list-empty { color: #888; font-style: italic; text-align: center; padding: 24px; font-size: 0.92rem; }
+
+        .lance-filter-banner {
+            display: none; padding: 10px 12px; background: #e8f0ff; border: 1px solid #b3d0ff;
+            border-radius: 8px; margin-bottom: 12px; font-size: 0.88rem;
+            align-items: center; gap: 8px; color: #0047b3;
+        }
+        .lance-filter-banner.visible { display: flex; }
+        .lance-filter-banner button { background: #fff; border: 1px solid #b3d0ff; color: #0047b3; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .lance-filter-banner button:hover { background: #d0e2ff; }
+
+        .lance-detail-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .lance-detail-code { font-size: 2rem; font-weight: 800; color: #0a3d8f; margin: 4px 0 12px 0; letter-spacing: -0.5px; }
+        .lance-detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+            padding: 16px; background: #f8f9fa; border-radius: 10px; margin: 12px 0;
+            font-size: 0.92rem; border: 1px solid #e0e6ed;
+        }
+        .lance-detail-label { color: #666; font-weight: 600; }
+        .lance-detail-value { color: #222; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+        .lance-detail-full { grid-column: 1 / -1; }
+
+        .lance-status-buttons { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+        .lance-status-buttons button {
+            padding: 13px; border-radius: 10px; border: 2px solid transparent;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .lance-status-buttons .btn-exec { background: #d4edda; color: #155724; border-color: #b8dfc4; }
+        .lance-status-buttons .btn-exec:hover { background: #b8dfc4; }
+        .lance-status-buttons .btn-exec.active { background: #0a7a3e; color: #fff; border-color: #065a2c; }
+        .lance-status-buttons .btn-noexec { background: #fff3cd; color: #856404; border-color: #ffe8a1; }
+        .lance-status-buttons .btn-noexec:hover { background: #ffe8a1; }
+        .lance-status-buttons .btn-noexec.active { background: #f59e0b; color: #fff; border-color: #d97706; }
+        .lance-status-buttons .btn-cancel { background: #f0f2f5; color: #4b5563; border-color: #d1d5db; }
+        .lance-status-buttons .btn-cancel:hover { background: #e0e2e6; }
+        .lance-status-buttons .btn-cancel.active { background: #6c757d; color: #fff; border-color: #4e555b; }
 
         .status-badge { font-size: 0.72rem; padding: 3px 9px; border-radius: 12px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
         .status-ok { background: #d4edda; color: #155724; }
@@ -295,23 +429,15 @@
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { background: #c62828; }
 
-        .scroll-nav {
-            position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
-            display: flex; flex-direction: column; gap: 10px;
-            z-index: 999;
-        }
+        .scroll-nav { position: fixed; top: 50%; right: 16px; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .scroll-btn {
             width: 46px; height: 46px; border-radius: 50%;
             border: 1px solid #d0d7de; background: rgba(255,255,255,0.96);
             color: #0066ff; font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-            transition: all 0.2s; display: flex; align-items: center; justify-content: center;
-            padding: 0; opacity: 0.9;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18); transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; padding: 0; opacity: 0.9;
         }
-        .scroll-btn:hover {
-            background: #0066ff; color: #fff; border-color: #0066ff;
-            transform: scale(1.1); opacity: 1;
-        }
+        .scroll-btn:hover { background: #0066ff; color: #fff; border-color: #0066ff; transform: scale(1.1); opacity: 1; }
         .scroll-btn:active { transform: scale(0.95); }
 
         @media (max-width: 600px) {
@@ -332,10 +458,22 @@
             .auto-refresh-hint { margin-left: 0; }
             .restore-icon { font-size: 4rem; }
             .restore-text { font-size: 1.4rem; }
+            .lance-form-row { flex-direction: column; align-items: stretch; gap: 4px; }
+            .lance-form-row label { flex: none; }
+            .alert-banner-text { font-size: 0.85rem; }
+            .open-lance-status { margin-left: 0; }
         }
     </style>
 </head>
 <body>
+
+<div id="alertBanner" class="alert-banner">
+    <div class="alert-banner-content">
+        <span class="alert-banner-icon">🔔</span>
+        <div class="alert-banner-text" id="alertBannerText"></div>
+        <button id="alertBannerCloseBtn" class="alert-banner-close" aria-label="Fechar alerta">✕</button>
+    </div>
+</div>
 
 <div class="scroll-nav" aria-label="Navegação por scroll">
     <button id="scrollUpBtn" class="scroll-btn" title="Rolar para cima" aria-label="Rolar para cima">▲</button>
@@ -386,7 +524,8 @@
             <option value="3600000">1 hora</option>
         </select>
         <span id="nextUpdateLabel" class="next-update"></span>
-        <span class="auto-refresh-hint">💡 brapi grátis: ~15.000 req/mês. Use ≥ 15 min (poucas ações) ou ≥ 30 min (muitas). Intervalos curtos (2s/1min) esgotam a cota rapidamente.</span>
+        <span id="lanceBadge" class="lance-badge" style="display:none;" title="Clique para abrir os lances"></span>
+        <span class="auto-refresh-hint">💡 brapi grátis: ~15.000 req/mês. Use ≥ 15 min (poucas ações) ou ≥ 30 min (muitas).</span>
     </div>
 
     <div id="tab-b3" class="tab-content active">
@@ -400,6 +539,7 @@
             <button id="addRowBtnB3" class="add-btn">➕ Ativo</button>
             <button id="refreshAllBtnB3" class="secondary">🔄 Atualizar</button>
             <button id="toggleEditBtnB3" class="edit-btn">✏️ Editar</button>
+            <button id="lanceBtnB3" class="lance-btn">🎯 Lance</button>
             <button id="toggleNomeColBtnB3" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
         </div>
 
@@ -407,7 +547,7 @@
             <table class="table-id" id="cotacoesTableB3">
                 <thead>
                     <tr>
-                        <th style="width:100px;">Código</th>
+                        <th style="width:130px;">Código</th>
                         <th>Nome da Empresa</th>
                         <th style="width:115px;">Cotação (R$)</th>
                         <th style="width:105px;">Variação (%)</th>
@@ -433,26 +573,30 @@
             </table>
         </div>
 
+        <div id="openLancesPanelB3" class="open-lances-panel" style="display:none;">
+            <div class="open-lances-header">🎯 Lances em aberto (dentro do prazo)</div>
+            <div class="open-lances-list" id="openLancesListB3"></div>
+        </div>
+
         <div class="table-legend">
             <span class="qty-zero-dot" aria-hidden="true"></span>
-            <span>Papel com <strong>quantidade zero</strong> — não está na carteira (fica no final da planilha)</span>
+            <span>Papel com <strong>quantidade zero</strong> (fica no final)</span>
+            <span id="legendLancesB3" class="legend-lances" style="display:none;">
+                <span class="legend-sep">·</span>
+                <span class="lance-indicator ativo" aria-hidden="true"></span>
+                <span>Lance <strong>ativo</strong></span>
+                <span class="legend-sep">·</span>
+                <span class="lance-indicator atingido" aria-hidden="true"></span>
+                <span>Lance <strong>atingido</strong></span>
+            </span>
         </div>
 
         <div class="resumo-mercado">
             <div class="resumo-card" id="cardCarteiraB3">
                 <div class="label">Variação da Carteira (R$)</div>
-                <div class="carteira-linha">
-                    <span class="rotulo">Total do dia:</span>
-                    <span class="num" id="carteiraTotalHojeB3">0,00</span>
-                </div>
-                <div class="carteira-linha">
-                    <span class="rotulo">Total do dia anterior:</span>
-                    <span class="num" id="carteiraTotalAnteriorB3">0,00</span>
-                </div>
-                <div class="carteira-linha destaque">
-                    <span class="rotulo">Diferença:</span>
-                    <span class="num" id="carteiraDiferencaB3">0,00</span>
-                </div>
+                <div class="carteira-linha"><span class="rotulo">Total do dia:</span><span class="num" id="carteiraTotalHojeB3">0,00</span></div>
+                <div class="carteira-linha"><span class="rotulo">Total do dia anterior:</span><span class="num" id="carteiraTotalAnteriorB3">0,00</span></div>
+                <div class="carteira-linha destaque"><span class="rotulo">Diferença:</span><span class="num" id="carteiraDiferencaB3">0,00</span></div>
                 <div class="detalhe neutro" id="carteiraPercentualB3" style="text-align:right;margin-top:2px;">—</div>
             </div>
             <div class="resumo-card" id="cardIbovespa">
@@ -521,6 +665,7 @@
             <button id="addRowBtnCrypto" class="add-btn">➕ Cripto</button>
             <button id="refreshAllBtnCrypto" class="secondary">🔄 Atualizar</button>
             <button id="toggleEditBtnCrypto" class="edit-btn">✏️ Editar</button>
+            <button id="lanceBtnCrypto" class="lance-btn">🎯 Lance</button>
             <button id="toggleNomeColBtnCrypto" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
         </div>
 
@@ -528,7 +673,7 @@
             <table class="table-id" id="cotacoesTableCrypto">
                 <thead>
                     <tr>
-                        <th style="width:100px;">Código</th>
+                        <th style="width:130px;">Código</th>
                         <th>Nome</th>
                         <th style="width:115px;">Cotação (R$)</th>
                         <th style="width:105px;">Variação (%)</th>
@@ -541,7 +686,7 @@
                 <tbody id="tableBodyCrypto"></tbody>
                 <tfoot>
                     <tr>
-                        <td class="total-label" title="Total da Carteira (R$)">Total:</td>
+                        <td class="total-label">Total:</td>
                         <td></td>
                         <td></td>
                         <td class="total-var"><span id="variacaoTotalCrypto">—</span></td>
@@ -554,26 +699,30 @@
             </table>
         </div>
 
+        <div id="openLancesPanelCrypto" class="open-lances-panel" style="display:none;">
+            <div class="open-lances-header">🎯 Lances em aberto (dentro do prazo)</div>
+            <div class="open-lances-list" id="openLancesListCrypto"></div>
+        </div>
+
         <div class="table-legend">
             <span class="qty-zero-dot" aria-hidden="true"></span>
-            <span>Criptoativo com <strong>quantidade zero</strong> — não está na carteira (fica no final da planilha)</span>
+            <span>Criptoativo com <strong>quantidade zero</strong> (fica no final)</span>
+            <span id="legendLancesCrypto" class="legend-lances" style="display:none;">
+                <span class="legend-sep">·</span>
+                <span class="lance-indicator ativo" aria-hidden="true"></span>
+                <span>Lance <strong>ativo</strong></span>
+                <span class="legend-sep">·</span>
+                <span class="lance-indicator atingido" aria-hidden="true"></span>
+                <span>Lance <strong>atingido</strong></span>
+            </span>
         </div>
 
         <div class="resumo-mercado">
             <div class="resumo-card" id="cardCarteiraCrypto">
                 <div class="label">Variação da Carteira (R$)</div>
-                <div class="carteira-linha">
-                    <span class="rotulo">Total do dia:</span>
-                    <span class="num" id="carteiraTotalHojeCrypto">0,00</span>
-                </div>
-                <div class="carteira-linha">
-                    <span class="rotulo">Total do dia anterior:</span>
-                    <span class="num" id="carteiraTotalAnteriorCrypto">0,00</span>
-                </div>
-                <div class="carteira-linha destaque">
-                    <span class="rotulo">Diferença:</span>
-                    <span class="num" id="carteiraDiferencaCrypto">0,00</span>
-                </div>
+                <div class="carteira-linha"><span class="rotulo">Total do dia:</span><span class="num" id="carteiraTotalHojeCrypto">0,00</span></div>
+                <div class="carteira-linha"><span class="rotulo">Total do dia anterior:</span><span class="num" id="carteiraTotalAnteriorCrypto">0,00</span></div>
+                <div class="carteira-linha destaque"><span class="rotulo">Diferença:</span><span class="num" id="carteiraDiferencaCrypto">0,00</span></div>
                 <div class="detalhe neutro" id="carteiraPercentualCrypto" style="text-align:right;margin-top:2px;">—</div>
             </div>
             <div class="resumo-card" id="cardBtc">
@@ -639,12 +788,93 @@
     <span class="restore-hint">O app atualizará as cotações automaticamente</span>
 </button>
 
+<div class="modal-overlay" id="lanceModal">
+    <div class="modal">
+        <div id="lanceViewList">
+            <h2>🎯 Lances</h2>
+            <button id="lanceNewBtn" class="btn-primary" style="width:100%;padding:14px;margin-bottom:16px;font-size:1rem;font-weight:700;">➕ Novo Lance</button>
+            <div id="lanceFilterBanner" class="lance-filter-banner">
+                <span style="flex:1;">Filtrando por: <strong id="lanceFilterText"></strong></span>
+                <button id="lanceFilterClearBtn">✕ Limpar</button>
+            </div>
+            <div id="lanceListContainer" class="lance-list"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="closeLanceBtn">Fechar</button>
+            </div>
+        </div>
+
+        <div id="lanceViewForm" style="display:none;">
+            <button class="back-btn" id="lanceFormBackBtn">← Voltar</button>
+            <h2 id="lanceFormTitle">Novo lance</h2>
+            <div class="lance-form-row">
+                <label for="lanceTabSelect">Aba</label>
+                <select id="lanceTabSelect">
+                    <option value="b3">B3</option>
+                    <option value="crypto">Crypto</option>
+                </select>
+            </div>
+            <div class="lance-form-row">
+                <label for="lanceCodigo">Ativo</label>
+                <input type="text" id="lanceCodigo" placeholder="PETR4" list="lanceAtivoSuggestions" maxlength="12" style="text-transform:uppercase;">
+                <datalist id="lanceAtivoSuggestions"></datalist>
+            </div>
+            <div class="lance-form-row">
+                <label for="lanceOperacao">Operação</label>
+                <select id="lanceOperacao">
+                    <option value="compra">Compra</option>
+                    <option value="venda">Venda</option>
+                </select>
+            </div>
+            <div class="lance-form-row">
+                <label for="lanceQtd">Quantidade</label>
+                <input type="number" id="lanceQtd" min="0" step="1" value="100">
+            </div>
+            <div class="lance-form-row">
+                <label for="lancePreco">Preço alvo (R$)</label>
+                <input type="number" id="lancePreco" min="0" step="0.01" placeholder="0,00">
+            </div>
+            <div class="lance-form-row">
+                <label for="lanceValidadeTipo">Validade</label>
+                <select id="lanceValidadeTipo">
+                    <option value="hoje">Somente hoje</option>
+                    <option value="data">Até uma data</option>
+                    <option value="indeterminado" selected>Indeterminado</option>
+                </select>
+            </div>
+            <div class="lance-form-row" id="lanceValidadeDataRow" style="display:none;">
+                <label for="lanceValidadeData">Data limite</label>
+                <input type="date" id="lanceValidadeData">
+            </div>
+            <p class="hint" style="margin-top:8px;">
+                <strong>Compra:</strong> alerta quando preço atual ≤ alvo · <strong>Venda:</strong> alerta quando preço atual ≥ alvo.<br>
+                <strong>Validade:</strong> controla até quando o lance fica ativo. Após expirar, ele para de alertar e não aparece no painel de lances em aberto.
+            </p>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="lanceFormCancelBtn">Cancelar</button>
+                <button class="btn-primary" id="lanceFormSaveBtn">💾 Salvar</button>
+            </div>
+        </div>
+
+        <div id="lanceViewDetail" style="display:none;">
+            <button class="back-btn" id="lanceDetailBackBtn">← Voltar</button>
+            <h2>Detalhes do lance</h2>
+            <div id="lanceDetailContent"></div>
+            <div id="lanceDetailStatusButtons" class="lance-status-buttons"></div>
+            <button id="lanceDetailEditBtn" class="btn-warn" style="width:100%;padding:13px;border-radius:8px;font-weight:700;font-size:0.95rem;">✏️ Editar / Re-armar lance</button>
+            <div class="modal-actions" style="margin-top:14px;">
+                <button class="btn-secondary" id="lanceDetailDeleteBtn" style="background:#dc3545;">🗑️ Excluir</button>
+                <button class="btn-secondary" id="lanceDetailCloseBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="settingsModal">
     <div class="modal">
         <h2>⚙️ Configurações</h2>
         <section class="settings-section">
             <h3>💾 Backup de dados</h3>
-            <p class="hint">Exporte um arquivo JSON com as posições de <strong>ambas as abas</strong> (B3 e Crypto).</p>
+            <p class="hint">Exporte um arquivo JSON com as posições de <strong>ambas as abas</strong> (B3 e Crypto) e os lances.</p>
             <div class="settings-btn-row">
                 <button id="exportBtn" class="btn-primary">⬇ Exportar JSON</button>
                 <button id="importBtn" class="btn-secondary">⬆ Importar JSON</button>
@@ -653,10 +883,7 @@
         </section>
         <section class="settings-section">
             <h3>🔑 Token brapi.dev <span id="tokenBadge" class="status-badge status-warn">Sem token</span></h3>
-            <p class="hint">
-                Necessário para ações fora do plano gratuito.
-                Obtenha em <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.
-            </p>
+            <p class="hint">Necessário para ações fora do plano gratuito. Obtenha em <a href="https://brapi.dev/dashboard" target="_blank">brapi.dev/dashboard</a>.</p>
             <label for="tokenInput">Token de acesso</label>
             <input type="text" id="tokenInput" placeholder="Cole seu token aqui" autocomplete="off">
             <div class="hint" id="tokenStatus"></div>
@@ -676,6 +903,7 @@
 <script>
     const STORAGE_KEY = 'b3_crypto_cotacoes_data';
     const settingsModal = document.getElementById('settingsModal');
+    const lanceModal = document.getElementById('lanceModal');
     const headerDate = document.getElementById('headerDate');
     const tokenInput = document.getElementById('tokenInput');
     const tokenBadge = document.getElementById('tokenBadge');
@@ -690,11 +918,16 @@
     let totalB3Num = 0;
     let totalCryptoNum = 0;
 
-    // Modo edição (bloqueado por padrão, por segurança)
     let editModeB3 = false;
     let editModeCrypto = false;
 
-    // Auto-refresh
+    let lances = state.lances || [];
+    // Migração: lances antigos sem validade passam a ser "indeterminado"
+    lances.forEach(l => { if (!l.validadeTipo) l.validadeTipo = 'indeterminado'; });
+    let lanceEditMode = 'new';
+    let lanceSelectedId = null;
+    let lanceFilterAtivo = null;
+
     let autoRefreshTimer = null;
     let countdownInterval = null;
     let nextAutoRefreshTime = null;
@@ -705,6 +938,30 @@
         return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    // ===== VALIDADE DOS LANCES =====
+    function isLanceValido(l) {
+        if (!l.validadeTipo || l.validadeTipo === 'indeterminado') return true;
+        if (!l.validadeData) return true;
+        return toISODate(new Date()) <= l.validadeData;
+    }
+
+    function formatarValidadeLance(l) {
+        if (!l.validadeTipo || l.validadeTipo === 'indeterminado') return 'Sem prazo';
+        if (!l.validadeData) return '—';
+        const parts = l.validadeData.split('-');
+        if (parts.length !== 3) return '—';
+        const [y, m, d] = parts;
+        const expirou = !isLanceValido(l);
+        if (l.validadeTipo === 'hoje') {
+            return expirou ? `Só hoje (${d}/${m}) · expirado` : `Só hoje (${d}/${m})`;
+        }
+        return expirou ? `Até ${d}/${m}/${y} · expirado` : `Até ${d}/${m}/${y}`;
+    }
+
+    function isLanceAberto(l) {
+        return l.status === 'ativo' || l.status === 'atingido';
+    }
+
     function atualizarTotalGeralHeader() {
         const el = document.getElementById('headerTotalGeral');
         if (el) el.textContent = 'R$ ' + fmt(totalB3Num + totalCryptoNum);
@@ -713,11 +970,8 @@
     function aplicarTotalComAviso(el, valorNum, count, comPrefixoR$) {
         if (!el) return;
         const valorTxt = (comPrefixoR$ ? 'R$ ' : '') + fmt(valorNum);
-        if (count === 0) {
-            el.textContent = valorTxt;
-        } else {
-            el.innerHTML = valorTxt + ' <span class="sem-info-count">(' + count + ' sem info)</span>';
-        }
+        if (count === 0) el.textContent = valorTxt;
+        else el.innerHTML = valorTxt + ' <span class="sem-info-count">(' + count + ' sem info)</span>';
     }
 
     function contarSemInfo(tab) {
@@ -735,30 +989,17 @@
     function marcarB3SemInfo(tr) {
         const cotacaoCell = tr.querySelector('.cotacao');
         const variacaoCell = tr.querySelector('.variacao');
-        if (cotacaoCell) {
-            cotacaoCell.textContent = '(sem informação)';
-            cotacaoCell.classList.add('sem-info');
-        }
-        if (variacaoCell) {
-            variacaoCell.textContent = '';
-            variacaoCell.className = 'variacao';
-        }
+        if (cotacaoCell) { cotacaoCell.textContent = '(sem informação)'; cotacaoCell.classList.add('sem-info'); }
+        if (variacaoCell) { variacaoCell.textContent = ''; variacaoCell.className = 'variacao'; }
         delete tr.dataset.variacao;
         delete tr.dataset.price;
         atualizarTotalB3(tr);
     }
-
     function marcarCryptoSemInfo(tr) {
         const cotacaoCell = tr.querySelector('.cotacao');
         const variacaoCell = tr.querySelector('.variacao');
-        if (cotacaoCell) {
-            cotacaoCell.textContent = '(sem informação)';
-            cotacaoCell.classList.add('sem-info');
-        }
-        if (variacaoCell) {
-            variacaoCell.textContent = '';
-            variacaoCell.className = 'variacao';
-        }
+        if (cotacaoCell) { cotacaoCell.textContent = '(sem informação)'; cotacaoCell.classList.add('sem-info'); }
+        if (variacaoCell) { variacaoCell.textContent = ''; variacaoCell.className = 'variacao'; }
         delete tr.dataset.variacao;
         delete tr.dataset.price;
         atualizarTotalCrypto(tr);
@@ -782,26 +1023,28 @@
         toast.textContent = msg;
         toast.className = 'toast' + (isError ? ' error' : '') + ' show';
         clearTimeout(toast._timer);
-        toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
     function loadState() {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (!saved) return { token: '', activeTab: 'b3', autoRefreshMs: 0, b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } };
+            if (!saved) return { token: '', activeTab: 'b3', autoRefreshMs: 0, lances: [], b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } };
             return {
                 token: saved.token || '',
                 activeTab: saved.activeTab || 'b3',
                 autoRefreshMs: saved.autoRefreshMs || 0,
+                lances: saved.lances || [],
                 b3: { rows: saved.b3?.rows || [], fonte: saved.b3?.fonte || 'brapi', hideNome: !!saved.b3?.hideNome },
                 crypto: { rows: saved.crypto?.rows || [], fonte: saved.crypto?.fonte || 'brapi', hideNome: !!saved.crypto?.hideNome }
             };
-        } catch { return { token: '', activeTab: 'b3', autoRefreshMs: 0, b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } }; }
+        } catch { return { token: '', activeTab: 'b3', autoRefreshMs: 0, lances: [], b3: { rows: [], fonte: 'brapi', hideNome: false }, crypto: { rows: [], fonte: 'brapi', hideNome: false } }; }
     }
     function saveState() {
         state.token = token;
         state.activeTab = activeTab;
         state.autoRefreshMs = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
+        state.lances = lances;
         state.b3.rows = getRowsData('b3');
         state.b3.fonte = document.getElementById('fonteSelectB3').value;
         state.b3.hideNome = document.getElementById('cotacoesTableB3').classList.contains('hide-nome');
@@ -810,6 +1053,8 @@
         state.crypto.hideNome = document.getElementById('cotacoesTableCrypto').classList.contains('hide-nome');
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
+    function saveLances() { state.lances = lances; saveState(); }
+
     function getRowsData(tab) {
         const tbody = document.getElementById(`tableBody${tab === 'b3' ? 'B3' : 'Crypto'}`);
         return Array.from(tbody.querySelectorAll('tr')).map(tr => ({
@@ -826,13 +1071,8 @@
     }
 
     function updateTokenBadge() {
-        if (token) {
-            tokenBadge.textContent = '✔ Configurado';
-            tokenBadge.className = 'status-badge status-ok';
-        } else {
-            tokenBadge.textContent = 'Sem token';
-            tokenBadge.className = 'status-badge status-warn';
-        }
+        if (token) { tokenBadge.textContent = '✔ Configurado'; tokenBadge.className = 'status-badge status-ok'; }
+        else { tokenBadge.textContent = 'Sem token'; tokenBadge.className = 'status-badge status-warn'; }
     }
     document.getElementById('openSettingsBtn').addEventListener('click', () => {
         tokenInput.value = token;
@@ -842,21 +1082,23 @@
     document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('active'));
     document.getElementById('saveTokenBtn').addEventListener('click', () => {
         token = tokenInput.value.trim();
-        updateTokenBadge();
-        saveState();
+        updateTokenBadge(); saveState();
         tokenStatus.textContent = '✅ Token salvo com sucesso.';
         historyCache.clear();
     });
     document.getElementById('clearTokenBtn').addEventListener('click', () => {
-        token = '';
-        tokenInput.value = '';
-        updateTokenBadge();
-        saveState();
+        token = ''; tokenInput.value = '';
+        updateTokenBadge(); saveState();
         tokenStatus.textContent = 'Token removido.';
         historyCache.clear();
     });
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('active'); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && settingsModal.classList.contains('active')) settingsModal.classList.remove('active'); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (settingsModal.classList.contains('active')) settingsModal.classList.remove('active');
+            if (lanceModal.classList.contains('active')) fecharModalLance();
+        }
+    });
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -870,7 +1112,6 @@
         });
     });
 
-    // ===== SETAS DE SCROLL =====
     document.getElementById('scrollUpBtn').addEventListener('click', () => {
         window.scrollBy({ top: -Math.round(window.innerHeight * 0.4), behavior: 'smooth' });
     });
@@ -878,7 +1119,6 @@
         window.scrollBy({ top: Math.round(window.innerHeight * 0.4), behavior: 'smooth' });
     });
 
-    // ===== MINIMIZAR / RESTAURAR =====
     document.getElementById('minimizeBtn').addEventListener('click', () => {
         document.body.classList.add('app-minimized');
     });
@@ -888,7 +1128,6 @@
         catch (e) { console.warn('Refresh ao restaurar:', e); }
     });
 
-    // ===== REFRESH AO VOLTAR (visibilitychange) =====
     let lastAutoRefreshOnVisible = Date.now();
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'visible') return;
@@ -899,23 +1138,19 @@
         catch (e) { console.warn('Refresh ao voltar:', e); }
     });
 
-    // ===== MODO EDIÇÃO =====
     function aplicarModoEdicaoTab(tab) {
         const isB3 = tab === 'b3';
         const editMode = isB3 ? editModeB3 : editModeCrypto;
         const tbody = document.getElementById(isB3 ? 'tableBodyB3' : 'tableBodyCrypto');
         const btn = document.getElementById(isB3 ? 'toggleEditBtnB3' : 'toggleEditBtnCrypto');
         if (tbody) {
-            tbody.querySelectorAll('.codigo, .nome-input, .quantidade').forEach(inp => {
-                inp.disabled = !editMode;
-            });
+            tbody.querySelectorAll('.codigo, .nome-input, .quantidade').forEach(inp => { inp.disabled = !editMode; });
         }
         if (btn) {
             btn.classList.toggle('active', editMode);
             btn.textContent = editMode ? '✅ Finalizar' : '✏️ Editar';
         }
     }
-
     document.getElementById('toggleEditBtnB3').addEventListener('click', () => {
         editModeB3 = !editModeB3;
         aplicarModoEdicaoTab('b3');
@@ -927,16 +1162,610 @@
         showToast(editModeCrypto ? '✏️ Edição ativada (Crypto)' : '🔒 Edição bloqueada (Crypto)');
     });
 
+    // ===== LANCES: views =====
+    function showLanceView(view) {
+        document.getElementById('lanceViewList').style.display = view === 'list' ? 'block' : 'none';
+        document.getElementById('lanceViewForm').style.display = view === 'form' ? 'block' : 'none';
+        document.getElementById('lanceViewDetail').style.display = view === 'detail' ? 'block' : 'none';
+        if (view === 'list') renderListaLances();
+        if (view === 'detail') renderDetalheLance();
+    }
+
+    function abrirModalLance() {
+        lanceFilterAtivo = null;
+        lanceSelectedId = null;
+        showLanceView('list');
+        lanceModal.classList.add('active');
+    }
+
+    function abrirListaLancesFiltrada(tab, codigo) {
+        lanceFilterAtivo = { tab, codigo: codigo.toUpperCase() };
+        lanceSelectedId = null;
+        showLanceView('list');
+        lanceModal.classList.add('active');
+    }
+
+    function abrirDetalheLance(id) {
+        lanceSelectedId = id;
+        showLanceView('detail');
+        lanceModal.classList.add('active');
+    }
+
+    function abrirFormLance(id) {
+        if (id) {
+            lanceEditMode = 'edit';
+            lanceSelectedId = id;
+            const l = lances.find(x => x.id === id);
+            if (!l) { showLanceView('list'); return; }
+            document.getElementById('lanceFormTitle').textContent = `Editar lance: ${l.codigo}`;
+            document.getElementById('lanceTabSelect').value = l.tab;
+            document.getElementById('lanceCodigo').value = l.codigo;
+            document.getElementById('lanceOperacao').value = l.operacao;
+            document.getElementById('lanceQtd').value = l.quantidade;
+            document.getElementById('lancePreco').value = l.precoAlvo;
+            const tipo = l.validadeTipo || 'indeterminado';
+            document.getElementById('lanceValidadeTipo').value = tipo;
+            document.getElementById('lanceValidadeDataRow').style.display = tipo === 'data' ? 'flex' : 'none';
+            document.getElementById('lanceValidadeData').value = (tipo === 'data' && l.validadeData) ? l.validadeData : '';
+            atualizarFormLance();
+        } else {
+            lanceEditMode = 'new';
+            lanceSelectedId = null;
+            document.getElementById('lanceFormTitle').textContent = 'Novo lance';
+            document.getElementById('lanceTabSelect').value = activeTab;
+            document.getElementById('lanceCodigo').value = (lanceFilterAtivo && lanceFilterAtivo.codigo) || '';
+            document.getElementById('lanceOperacao').value = 'compra';
+            document.getElementById('lanceQtd').value = '100';
+            document.getElementById('lancePreco').value = '';
+            document.getElementById('lanceValidadeTipo').value = 'indeterminado';
+            document.getElementById('lanceValidadeDataRow').style.display = 'none';
+            document.getElementById('lanceValidadeData').value = '';
+            atualizarFormLance();
+        }
+        showLanceView('form');
+        lanceModal.classList.add('active');
+        setTimeout(() => {
+            const inp = document.getElementById('lanceCodigo');
+            if (inp) inp.focus();
+        }, 150);
+    }
+
+    function fecharModalLance() {
+        lanceModal.classList.remove('active');
+        lanceSelectedId = null;
+        lanceFilterAtivo = null;
+    }
+
+    document.getElementById('lanceBtnB3').addEventListener('click', () => abrirModalLance());
+    document.getElementById('lanceBtnCrypto').addEventListener('click', () => abrirModalLance());
+    document.getElementById('lanceBadge').addEventListener('click', () => abrirModalLance());
+    document.getElementById('closeLanceBtn').addEventListener('click', fecharModalLance);
+    document.getElementById('lanceDetailCloseBtn').addEventListener('click', fecharModalLance);
+    lanceModal.addEventListener('click', (e) => { if (e.target === lanceModal) fecharModalLance(); });
+
+    document.getElementById('lanceNewBtn').addEventListener('click', () => abrirFormLance(null));
+    document.getElementById('lanceDetailBackBtn').addEventListener('click', () => { lanceSelectedId = null; showLanceView('list'); });
+    document.getElementById('lanceFormBackBtn').addEventListener('click', () => {
+        if (lanceEditMode === 'edit' && lanceSelectedId) showLanceView('detail');
+        else showLanceView('list');
+    });
+    document.getElementById('lanceFormCancelBtn').addEventListener('click', () => {
+        if (lanceEditMode === 'edit' && lanceSelectedId) showLanceView('detail');
+        else showLanceView('list');
+    });
+    document.getElementById('lanceFilterClearBtn').addEventListener('click', () => {
+        lanceFilterAtivo = null;
+        renderListaLances();
+    });
+
+    // ===== LANCES: form =====
+    function atualizarFormLance() {
+        const tab = document.getElementById('lanceTabSelect').value;
+        const datalist = document.getElementById('lanceAtivoSuggestions');
+        datalist.innerHTML = '';
+        document.querySelectorAll(`#tableBody${tab === 'b3' ? 'B3' : 'Crypto'} tr`).forEach(tr => {
+            const c = tr.querySelector('.codigo').value.trim();
+            if (c) {
+                const opt = document.createElement('option');
+                opt.value = c;
+                datalist.appendChild(opt);
+            }
+        });
+    }
+    document.getElementById('lanceTabSelect').addEventListener('change', atualizarFormLance);
+
+    document.getElementById('lanceValidadeTipo').addEventListener('change', () => {
+        const tipo = document.getElementById('lanceValidadeTipo').value;
+        document.getElementById('lanceValidadeDataRow').style.display = tipo === 'data' ? 'flex' : 'none';
+        if (tipo === 'data' && !document.getElementById('lanceValidadeData').value) {
+            const amanha = new Date();
+            amanha.setDate(amanha.getDate() + 1);
+            document.getElementById('lanceValidadeData').value = toISODate(amanha);
+        }
+    });
+
+    document.getElementById('lanceFormSaveBtn').addEventListener('click', () => {
+        const tab = document.getElementById('lanceTabSelect').value;
+        const codigo = document.getElementById('lanceCodigo').value.trim().toUpperCase();
+        const operacao = document.getElementById('lanceOperacao').value;
+        const qtd = parseFloat(document.getElementById('lanceQtd').value) || 0;
+        const preco = parseFloat(document.getElementById('lancePreco').value) || 0;
+        const validadeTipo = document.getElementById('lanceValidadeTipo').value;
+        let validadeData = null;
+        if (validadeTipo === 'hoje') {
+            validadeData = toISODate(new Date());
+        } else if (validadeTipo === 'data') {
+            validadeData = document.getElementById('lanceValidadeData').value;
+            if (!validadeData) { showToast('Informe a data limite', true); return; }
+            if (validadeData < toISODate(new Date())) { showToast('A data limite deve ser hoje ou futura', true); return; }
+        }
+
+        if (!codigo) { showToast('Informe o ativo', true); return; }
+        if (qtd <= 0) { showToast('Quantidade inválida', true); return; }
+        if (preco <= 0) { showToast('Preço alvo inválido', true); return; }
+
+        if (lanceEditMode === 'edit' && lanceSelectedId) {
+            const l = lances.find(x => x.id === lanceSelectedId);
+            if (!l) { showLanceView('list'); return; }
+            const precoMudou = l.precoAlvo !== preco;
+            const opMudou = l.operacao !== operacao;
+            const estadoTerminal = ['executado', 'cancelado', 'nao_executado', 'expirado'].includes(l.status);
+            l.tab = tab;
+            l.codigo = codigo;
+            l.operacao = operacao;
+            l.quantidade = qtd;
+            l.precoAlvo = preco;
+            l.validadeTipo = validadeTipo;
+            l.validadeData = validadeData;
+            l.editadoEm = Date.now();
+            if (precoMudou || opMudou || estadoTerminal) {
+                l.status = 'ativo';
+                l.atingidoEm = null;
+                l.precoAtingido = null;
+            }
+            saveLances();
+            const msgStatus = (precoMudou || opMudou || estadoTerminal) ? ' (rearmado)' : '';
+            showToast(`💾 Lance atualizado: ${codigo}${msgStatus}`);
+            atualizarIndicadoresLances();
+            verificarLances();
+            showLanceView('detail');
+        } else {
+            const novo = {
+                id: 'L' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                tab, codigo, operacao,
+                quantidade: qtd, precoAlvo: preco,
+                validadeTipo, validadeData,
+                criadoEm: Date.now(),
+                status: 'ativo',
+                atingidoEm: null,
+                precoAtingido: null
+            };
+            lances.push(novo);
+            saveLances();
+            atualizarIndicadoresLances();
+            showToast(`🎯 Lance cadastrado: ${codigo} ${operacao} a R$ ${fmt(preco)}`);
+            verificarLances();
+            lanceSelectedId = novo.id;
+            showLanceView('detail');
+        }
+    });
+
+    // ===== LANCES: lista =====
+    function renderListaLances() {
+        const container = document.getElementById('lanceListContainer');
+        const filterBanner = document.getElementById('lanceFilterBanner');
+        const filterText = document.getElementById('lanceFilterText');
+        if (!container) return;
+
+        if (lanceFilterAtivo) {
+            filterBanner.classList.add('visible');
+            filterText.textContent = `${lanceFilterAtivo.tab === 'b3' ? 'B3' : 'Crypto'} · ${lanceFilterAtivo.codigo}`;
+        } else {
+            filterBanner.classList.remove('visible');
+        }
+
+        let lista = [...lances];
+        if (lanceFilterAtivo) {
+            lista = lista.filter(l => l.tab === lanceFilterAtivo.tab && l.codigo.toUpperCase() === lanceFilterAtivo.codigo);
+        }
+
+        if (lista.length === 0) {
+            container.innerHTML = '<p class="lance-list-empty">Nenhum lance cadastrado.<br>Clique em "➕ Novo Lance" para começar.</p>';
+            return;
+        }
+
+        const ordemStatus = { atingido: 0, ativo: 1, expirado: 2, nao_executado: 3, executado: 4, cancelado: 5 };
+        lista.sort((a, b) => {
+            const oa = ordemStatus[a.status] ?? 6;
+            const ob = ordemStatus[b.status] ?? 6;
+            if (oa !== ob) return oa - ob;
+            if (a.tab !== b.tab) return a.tab.localeCompare(b.tab);
+            return a.codigo.localeCompare(b.codigo);
+        });
+
+        const tabLabel = { b3: 'B3', crypto: 'Crypto' };
+        const opLabel = { compra: 'Compra', venda: 'Venda' };
+        const statusLabel = {
+            ativo: '⏳ Aguardando preço alvo',
+            atingido: '🔔 Atingido — verifique execução',
+            executado: '✅ Executada',
+            nao_executado: '⏳ Não executada',
+            cancelado: '✖ Cancelada',
+            expirado: '⏰ Expirado (fora do prazo)'
+        };
+
+        container.innerHTML = lista.map(l => {
+            const statusTxt = statusLabel[l.status] || l.status;
+            const valTxt = formatarValidadeLance(l);
+            return `
+                <div class="lance-item ${l.status}" data-id="${l.id}">
+                    <div class="lance-item-header">
+                        <span class="lance-item-tab">${tabLabel[l.tab] || l.tab}</span>
+                        <span class="lance-item-code">${l.codigo}</span>
+                        <span class="lance-item-op ${l.operacao}">${opLabel[l.operacao] || l.operacao}</span>
+                    </div>
+                    <div class="lance-item-info">
+                        Qtd: <strong>${fmt(l.quantidade)}</strong> · Alvo: <strong>R$ ${fmt(l.precoAlvo)}</strong>
+                        ${l.status === 'atingido' && l.precoAtingido ? ` · Atingiu: <strong>R$ ${fmt(l.precoAtingido)}</strong>` : ''}
+                    </div>
+                    <div class="lance-item-info" style="font-size:0.78rem;color:#856404;">
+                        📅 ${valTxt}
+                    </div>
+                    <div class="lance-item-status ${l.status}">${statusTxt}</div>
+                </div>
+            `;
+        }).join('');
+
+        container.querySelectorAll('.lance-item').forEach(el => {
+            el.addEventListener('click', () => abrirDetalheLance(el.dataset.id));
+        });
+    }
+
+    // ===== LANCES: detalhe =====
+    function renderDetalheLance() {
+        const l = lances.find(x => x.id === lanceSelectedId);
+        if (!l) { showLanceView('list'); return; }
+
+        const tabLabel = { b3: 'B3', crypto: 'Crypto' };
+        const opLabel = { compra: 'Compra', venda: 'Venda' };
+        const statusLabel = {
+            ativo: '⏳ Aguardando preço alvo',
+            atingido: '🔔 Atingido — verificar execução',
+            executado: '✅ Executada',
+            nao_executado: '⏳ Não executada',
+            cancelado: '✖ Cancelada',
+            expirado: '⏰ Expirado (fora do prazo)'
+        };
+
+        const precoAtual = getPrecoAtualAtivo(l.tab, l.codigo);
+
+        let extraRows = '';
+        if (l.atingidoEm) {
+            const dt = new Date(l.atingidoEm).toLocaleString('pt-BR', { hour12: false });
+            extraRows += `<div class="lance-detail-label">Atingido em</div><div class="lance-detail-value">${dt}</div>`;
+        }
+        if (l.precoAtingido) {
+            extraRows += `<div class="lance-detail-label">Preço ao atingir</div><div class="lance-detail-value">R$ ${fmt(l.precoAtingido)}</div>`;
+        }
+        if (l.criadoEm) {
+            const dt = new Date(l.criadoEm).toLocaleString('pt-BR', { hour12: false });
+            extraRows += `<div class="lance-detail-label">Criado em</div><div class="lance-detail-value">${dt}</div>`;
+        }
+
+        const valTxt = formatarValidadeLance(l);
+        const expirou = !isLanceValido(l) && isLanceAberto(l);
+        const valColor = expirou ? 'color:#856404;' : '';
+
+        document.getElementById('lanceDetailContent').innerHTML = `
+            <div class="lance-detail-header">
+                <span class="lance-item-tab">${tabLabel[l.tab] || l.tab}</span>
+                <span class="lance-item-op ${l.operacao}">${opLabel[l.operacao] || l.operacao}</span>
+            </div>
+            <div class="lance-detail-code">${l.codigo}</div>
+            <div class="lance-detail-grid">
+                <div class="lance-detail-label">Quantidade</div>
+                <div class="lance-detail-value">${fmt(l.quantidade)}</div>
+                <div class="lance-detail-label">Preço alvo</div>
+                <div class="lance-detail-value">R$ ${fmt(l.precoAlvo)}</div>
+                <div class="lance-detail-label">Preço atual</div>
+                <div class="lance-detail-value">${precoAtual ? 'R$ ' + fmt(precoAtual) : '—'}</div>
+                <div class="lance-detail-label">Validade</div>
+                <div class="lance-detail-value" style="${valColor}">${valTxt}</div>
+                <div class="lance-detail-label">Status</div>
+                <div class="lance-detail-value">${statusLabel[l.status] || l.status}</div>
+                ${extraRows}
+            </div>
+        `;
+
+        const statusContainer = document.getElementById('lanceDetailStatusButtons');
+        statusContainer.innerHTML = `
+            <button class="btn-exec ${l.status === 'executado' ? 'active' : ''}" data-status="executado">✅ Executada (${l.operacao === 'compra' ? 'compra' : 'venda'})</button>
+            <button class="btn-noexec ${l.status === 'nao_executado' ? 'active' : ''}" data-status="nao_executado">⏳ Não executada</button>
+            <button class="btn-cancel ${l.status === 'cancelado' ? 'active' : ''}" data-status="cancelado">✖ Cancelada</button>
+        `;
+        statusContainer.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => alterarStatusLance(l.id, btn.dataset.status));
+        });
+    }
+
+    function getPrecoAtualAtivo(tab, codigo) {
+        const tbody = document.getElementById(tab === 'b3' ? 'tableBodyB3' : 'tableBodyCrypto');
+        if (!tbody) return 0;
+        const target = codigo.toUpperCase();
+        for (const tr of tbody.querySelectorAll('tr')) {
+            if (tr.querySelector('.codigo').value.trim().toUpperCase() === target) {
+                return parseFloat(tr.dataset.price) || 0;
+            }
+        }
+        return 0;
+    }
+
+    function alterarStatusLance(id, novoStatus) {
+        const l = lances.find(x => x.id === id);
+        if (!l) return;
+        if (l.status === novoStatus) {
+            showToast('O lance já está neste status.');
+            return;
+        }
+        const opLabel = { compra: 'Compra', venda: 'Venda' };
+        l.status = novoStatus;
+        if (['executado', 'nao_executado', 'cancelado'].includes(novoStatus)) {
+            if (!l.statusFinalizadoEm) l.statusFinalizadoEm = Date.now();
+        } else {
+            delete l.statusFinalizadoEm;
+        }
+        saveLances();
+        atualizarIndicadoresLances();
+        renderDetalheLance();
+        const msgs = {
+            executado: `✅ ${l.codigo} ${opLabel[l.operacao] || ''} marcada como EXECUTADA`,
+            nao_executado: `⏳ ${l.codigo} marcada como NÃO EXECUTADA`,
+            cancelado: `✖ ${l.codigo} marcada como CANCELADA`
+        };
+        showToast(msgs[novoStatus] || 'Status atualizado');
+    }
+
+    document.getElementById('lanceDetailEditBtn').addEventListener('click', () => {
+        if (lanceSelectedId) abrirFormLance(lanceSelectedId);
+    });
+
+    document.getElementById('lanceDetailDeleteBtn').addEventListener('click', () => {
+        const l = lances.find(x => x.id === lanceSelectedId);
+        if (!l) return;
+        const opLabel = { compra: 'Compra', venda: 'Venda' };
+        if (!confirm(`Excluir permanentemente o lance "${l.codigo} ${opLabel[l.operacao] || ''}"?\n\nDica: se quiser apenas encerrar, use "✖ Cancelada" no status.`)) return;
+        lances = lances.filter(x => x.id !== lanceSelectedId);
+        saveLances();
+        atualizarIndicadoresLances();
+        lanceSelectedId = null;
+        showLanceView('list');
+        showToast('Lance excluído permanentemente.');
+    });
+
+    // ===== PAINEL DE LANCES EM ABERTO (abaixo da planilha) =====
+    function renderOpenLancesPanels() {
+        ['b3', 'crypto'].forEach(tab => {
+            const suf = tab === 'b3' ? 'B3' : 'Crypto';
+            const panel = document.getElementById('openLancesPanel' + suf);
+            const list = document.getElementById('openLancesList' + suf);
+            const legendLances = document.getElementById('legendLances' + suf);
+            if (!panel || !list) return;
+            const abertos = lances.filter(l => 
+                l.tab === tab && 
+                isLanceAberto(l) && 
+                isLanceValido(l)
+            );
+            if (abertos.length === 0) {
+                panel.style.display = 'none';
+                if (legendLances) legendLances.style.display = 'none';
+                return;
+            }
+            panel.style.display = 'block';
+            if (legendLances) legendLances.style.display = 'contents';
+            const opLabel = { compra: 'Compra', venda: 'Venda' };
+            abertos.sort((a, b) => {
+                const sa = a.status === 'atingido' ? 0 : 1;
+                const sb = b.status === 'atingido' ? 0 : 1;
+                if (sa !== sb) return sa - sb;
+                return a.codigo.localeCompare(b.codigo);
+            });
+            list.innerHTML = abertos.map(l => {
+                const valTxt = formatarValidadeLance(l);
+                const statusTxt = l.status === 'atingido' ? '🔔 ATINGIDO' : '⏳ aguardando';
+                return `
+                    <div class="open-lance-item ${l.status}" data-id="${l.id}">
+                        <span class="open-lance-op ${l.operacao}">${opLabel[l.operacao] || l.operacao}</span>
+                        <span class="open-lance-code">${l.codigo}</span>
+                        <span class="open-lance-info"><strong>${fmt(l.quantidade)}</strong> un · alvo <strong>R$ ${fmt(l.precoAlvo)}</strong>${l.status === 'atingido' && l.precoAtingido ? ` · atingiu <strong>R$ ${fmt(l.precoAtingido)}</strong>` : ''}</span>
+                        <span class="open-lance-validade">📅 ${valTxt}</span>
+                        <span class="open-lance-status ${l.status}">${statusTxt}</span>
+                    </div>
+                `;
+            }).join('');
+            list.querySelectorAll('.open-lance-item').forEach(el => {
+                el.addEventListener('click', () => abrirDetalheLance(el.dataset.id));
+            });
+        });
+    }
+
+    // ===== INDICADORES =====
+    function atualizarIndicadoresLances() {
+        ['B3', 'Crypto'].forEach(tabName => {
+            const tab = tabName.toLowerCase();
+            const tbody = document.getElementById('tableBody' + tabName);
+            if (!tbody) return;
+            tbody.querySelectorAll('tr').forEach(tr => {
+                const codigo = tr.querySelector('.codigo').value.trim().toUpperCase();
+                const indicator = tr.querySelector('.lance-indicator');
+                if (!indicator) return;
+                if (!codigo) {
+                    indicator.className = 'lance-indicator';
+                    indicator.title = '';
+                    return;
+                }
+                const ativos = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo && l.status === 'ativo' && isLanceValido(l));
+                const atingidos = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo && l.status === 'atingido' && isLanceValido(l));
+                if (atingidos.length > 0) {
+                    indicator.className = 'lance-indicator atingido';
+                    indicator.title = `${atingidos.length} lance(s) ATINGIDO(S) — clique para verificar!`;
+                } else if (ativos.length > 0) {
+                    indicator.className = 'lance-indicator ativo';
+                    indicator.title = `${ativos.length} lance(s) ativo(s) — clique para abrir`;
+                } else {
+                    indicator.className = 'lance-indicator';
+                    indicator.title = '';
+                }
+            });
+        });
+        atualizarBadgeLances();
+        renderOpenLancesPanels();
+    }
+
+    function atualizarBadgeLances() {
+        const totalAtivos = lances.filter(l => l.status === 'ativo' && isLanceValido(l)).length;
+        const totalAtingidos = lances.filter(l => l.status === 'atingido' && isLanceValido(l)).length;
+        const badge = document.getElementById('lanceBadge');
+        const btnB3 = document.getElementById('lanceBtnB3');
+        const btnCrypto = document.getElementById('lanceBtnCrypto');
+
+        if (badge) {
+            if (totalAtingidos > 0) {
+                badge.className = 'lance-badge atingido';
+                badge.textContent = `🔔 ${totalAtingidos} atingido${totalAtingidos > 1 ? 's' : ''}`;
+                badge.style.display = 'inline-flex';
+            } else if (totalAtivos > 0) {
+                badge.className = 'lance-badge ativo';
+                badge.textContent = `🎯 ${totalAtivos} ativo${totalAtivos > 1 ? 's' : ''}`;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        [btnB3, btnCrypto].forEach(btn => {
+            if (!btn) return;
+            const hasAlert = totalAtingidos > 0;
+            btn.classList.toggle('alerta', hasAlert);
+            btn.textContent = hasAlert ? `🔔 Lance (${totalAtingidos})` : '🎯 Lance';
+        });
+        const banner = document.getElementById('alertBanner');
+        if (totalAtingidos === 0 && banner && banner.style.display === 'flex') {
+            banner.style.display = 'none';
+        }
+    }
+
+    document.getElementById('tableBodyB3').addEventListener('click', handleIndicatorClick);
+    document.getElementById('tableBodyCrypto').addEventListener('click', handleIndicatorClick);
+
+    function handleIndicatorClick(e) {
+        if (!e.target.classList || !e.target.classList.contains('lance-indicator')) return;
+        const row = e.target.closest('tr');
+        if (!row) return;
+        const codigo = row.querySelector('.codigo').value.trim().toUpperCase();
+        if (!codigo) return;
+        const isB3 = row.closest('tbody').id === 'tableBodyB3';
+        const tab = isB3 ? 'b3' : 'crypto';
+        const lancesDoAtivo = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo);
+        if (lancesDoAtivo.length === 0) return;
+        if (lancesDoAtivo.length === 1) {
+            abrirDetalheLance(lancesDoAtivo[0].id);
+        } else {
+            abrirListaLancesFiltrada(tab, codigo);
+        }
+    }
+
+    // ===== VERIFICAÇÃO AUTOMÁTICA =====
+    let verificarLancesTimer = null;
+    function agendarVerificacaoLances() {
+        if (verificarLancesTimer) clearTimeout(verificarLancesTimer);
+        verificarLancesTimer = setTimeout(() => { verificarLances(); }, 250);
+    }
+
+    function verificarLances() {
+        if (!lances || lances.length === 0) { atualizarIndicadoresLances(); return; }
+        let changed = false;
+        const novosAtingidos = [];
+        lances.forEach(l => {
+            // Auto-expirar
+            if (isLanceAberto(l) && !isLanceValido(l)) {
+                l.status = 'expirado';
+                l.expiradoEm = Date.now();
+                changed = true;
+                return;
+            }
+            if (l.status !== 'ativo') return;
+            const price = getPrecoAtualAtivo(l.tab, l.codigo);
+            if (!price) return;
+            let hit = false;
+            if (l.operacao === 'compra' && price <= l.precoAlvo) hit = true;
+            if (l.operacao === 'venda' && price >= l.precoAlvo) hit = true;
+            if (hit) {
+                l.status = 'atingido';
+                l.atingidoEm = Date.now();
+                l.precoAtingido = price;
+                novosAtingidos.push(l);
+                changed = true;
+            }
+        });
+        if (changed) {
+            saveLances();
+            if (lanceModal.classList.contains('active')) {
+                const listVisible = document.getElementById('lanceViewList').style.display !== 'none';
+                const detailVisible = document.getElementById('lanceViewDetail').style.display !== 'none';
+                if (listVisible) renderListaLances();
+                if (detailVisible) renderDetalheLance();
+            }
+            if (novosAtingidos.length > 0) mostrarAlertaLances(novosAtingidos);
+        }
+        atualizarIndicadoresLances();
+    }
+
+    function mostrarAlertaLances(atingidos) {
+        if (!atingidos || atingidos.length === 0) return;
+        const banner = document.getElementById('alertBanner');
+        const text = document.getElementById('alertBannerText');
+        const items = atingidos.map(l =>
+            `<strong>${l.codigo}</strong> (${l.operacao}): alvo R$ ${fmt(l.precoAlvo)} → atingiu R$ ${fmt(l.precoAtingido)}`
+        );
+        text.innerHTML = 'Lance atingido!<br>' + items.join('<br>');
+        banner.style.display = 'flex';
+        try { document.title = '🔔 LANCE ATINGIDO — Cotações'; } catch (e) {}
+        try { tocarAlertaSom(); } catch (e) {}
+        try { setTimeout(() => { document.title = 'Cotações B3 & Crypto'; }, 8000); } catch (e) {}
+        atingidos.forEach(l => showToast(`🔔 ${l.codigo}: alvo R$ ${fmt(l.precoAlvo)} atingido!`));
+    }
+
+    document.getElementById('alertBannerCloseBtn').addEventListener('click', () => {
+        document.getElementById('alertBanner').style.display = 'none';
+    });
+
+    function tocarAlertaSom() {
+        try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = new Ctx();
+            const beep = (freq, start, dur) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine'; osc.frequency.value = freq;
+                const t0 = ctx.currentTime + start;
+                gain.gain.setValueAtTime(0.001, t0);
+                gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+                osc.start(t0); osc.stop(t0 + dur + 0.05);
+            };
+            beep(880, 0, 0.18);
+            beep(1100, 0.22, 0.18);
+            beep(880, 0.44, 0.22);
+        } catch (e) { console.warn('Som não disponível:', e.message); }
+    }
+
     // ===== AUTO-REFRESH =====
     function agendarAutoRefresh() {
         if (autoRefreshTimer) { clearTimeout(autoRefreshTimer); autoRefreshTimer = null; }
         const ms = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
         const label = document.getElementById('nextUpdateLabel');
-        if (ms <= 0) {
-            nextAutoRefreshTime = null;
-            if (label) label.textContent = '';
-            return;
-        }
+        if (ms <= 0) { nextAutoRefreshTime = null; if (label) label.textContent = ''; return; }
         const ciclo = () => {
             nextAutoRefreshTime = Date.now() + ms;
             autoRefreshTimer = setTimeout(() => {
@@ -968,10 +1797,8 @@
             console.log('Auto-refresh pausado: usuário editando código.');
             return;
         }
-        const temB3 = Array.from(document.querySelectorAll('#tableBodyB3 tr'))
-            .some(tr => tr.querySelector('.codigo').value.trim());
-        const temCrypto = Array.from(document.querySelectorAll('#tableBodyCrypto tr'))
-            .some(tr => tr.querySelector('.codigo').value.trim());
+        const temB3 = Array.from(document.querySelectorAll('#tableBodyB3 tr')).some(tr => tr.querySelector('.codigo').value.trim());
+        const temCrypto = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).some(tr => tr.querySelector('.codigo').value.trim());
         if (temB3) document.getElementById('refreshAllBtnB3').click();
         if (temCrypto) document.getElementById('refreshAllBtnCrypto').click();
         if (!temB3) fetchMarketSummaryB3();
@@ -983,9 +1810,7 @@
         agendarAutoRefresh();
         const ms = parseInt(document.getElementById('intervaloAutoSelect').value) || 0;
         if (ms > 0) {
-            const txt = ms < 60000
-                ? `${ms / 1000} segundo${ms === 1000 ? '' : 's'}`
-                : `${Math.round(ms / 60000)} min`;
+            const txt = ms < 60000 ? `${ms / 1000} segundo${ms === 1000 ? '' : 's'}` : `${Math.round(ms / 60000)} min`;
             showToast(`⏱️ Auto-atualização ativada a cada ${txt}`);
         } else {
             showToast('⏱️ Auto-atualização desativada');
@@ -1117,7 +1942,6 @@
 
         try {
             let rawData = null, usedSource = '', usedLabel = '', sampleTo = 15;
-
             if (periodo === 'custom') {
                 const inicio = document.getElementById('dataInicioB3').value;
                 const fim = document.getElementById('dataFimB3').value;
@@ -1129,17 +1953,11 @@
                     const spanDays = (new Date(fim) - new Date(inicio)) / (1000 * 60 * 60 * 24);
                     const intervals = spanDays <= 7 ? ['15m', '30m', '1h', '1d'] : ['1d', '1wk'];
                     for (const interval of intervals) {
-                        try {
-                            const d = await fetchBrapiHistoryByDateB3(ticker, inicio, fim, interval);
-                            if (d && d.length > 0) { rawData = d; usedSource = 'brapi'; usedLabel = 'Personalizado'; sampleTo = 15; break; }
-                        } catch (e) { console.warn(e); }
+                        try { const d = await fetchBrapiHistoryByDateB3(ticker, inicio, fim, interval); if (d && d.length > 0) { rawData = d; usedSource = 'brapi'; usedLabel = 'Personalizado'; sampleTo = 15; break; } } catch (e) { console.warn(e); }
                     }
                     if (!rawData || rawData.length === 0) {
                         for (const interval of intervals) {
-                            try {
-                                const d = await fetchYahooHistoryByDateB3(ticker, inicio, fim, interval);
-                                if (d && d.length > 0) { rawData = d; usedSource = 'Yahoo'; usedLabel = 'Personalizado'; sampleTo = 15; break; }
-                            } catch (e) { console.warn(e); }
+                            try { const d = await fetchYahooHistoryByDateB3(ticker, inicio, fim, interval); if (d && d.length > 0) { rawData = d; usedSource = 'Yahoo'; usedLabel = 'Personalizado'; sampleTo = 15; break; } } catch (e) { console.warn(e); }
                         }
                     }
                     if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
@@ -1155,16 +1973,12 @@
                             let d;
                             if (att.source === 'brapi') d = await fetchBrapiHistoryB3(ticker, att.range, att.interval);
                             else d = await fetchYahooHistoryB3(ticker, att.range, att.interval);
-                            if (d && d.length > 0) {
-                                rawData = d; usedSource = att.source; usedLabel = att.label; sampleTo = att.sampleTo;
-                                break;
-                            }
+                            if (d && d.length > 0) { rawData = d; usedSource = att.source; usedLabel = att.label; sampleTo = att.sampleTo; break; }
                         } catch (e) { console.warn(e); }
                     }
                     if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo });
                 }
             }
-
             if (myToken !== renderIndividualTokenB3) return;
             if (!rawData || rawData.length === 0) {
                 showToast('Nenhum dado encontrado para este período.', true);
@@ -1172,10 +1986,8 @@
                 loadingEl.style.display = 'none';
                 return;
             }
-
             const data = sampleData(rawData, sampleTo);
             infoEl.textContent = `${data.length} pontos (de ${rawData.length}) · ${usedLabel} · Fonte: ${usedSource}`;
-
             const spanMs = data[data.length - 1].time - data[0].time;
             const spanHoras = spanMs / (1000 * 60 * 60);
             let timeUnit = 'day';
@@ -1183,89 +1995,57 @@
             else if (spanHoras <= 24 * 60) timeUnit = 'day';
             else if (spanHoras <= 24 * 365) timeUnit = 'month';
             else timeUnit = 'year';
-
             if (individualChartInstanceB3) individualChartInstanceB3.destroy();
             const ctx = document.getElementById('individualChartB3').getContext('2d');
-
             if (tipo === 'candlestick') {
                 const ohlc = data.map(b => ({ x: b.time, o: b.open, h: b.high, l: b.low, c: b.close }));
                 individualChartInstanceB3 = new Chart(ctx, {
                     type: 'candlestick',
-                    data: { datasets: [{ label: ticker, data: ohlc,
-                        color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
-                        borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
+                    data: { datasets: [{ label: ticker, data: ohlc, color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' }, borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
                     options: {
                         responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
-                        scales: {
-                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-                            y: { type: 'linear', position: 'right' }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => {
-                                const d = ctx.raw;
-                                return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
-                            }}}
-                        }
+                        scales: { x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { type: 'linear', position: 'right' } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => { const d = ctx.raw; return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`; } } } }
                     }
                 });
             } else {
                 const lineData = data.map(b => ({ x: b.time, y: b.close }));
                 individualChartInstanceB3 = new Chart(ctx, {
                     type: 'line',
-                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#0066ff',
-                        backgroundColor: 'rgba(0,102,255,0.08)', fill: true, tension: 0.2,
-                        pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
+                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#0066ff', backgroundColor: 'rgba(0,102,255,0.08)', fill: true, tension: 0.2, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
                     options: {
                         responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
-                        scales: {
-                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-                            y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } }
-                        }
+                        scales: { x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } } }
                     }
                 });
             }
         } catch (e) {
-            if (myToken === renderIndividualTokenB3) {
-                showToast('Erro no gráfico: ' + e.message, true);
-                infoEl.textContent = 'Erro ao carregar.';
-            }
+            if (myToken === renderIndividualTokenB3) { showToast('Erro no gráfico: ' + e.message, true); infoEl.textContent = 'Erro ao carregar.'; }
         } finally {
             if (myToken === renderIndividualTokenB3) loadingEl.style.display = 'none';
         }
     }
 
     async function fetchBrapiHistoryB3(ticker, range, interval) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
         const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
         const resp = await fetch(url, { headers });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const json = await resp.json();
         const data = json.results?.[0];
         if (!data?.historicalDataPrice) return [];
-        return data.historicalDataPrice.map(b => ({
-            time: new Date(b.date * 1000).getTime(),
-            open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0
-        })).filter(b => b.close != null);
+        return data.historicalDataPrice.map(b => ({ time: new Date(b.date * 1000).getTime(), open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0 })).filter(b => b.close != null);
     }
     async function fetchBrapiHistoryByDateB3(ticker, inicio, fim, interval) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
         const url = `https://brapi.dev/api/quote/${encodeURIComponent(ticker)}?startDate=${inicio}&endDate=${fim}&interval=${interval}`;
         const resp = await fetch(url, { headers });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const json = await resp.json();
         const data = json.results?.[0];
         if (!data?.historicalDataPrice) return [];
-        return data.historicalDataPrice.map(b => ({
-            time: new Date(b.date * 1000).getTime(),
-            open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0
-        })).filter(b => b.close != null);
+        return data.historicalDataPrice.map(b => ({ time: new Date(b.date * 1000).getTime(), open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume || 0 })).filter(b => b.close != null);
     }
     async function fetchYahooHistoryB3(ticker, range, interval) {
         const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
@@ -1275,11 +2055,7 @@
         if (!result?.timestamp) return [];
         const q = result.indicators?.quote?.[0];
         if (!q) return [];
-        return result.timestamp.map((ts, i) => ({
-            time: ts * 1000,
-            open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null,
-            close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0
-        })).filter(b => b.close != null);
+        return result.timestamp.map((ts, i) => ({ time: ts * 1000, open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null, close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0 })).filter(b => b.close != null);
     }
     async function fetchYahooHistoryByDateB3(ticker, inicio, fim, interval) {
         const simbolo = ticker.includes('.') ? ticker : `${ticker}.SA`;
@@ -1291,11 +2067,7 @@
         if (!result?.timestamp) return [];
         const q = result.indicators?.quote?.[0];
         if (!q) return [];
-        return result.timestamp.map((ts, i) => ({
-            time: ts * 1000,
-            open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null,
-            close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0
-        })).filter(b => b.close != null);
+        return result.timestamp.map((ts, i) => ({ time: ts * 1000, open: q.open?.[i] ?? null, high: q.high?.[i] ?? null, low: q.low?.[i] ?? null, close: q.close?.[i] ?? null, volume: q.volume?.[i] ?? 0 })).filter(b => b.close != null);
     }
 
     let volumeChartInstanceCrypto = null;
@@ -1362,7 +2134,6 @@
 
         try {
             let rawData = null, usedSource = '', usedLabel = '', sampleTo = 15;
-
             if (periodo === 'custom') {
                 const inicio = document.getElementById('dataInicioCrypto').value;
                 const fim = document.getElementById('dataFimCrypto').value;
@@ -1371,14 +2142,8 @@
                 const cached = cacheGet(cacheKey);
                 if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
                 else {
-                    if (fonteCrypto === 'brapi') {
-                        try { rawData = await fetchBrapiCryptoHistoryByDate(ticker, inicio, fim); usedSource = 'brapi'; usedLabel = 'Personalizado'; }
-                        catch (e) { console.warn(e); }
-                    }
-                    if (!rawData || rawData.length === 0) {
-                        try { rawData = await fetchCoinGeckoHistoryByDate(ticker, inicio, fim); usedSource = 'CoinGecko'; usedLabel = 'Personalizado'; }
-                        catch (e) { console.warn(e); }
-                    }
+                    if (fonteCrypto === 'brapi') { try { rawData = await fetchBrapiCryptoHistoryByDate(ticker, inicio, fim); usedSource = 'brapi'; usedLabel = 'Personalizado'; } catch (e) { console.warn(e); } }
+                    if (!rawData || rawData.length === 0) { try { rawData = await fetchCoinGeckoHistoryByDate(ticker, inicio, fim); usedSource = 'CoinGecko'; usedLabel = 'Personalizado'; } catch (e) { console.warn(e); } }
                     if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo: 15 });
                 }
             } else {
@@ -1387,18 +2152,11 @@
                 if (cached) { rawData = cached.data; usedSource = cached.source; usedLabel = cached.label; sampleTo = cached.sampleTo; }
                 else {
                     const labels = { '1d': 'Dia', '5d': 'Semana', '1mo': 'Mês', '1y': 'Anual' };
-                    if (fonteCrypto === 'brapi') {
-                        try { rawData = await fetchBrapiCryptoHistory(ticker, periodo); usedSource = 'brapi'; usedLabel = labels[periodo]; }
-                        catch (e) { console.warn('brapi crypto falhou:', e); }
-                    }
-                    if (!rawData || rawData.length === 0) {
-                        try { rawData = await fetchCoinGeckoHistory(ticker, periodo); usedSource = 'CoinGecko'; usedLabel = labels[periodo]; }
-                        catch (e) { console.warn('CoinGecko falhou:', e); }
-                    }
+                    if (fonteCrypto === 'brapi') { try { rawData = await fetchBrapiCryptoHistory(ticker, periodo); usedSource = 'brapi'; usedLabel = labels[periodo]; } catch (e) { console.warn('brapi crypto falhou:', e); } }
+                    if (!rawData || rawData.length === 0) { try { rawData = await fetchCoinGeckoHistory(ticker, periodo); usedSource = 'CoinGecko'; usedLabel = labels[periodo]; } catch (e) { console.warn('CoinGecko falhou:', e); } }
                     if (rawData) cacheSet(cacheKey, { data: rawData, source: usedSource, label: usedLabel, sampleTo: 15 });
                 }
             }
-
             if (myToken !== renderIndividualTokenCrypto) return;
             if (!rawData || rawData.length === 0) {
                 showToast('Nenhum dado encontrado para este período.', true);
@@ -1406,10 +2164,8 @@
                 loadingEl.style.display = 'none';
                 return;
             }
-
             const data = sampleData(rawData, sampleTo);
             infoEl.textContent = `${data.length} pontos (de ${rawData.length}) · ${usedLabel} · Fonte: ${usedSource}`;
-
             const spanMs = data[data.length - 1].time - data[0].time;
             const spanHoras = spanMs / (1000 * 60 * 60);
             let timeUnit = 'day';
@@ -1417,65 +2173,40 @@
             else if (spanHoras <= 24 * 60) timeUnit = 'day';
             else if (spanHoras <= 24 * 365) timeUnit = 'month';
             else timeUnit = 'year';
-
             if (individualChartInstanceCrypto) individualChartInstanceCrypto.destroy();
             const ctx = document.getElementById('individualChartCrypto').getContext('2d');
-
             if (tipo === 'candlestick') {
                 const ohlc = data.map(b => ({ x: b.time, o: b.open, h: b.high, l: b.low, c: b.close }));
                 individualChartInstanceCrypto = new Chart(ctx, {
                     type: 'candlestick',
-                    data: { datasets: [{ label: ticker, data: ohlc,
-                        color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' },
-                        borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
+                    data: { datasets: [{ label: ticker, data: ohlc, color: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' }, borderColor: { up: '#0a7a3e', down: '#c62828', unchanged: '#666' } }] },
                     options: {
                         responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
-                        scales: {
-                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-                            y: { type: 'linear', position: 'right' }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => {
-                                const d = ctx.raw;
-                                return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`;
-                            }}}
-                        }
+                        scales: { x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { type: 'linear', position: 'right' } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => { const d = ctx.raw; return `A: ${fmt(d.o)} | M: ${fmt(d.h)} | m: ${fmt(d.l)} | F: ${fmt(d.c)}`; } } } }
                     }
                 });
             } else {
                 const lineData = data.map(b => ({ x: b.time, y: b.close }));
                 individualChartInstanceCrypto = new Chart(ctx, {
                     type: 'line',
-                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#f7931a',
-                        backgroundColor: 'rgba(247,147,26,0.08)', fill: true, tension: 0.2,
-                        pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
+                    data: { datasets: [{ label: ticker, data: lineData, borderColor: '#f7931a', backgroundColor: 'rgba(247,147,26,0.08)', fill: true, tension: 0.2, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2 }] },
                     options: {
                         responsive: true, maintainAspectRatio: false, parsing: false, animation: { duration: 300 },
-                        scales: {
-                            x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-                            y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } }
-                        }
+                        scales: { x: { type: 'timeseries', time: { unit: timeUnit }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { type: 'linear', position: 'right', ticks: { callback: (v) => 'R$ ' + fmt(v) } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `R$ ${fmt(ctx.raw.y)}` } } }
                     }
                 });
             }
         } catch (e) {
-            if (myToken === renderIndividualTokenCrypto) {
-                showToast('Erro no gráfico: ' + e.message, true);
-                infoEl.textContent = 'Erro ao carregar.';
-            }
+            if (myToken === renderIndividualTokenCrypto) { showToast('Erro no gráfico: ' + e.message, true); infoEl.textContent = 'Erro ao carregar.'; }
         } finally {
             if (myToken === renderIndividualTokenCrypto) loadingEl.style.display = 'none';
         }
     }
 
     async function fetchBrapiCryptoHistory(ticker, periodo) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
         const rangeMap = { '1d': '1d', '5d': '5d', '1mo': '1mo', '1y': '1y' };
         const intervalMap = { '1d': '5m', '5d': '30m', '1mo': '1d', '1y': '1d' };
         const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(ticker)}&currency=BRL&range=${rangeMap[periodo]}&interval=${intervalMap[periodo]}`;
@@ -1485,15 +2216,10 @@
         const data = json.results?.[0]?.data || json.results?.[0];
         if (!data) return [];
         const hist = data.historicalDataPrice || data.historical || [];
-        return hist.map(b => ({
-            time: new Date((b.date || b.timestamp) * 1000).getTime(),
-            open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price,
-            close: b.close ?? b.price, volume: b.volume || 0
-        })).filter(b => b.close != null);
+        return hist.map(b => ({ time: new Date((b.date || b.timestamp) * 1000).getTime(), open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price, close: b.close ?? b.price, volume: b.volume || 0 })).filter(b => b.close != null);
     }
     async function fetchBrapiCryptoHistoryByDate(ticker, inicio, fim) {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
         const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(ticker)}&currency=BRL&startDate=${inicio}&endDate=${fim}&interval=1d`;
         const resp = await fetch(url, { headers });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -1501,11 +2227,7 @@
         const data = json.results?.[0]?.data || json.results?.[0];
         if (!data) return [];
         const hist = data.historicalDataPrice || data.historical || [];
-        return hist.map(b => ({
-            time: new Date((b.date || b.timestamp) * 1000).getTime(),
-            open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price,
-            close: b.close ?? b.price, volume: b.volume || 0
-        })).filter(b => b.close != null);
+        return hist.map(b => ({ time: new Date((b.date || b.timestamp) * 1000).getTime(), open: b.open ?? b.price, high: b.high ?? b.price, low: b.low ?? b.price, close: b.close ?? b.price, volume: b.volume || 0 })).filter(b => b.close != null);
     }
 
     const COINGECKO_IDS = {
@@ -1524,10 +2246,7 @@
         RON: 'ronin', GMT: 'stepn', GALA: 'gala', ENJ: 'enjincoin', CHZ: 'chiliz',
         USDC: 'usd-coin', USDT: 'tether', GALOFT: 'clube-atletico-mineiro-fan-token', TNSR: 'tensor'
     };
-    function coingeckoId(symbol) {
-        const upper = symbol.toUpperCase();
-        return COINGECKO_IDS[upper] || upper.toLowerCase();
-    }
+    function coingeckoId(symbol) { const upper = symbol.toUpperCase(); return COINGECKO_IDS[upper] || upper.toLowerCase(); }
 
     async function fetchCoinGeckoHistory(ticker, periodo) {
         const id = coingeckoId(ticker);
@@ -1538,9 +2257,7 @@
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const json = await resp.json();
         const prices = json.prices || [];
-        return prices.map(([ts, price]) => ({
-            time: ts, open: price, high: price, low: price, close: price, volume: 0
-        }));
+        return prices.map(([ts, price]) => ({ time: ts, open: price, high: price, low: price, close: price, volume: 0 }));
     }
     async function fetchCoinGeckoHistoryByDate(ticker, inicio, fim) {
         const id = coingeckoId(ticker);
@@ -1551,9 +2268,7 @@
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const json = await resp.json();
         const prices = json.prices || [];
-        return prices.map(([ts, price]) => ({
-            time: ts, open: price, high: price, low: price, close: price, volume: 0
-        }));
+        return prices.map(([ts, price]) => ({ time: ts, open: price, high: price, low: price, close: price, volume: 0 }));
     }
 
     async function fetchQuoteB3(codigo, row) {
@@ -1568,12 +2283,9 @@
         const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-        nomeInput.classList.add('loading');
-        nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando...';
+        nomeInput.classList.add('loading'); nomeInput.classList.remove('error'); nomeInput.placeholder = 'Carregando...';
         try {
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
             const url = `https://brapi.dev/api/quote/${encodeURIComponent(codigo)}`;
             const resp = await fetch(url, { headers });
             if (!resp.ok) throw new Error(`Erro ${resp.status}`);
@@ -1586,31 +2298,15 @@
             const change = data.regularMarketChangePercent;
             cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = price != null ? fmt(price) : 'N/A';
-            if (change != null) {
-                variacaoCell.textContent = fmt(change) + '%';
-                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = change;
-            } else {
-                variacaoCell.textContent = 'N/A';
-                delete row.dataset.variacao;
-            }
-            if (data.regularMarketTime) {
-                const d = new Date(data.regularMarketTime);
-                lastQuoteDate = d;
-                atualizarDataCabecalho();
-                dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-            }
+            if (change != null) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); row.dataset.variacao = change; }
+            else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            if (data.regularMarketTime) { const d = new Date(data.regularMarketTime); lastQuoteDate = d; atualizarDataCabecalho(); dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false }); }
             row.dataset.price = price || 0;
             row.dataset.lastCodigo = codigo;
-            atualizarTotalB3(row);
-            ordenarLinhasB3();
-            saveState();
-            atualizarSelectAtivosB3();
+            atualizarTotalB3(row); ordenarLinhasB3(); saveState(); atualizarSelectAtivosB3();
         } catch (e) {
-            nomeInput.placeholder = `Erro: ${e.message}`;
-            nomeInput.classList.add('error');
-            marcarB3SemInfo(row);
-            saveState();
+            nomeInput.placeholder = `Erro: ${e.message}`; nomeInput.classList.add('error');
+            marcarB3SemInfo(row); saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1619,9 +2315,7 @@
         const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-        nomeInput.classList.add('loading');
-        nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando...';
+        nomeInput.classList.add('loading'); nomeInput.classList.remove('error'); nomeInput.placeholder = 'Carregando...';
         try {
             const urlGF = `https://www.google.com/finance/quote/${encodeURIComponent(codigo)}:BVMF`;
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlGF)}`;
@@ -1636,33 +2330,18 @@
             let change = null;
             const mp = html.match(/([+-]?\d+[.,]\d+)\s*%/);
             if (mp) change = parseFloat(mp[1].replace(',', '.'));
-            if (!nomeInput.value.trim()) {
-                const nm = html.match(/<div class="zzDege">([^<]+)<\/div>/);
-                if (nm) nomeInput.value = nm[1].trim();
-            }
+            if (!nomeInput.value.trim()) { const nm = html.match(/<div class="zzDege">([^<]+)<\/div>/); if (nm) nomeInput.value = nm[1].trim(); }
             nomeInput.placeholder = 'Nome';
             cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
-            if (change != null) {
-                variacaoCell.textContent = fmt(change) + '%';
-                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = change;
-            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
-            const agora = new Date();
-            lastQuoteDate = agora;
-            atualizarDataCabecalho();
-            dataHoraCell.textContent = agora.toLocaleTimeString('pt-BR', { hour12: false });
-            row.dataset.price = price;
-            row.dataset.lastCodigo = codigo;
-            atualizarTotalB3(row);
-            ordenarLinhasB3();
-            saveState();
-            atualizarSelectAtivosB3();
+            if (change != null) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); row.dataset.variacao = change; }
+            else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            const agora = new Date(); lastQuoteDate = agora; atualizarDataCabecalho(); dataHoraCell.textContent = agora.toLocaleTimeString('pt-BR', { hour12: false });
+            row.dataset.price = price; row.dataset.lastCodigo = codigo;
+            atualizarTotalB3(row); ordenarLinhasB3(); saveState(); atualizarSelectAtivosB3();
         } catch (e) {
-            nomeInput.placeholder = `Erro Google: ${e.message}`;
-            nomeInput.classList.add('error');
-            marcarB3SemInfo(row);
-            saveState();
+            nomeInput.placeholder = `Erro Google: ${e.message}`; nomeInput.classList.add('error');
+            marcarB3SemInfo(row); saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1671,9 +2350,7 @@
         const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-        nomeInput.classList.add('loading');
-        nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando...';
+        nomeInput.classList.add('loading'); nomeInput.classList.remove('error'); nomeInput.placeholder = 'Carregando...';
         try {
             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(codigo + '.SA')}?interval=1d&range=1d`;
             const json = await fetchWithProxies(url);
@@ -1686,49 +2363,29 @@
             nomeInput.placeholder = 'Nome';
             cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
-            if (change != null) {
-                variacaoCell.textContent = fmt(change) + '%';
-                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = change;
-            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
-            if (meta.regularMarketTime) {
-                const d = new Date(meta.regularMarketTime * 1000);
-                lastQuoteDate = d;
-                atualizarDataCabecalho();
-                dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-            }
-            row.dataset.price = price;
-            row.dataset.lastCodigo = codigo;
-            atualizarTotalB3(row);
-            ordenarLinhasB3();
-            saveState();
-            atualizarSelectAtivosB3();
+            if (change != null) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); row.dataset.variacao = change; }
+            else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            if (meta.regularMarketTime) { const d = new Date(meta.regularMarketTime * 1000); lastQuoteDate = d; atualizarDataCabecalho(); dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false }); }
+            row.dataset.price = price; row.dataset.lastCodigo = codigo;
+            atualizarTotalB3(row); ordenarLinhasB3(); saveState(); atualizarSelectAtivosB3();
         } catch (e) {
-            nomeInput.placeholder = `Erro Yahoo: ${e.message}`;
-            nomeInput.classList.add('error');
-            marcarB3SemInfo(row);
-            saveState();
+            nomeInput.placeholder = `Erro Yahoo: ${e.message}`; nomeInput.classList.add('error');
+            marcarB3SemInfo(row); saveState();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
     async function fetchQuoteCrypto(codigo, row) {
         const fonte = document.getElementById('fonteSelectCrypto').value;
         if (fonte === 'brapi') {
-            try {
-                await fetchBrapiCryptoQuote(codigo, row);
-                return;
-            } catch (e) {
-                console.warn(`brapi falhou para ${codigo}, tentando CoinGecko:`, e.message);
-            }
+            try { await fetchBrapiCryptoQuote(codigo, row); return; }
+            catch (e) { console.warn(`brapi falhou para ${codigo}, tentando CoinGecko:`, e.message); }
         }
-        try {
-            await fetchCoinGeckoQuote(codigo, row);
-        } catch (e) {
+        try { await fetchCoinGeckoQuote(codigo, row); }
+        catch (e) {
             const nomeInput = row.querySelector('.nome-input');
             nomeInput.classList.add('error');
             nomeInput.placeholder = `Erro: ${e.message}`;
-            marcarCryptoSemInfo(row);
-            saveState();
+            marcarCryptoSemInfo(row); saveState();
         }
     }
 
@@ -1737,12 +2394,9 @@
         const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-        nomeInput.classList.add('loading');
-        nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando...';
+        nomeInput.classList.add('loading'); nomeInput.classList.remove('error'); nomeInput.placeholder = 'Carregando...';
         try {
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
             const url = `https://brapi.dev/api/v2/crypto?coin=${encodeURIComponent(codigo)}&currency=BRL`;
             const resp = await fetch(url, { headers });
             if (!resp.ok) throw new Error(`Erro ${resp.status}`);
@@ -1756,21 +2410,11 @@
             nomeInput.placeholder = 'Nome';
             cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
-            if (change != null) {
-                variacaoCell.textContent = fmt(change) + '%';
-                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = change;
-            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
-            const d = new Date(data.regularMarketTime || Date.now());
-            lastQuoteDate = d;
-            atualizarDataCabecalho();
-            dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-            row.dataset.price = price;
-            row.dataset.lastCodigo = codigo;
-            atualizarTotalCrypto(row);
-            ordenarLinhasCrypto();
-            saveState();
-            atualizarSelectAtivosCrypto();
+            if (change != null) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); row.dataset.variacao = change; }
+            else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            const d = new Date(data.regularMarketTime || Date.now()); lastQuoteDate = d; atualizarDataCabecalho(); dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            row.dataset.price = price; row.dataset.lastCodigo = codigo;
+            atualizarTotalCrypto(row); ordenarLinhasCrypto(); saveState(); atualizarSelectAtivosCrypto();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1779,9 +2423,7 @@
         const cotacaoCell = row.querySelector('.cotacao');
         const variacaoCell = row.querySelector('.variacao');
         const dataHoraCell = row.querySelector('.data-hora');
-        nomeInput.classList.add('loading');
-        nomeInput.classList.remove('error');
-        nomeInput.placeholder = 'Carregando...';
+        nomeInput.classList.add('loading'); nomeInput.classList.remove('error'); nomeInput.placeholder = 'Carregando...';
         try {
             const id = coingeckoId(codigo);
             const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl&include_24hr_change=true`;
@@ -1797,21 +2439,11 @@
             nomeInput.placeholder = 'Nome';
             cotacaoCell.classList.remove('sem-info');
             cotacaoCell.textContent = fmt(price);
-            if (change != null) {
-                variacaoCell.textContent = fmt(change) + '%';
-                variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-                row.dataset.variacao = change;
-            } else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
-            const d = new Date();
-            lastQuoteDate = d;
-            atualizarDataCabecalho();
-            dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-            row.dataset.price = price;
-            row.dataset.lastCodigo = codigo;
-            atualizarTotalCrypto(row);
-            ordenarLinhasCrypto();
-            saveState();
-            atualizarSelectAtivosCrypto();
+            if (change != null) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); row.dataset.variacao = change; }
+            else { variacaoCell.textContent = 'N/A'; delete row.dataset.variacao; }
+            const d = new Date(); lastQuoteDate = d; atualizarDataCabecalho(); dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+            row.dataset.price = price; row.dataset.lastCodigo = codigo;
+            atualizarTotalCrypto(row); ordenarLinhasCrypto(); saveState(); atualizarSelectAtivosCrypto();
         } finally { nomeInput.classList.remove('loading'); }
     }
 
@@ -1820,58 +2452,33 @@
         const cotacaoCell = tr.querySelector('.cotacao');
         const variacaoCell = tr.querySelector('.variacao');
         const dataHoraCell = tr.querySelector('.data-hora');
-
         if (!nomeInput.value.trim()) nomeInput.value = symbol;
         nomeInput.classList.remove('error', 'loading');
         nomeInput.placeholder = 'Nome';
-
         cotacaoCell.classList.remove('sem-info');
         cotacaoCell.textContent = fmt(price);
-        if (change != null && !isNaN(change)) {
-            variacaoCell.textContent = fmt(change) + '%';
-            variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo');
-            tr.dataset.variacao = change;
-        } else {
-            variacaoCell.textContent = 'N/A';
-            delete tr.dataset.variacao;
-        }
-
-        const d = new Date();
-        lastQuoteDate = d;
-        atualizarDataCabecalho();
-        dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
-
-        tr.dataset.price = price || 0;
-        tr.dataset.lastCodigo = symbol;
-        atualizarTotalCrypto(tr);
-        ordenarLinhasCrypto();
-        atualizarSelectAtivosCrypto();
+        if (change != null && !isNaN(change)) { variacaoCell.textContent = fmt(change) + '%'; variacaoCell.className = 'variacao ' + (change >= 0 ? 'positivo' : 'negativo'); tr.dataset.variacao = change; }
+        else { variacaoCell.textContent = 'N/A'; delete tr.dataset.variacao; }
+        const d = new Date(); lastQuoteDate = d; atualizarDataCabecalho(); dataHoraCell.textContent = d.toLocaleTimeString('pt-BR', { hour12: false });
+        tr.dataset.price = price || 0; tr.dataset.lastCodigo = symbol;
+        atualizarTotalCrypto(tr); ordenarLinhasCrypto(); atualizarSelectAtivosCrypto();
     }
 
     async function refreshAllCryptoBatch() {
-        const rows = Array.from(document.querySelectorAll('#tableBodyCrypto tr'))
-            .filter(tr => tr.querySelector('.codigo').value.trim());
+        const rows = Array.from(document.querySelectorAll('#tableBodyCrypto tr')).filter(tr => tr.querySelector('.codigo').value.trim());
         if (rows.length === 0) { renderVolumeChartCrypto(); return; }
-
         const symbolToId = {};
         const ids = [];
         rows.forEach(tr => {
             const c = tr.querySelector('.codigo').value.trim().toUpperCase();
-            if (c) {
-                const id = coingeckoId(c);
-                symbolToId[c] = id;
-                if (!ids.includes(id)) ids.push(id);
-            }
+            if (c) { const id = coingeckoId(c); symbolToId[c] = id; if (!ids.includes(id)) ids.push(id); }
         });
-
         if (ids.length === 0) return;
-
         try {
             const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=brl&include_24hr_change=true`;
             const resp = await fetch(url);
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const data = await resp.json();
-
             let sucessos = 0;
             let falhas = [];
             rows.forEach(tr => {
@@ -1890,15 +2497,10 @@
                 applyCryptoQuote(tr, c, d.brl, d.brl_24h_change);
                 sucessos++;
             });
-
             saveState();
             renderVolumeChartCrypto();
-
-            if (falhas.length > 0) {
-                showToast(`✅ ${sucessos} atualizadas · ⚠️ ${falhas.length} sem informação: ${falhas.join(', ')}`);
-            } else {
-                showToast(`✅ ${sucessos} criptoativos atualizados`);
-            }
+            if (falhas.length > 0) showToast(`✅ ${sucessos} atualizadas · ⚠️ ${falhas.length} sem informação: ${falhas.join(', ')}`);
+            else showToast(`✅ ${sucessos} criptoativos atualizados`);
         } catch (e) {
             rows.forEach(tr => marcarCryptoSemInfo(tr));
             saveState();
@@ -1915,11 +2517,8 @@
             const cb = b.querySelector('.codigo').value.trim().toUpperCase();
             const qa = parseFloat(a.querySelector('.quantidade').value) || 0;
             const qb = parseFloat(b.querySelector('.quantidade').value) || 0;
-            const aZero = qa <= 0;
-            const bZero = qb <= 0;
-            if (!ca && !cb) return 0;
-            if (!ca) return 1;
-            if (!cb) return -1;
+            const aZero = qa <= 0, bZero = qb <= 0;
+            if (!ca && !cb) return 0; if (!ca) return 1; if (!cb) return -1;
             if (aZero !== bZero) return aZero ? 1 : -1;
             return ca.localeCompare(cb, 'pt-BR');
         });
@@ -1938,7 +2537,7 @@
         const tbody = document.getElementById('tableBodyB3');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero" aria-label="Quantidade zero"></span><input type="text" class="codigo" placeholder="PETR4" maxlength="12"></td>
+            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="PETR4" maxlength="12"><span class="lance-indicator" title=""></span></td>
             <td><input type="text" class="nome-input" placeholder="Nome"></td>
             <td class="cotacao"></td>
             <td class="variacao"></td>
@@ -1948,60 +2547,38 @@
             <td><button class="remove-btn" title="Remover">✕</button></td>
         `;
         tbody.appendChild(tr);
-
         const codigoInput = tr.querySelector('.codigo');
         const nomeInput = tr.querySelector('.nome-input');
         const quantidadeInput = tr.querySelector('.quantidade');
         const removeBtn = tr.querySelector('.remove-btn');
-
         codigoInput.disabled = !editModeB3;
         nomeInput.disabled = !editModeB3;
         quantidadeInput.disabled = !editModeB3;
-
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
-        if (data.cotacao) {
-            const cell = tr.querySelector('.cotacao');
-            cell.textContent = data.cotacao;
-            if (data.cotacao === '(sem informação)') cell.classList.add('sem-info');
-        }
-        if (data.variacao) {
-            const v = tr.querySelector('.variacao');
-            v.textContent = data.variacao;
-            if (data.variacaoClass) v.className = data.variacaoClass;
-        }
+        if (data.cotacao) { const cell = tr.querySelector('.cotacao'); cell.textContent = data.cotacao; if (data.cotacao === '(sem informação)') cell.classList.add('sem-info'); }
+        if (data.variacao) { const v = tr.querySelector('.variacao'); v.textContent = data.variacao; if (data.variacaoClass) v.className = data.variacaoClass; }
         if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) tr.dataset.variacao = data.variacaoNumber;
         if (data.dataHora) tr.querySelector('.data-hora').textContent = data.dataHora;
         if (data.price) tr.dataset.price = data.price;
-
-        codigoInput.addEventListener('input', () => {
-            codigoInput.value = codigoInput.value.toUpperCase();
-            atualizarDotCodigo(tr);
-        });
+        codigoInput.addEventListener('input', () => { codigoInput.value = codigoInput.value.toUpperCase(); atualizarDotCodigo(tr); });
         codigoInput.addEventListener('blur', () => {
             const c = codigoInput.value.trim();
             if (c && tr.dataset.lastCodigo !== c) fetchQuoteB3(c, tr);
-            ordenarLinhasB3();
-            saveState();
+            ordenarLinhasB3(); saveState(); atualizarIndicadoresLances();
         });
         codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
         nomeInput.addEventListener('input', saveState);
         quantidadeInput.addEventListener('input', () => { atualizarTotalB3(tr); saveState(); });
         quantidadeInput.addEventListener('change', () => { setTimeout(() => { ordenarLinhasB3(); }, 0); });
         removeBtn.addEventListener('click', () => {
-            const c = codigoInput.value.trim();
-            const n = nomeInput.value.trim();
+            const c = codigoInput.value.trim(); const n = nomeInput.value.trim();
             const ident = n || c || 'este ativo';
             if (!confirm(`Excluir "${ident}" da carteira?`)) return;
-            tr.remove();
-            calcularTotaisB3();
-            saveState();
-            atualizarSelectAtivosB3();
-            renderVolumeChartB3();
+            tr.remove(); calcularTotaisB3(); saveState(); atualizarSelectAtivosB3(); renderVolumeChartB3(); atualizarIndicadoresLances();
             showToast('Ativo removido.');
         });
-
         atualizarTotalB3(tr);
         return tr;
     }
@@ -2028,8 +2605,7 @@
         const semInfoB3 = contarSemInfo('b3');
         aplicarTotalComAviso(document.getElementById('headerTotalB3'), total, semInfoB3, true);
         aplicarTotalComAviso(document.getElementById('totalCarteiraB3'), total, semInfoB3, false);
-        totalB3Num = total;
-        atualizarTotalGeralHeader();
+        totalB3Num = total; atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
         const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
         document.getElementById('carteiraTotalHojeB3').textContent = fmt(total);
@@ -2040,6 +2616,7 @@
         document.getElementById('carteiraPercentualB3').className = 'detalhe ' + (pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : 'neutro'));
         document.getElementById('variacaoTotalB3').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
         document.getElementById('variacaoTotalB3').className = pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : '');
+        agendarVerificacaoLances();
     }
 
     function atualizarSelectAtivosB3() {
@@ -2049,9 +2626,7 @@
         select.innerHTML = tickers.length ? '' : '<option value="">— Nenhum ativo —</option>';
         tickers.sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(t => {
             const opt = document.createElement('option');
-            opt.value = t;
-            opt.textContent = t;
-            select.appendChild(opt);
+            opt.value = t; opt.textContent = t; select.appendChild(opt);
         });
         if (tickers.includes(current)) select.value = current;
     }
@@ -2064,11 +2639,8 @@
             const cb = b.querySelector('.codigo').value.trim().toUpperCase();
             const qa = parseFloat(a.querySelector('.quantidade').value) || 0;
             const qb = parseFloat(b.querySelector('.quantidade').value) || 0;
-            const aZero = qa <= 0;
-            const bZero = qb <= 0;
-            if (!ca && !cb) return 0;
-            if (!ca) return 1;
-            if (!cb) return -1;
+            const aZero = qa <= 0, bZero = qb <= 0;
+            if (!ca && !cb) return 0; if (!ca) return 1; if (!cb) return -1;
             if (aZero !== bZero) return aZero ? 1 : -1;
             return ca.localeCompare(cb, 'pt-BR');
         });
@@ -2079,7 +2651,7 @@
         const tbody = document.getElementById('tableBodyCrypto');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero" aria-label="Quantidade zero"></span><input type="text" class="codigo" placeholder="BTC" maxlength="10"></td>
+            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="BTC" maxlength="10"><span class="lance-indicator" title=""></span></td>
             <td><input type="text" class="nome-input" placeholder="Bitcoin"></td>
             <td class="cotacao"></td>
             <td class="variacao"></td>
@@ -2089,60 +2661,38 @@
             <td><button class="remove-btn" title="Remover">✕</button></td>
         `;
         tbody.appendChild(tr);
-
         const codigoInput = tr.querySelector('.codigo');
         const nomeInput = tr.querySelector('.nome-input');
         const quantidadeInput = tr.querySelector('.quantidade');
         const removeBtn = tr.querySelector('.remove-btn');
-
         codigoInput.disabled = !editModeCrypto;
         nomeInput.disabled = !editModeCrypto;
         quantidadeInput.disabled = !editModeCrypto;
-
         if (data.codigo) codigoInput.value = data.codigo;
         if (data.nome) nomeInput.value = data.nome;
         if (data.quantidade != null) quantidadeInput.value = data.quantidade;
-        if (data.cotacao) {
-            const cell = tr.querySelector('.cotacao');
-            cell.textContent = data.cotacao;
-            if (data.cotacao === '(sem informação)') cell.classList.add('sem-info');
-        }
-        if (data.variacao) {
-            const v = tr.querySelector('.variacao');
-            v.textContent = data.variacao;
-            if (data.variacaoClass) v.className = data.variacaoClass;
-        }
+        if (data.cotacao) { const cell = tr.querySelector('.cotacao'); cell.textContent = data.cotacao; if (data.cotacao === '(sem informação)') cell.classList.add('sem-info'); }
+        if (data.variacao) { const v = tr.querySelector('.variacao'); v.textContent = data.variacao; if (data.variacaoClass) v.className = data.variacaoClass; }
         if (data.variacaoNumber != null && !isNaN(data.variacaoNumber)) tr.dataset.variacao = data.variacaoNumber;
         if (data.dataHora) tr.querySelector('.data-hora').textContent = data.dataHora;
         if (data.price) tr.dataset.price = data.price;
-
-        codigoInput.addEventListener('input', () => {
-            codigoInput.value = codigoInput.value.toUpperCase();
-            atualizarDotCodigo(tr);
-        });
+        codigoInput.addEventListener('input', () => { codigoInput.value = codigoInput.value.toUpperCase(); atualizarDotCodigo(tr); });
         codigoInput.addEventListener('blur', () => {
             const c = codigoInput.value.trim();
             if (c && tr.dataset.lastCodigo !== c) fetchQuoteCrypto(c, tr);
-            ordenarLinhasCrypto();
-            saveState();
+            ordenarLinhasCrypto(); saveState(); atualizarIndicadoresLances();
         });
         codigoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); codigoInput.blur(); } });
         nomeInput.addEventListener('input', saveState);
         quantidadeInput.addEventListener('input', () => { atualizarTotalCrypto(tr); saveState(); });
         quantidadeInput.addEventListener('change', () => { setTimeout(() => { ordenarLinhasCrypto(); }, 0); });
         removeBtn.addEventListener('click', () => {
-            const c = codigoInput.value.trim();
-            const n = nomeInput.value.trim();
+            const c = codigoInput.value.trim(); const n = nomeInput.value.trim();
             const ident = n || c || 'este criptoativo';
             if (!confirm(`Excluir "${ident}" da carteira?`)) return;
-            tr.remove();
-            calcularTotaisCrypto();
-            saveState();
-            atualizarSelectAtivosCrypto();
-            renderVolumeChartCrypto();
+            tr.remove(); calcularTotaisCrypto(); saveState(); atualizarSelectAtivosCrypto(); renderVolumeChartCrypto(); atualizarIndicadoresLances();
             showToast('Criptoativo removido.');
         });
-
         atualizarTotalCrypto(tr);
         return tr;
     }
@@ -2169,8 +2719,7 @@
         const semInfoCrypto = contarSemInfo('crypto');
         aplicarTotalComAviso(document.getElementById('headerTotalCrypto'), total, semInfoCrypto, true);
         aplicarTotalComAviso(document.getElementById('totalCarteiraCrypto'), total, semInfoCrypto, false);
-        totalCryptoNum = total;
-        atualizarTotalGeralHeader();
+        totalCryptoNum = total; atualizarTotalGeralHeader();
         const diff = total - totalAnterior;
         const pct = totalAnterior > 0 ? (diff / totalAnterior) * 100 : 0;
         document.getElementById('carteiraTotalHojeCrypto').textContent = fmt(total);
@@ -2181,6 +2730,7 @@
         document.getElementById('carteiraPercentualCrypto').className = 'detalhe ' + (pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : 'neutro'));
         document.getElementById('variacaoTotalCrypto').textContent = totalAnterior > 0 ? `${pct >= 0 ? '+' : ''}${fmt(pct)}%` : '—';
         document.getElementById('variacaoTotalCrypto').className = pct > 0 ? 'positivo' : (pct < 0 ? 'negativo' : '');
+        agendarVerificacaoLances();
     }
 
     function atualizarSelectAtivosCrypto() {
@@ -2190,17 +2740,12 @@
         select.innerHTML = tickers.length ? '' : '<option value="">— Nenhum criptoativo —</option>';
         tickers.sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(t => {
             const opt = document.createElement('option');
-            opt.value = t;
-            opt.textContent = t;
-            select.appendChild(opt);
+            opt.value = t; opt.textContent = t; select.appendChild(opt);
         });
         if (tickers.includes(current)) select.value = current;
     }
 
-    async function fetchMarketSummaryB3() {
-        fetchDolarAwesome();
-        fetchIbovespaComFallback();
-    }
+    async function fetchMarketSummaryB3() { fetchDolarAwesome(); fetchIbovespaComFallback(); }
     async function fetchDolarAwesome() {
         try {
             const resp = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
@@ -2225,8 +2770,7 @@
     }
     async function fetchIbovespaComFallback() {
         try {
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
             const resp = await fetch('https://brapi.dev/api/quote/%5EBVSP', { headers });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const json = await resp.json();
@@ -2240,9 +2784,7 @@
             const json = await fetchWithProxies(url);
             const meta = json.chart.result[0].meta;
             atualizarIbovespaNaTela(meta.regularMarketPrice, meta.regularMarketChangePercent);
-        } catch (e) {
-            atualizarIbovespaNaTela(null, null);
-        }
+        } catch (e) { atualizarIbovespaNaTela(null, null); }
     }
     function atualizarIbovespaNaTela(preco, pct) {
         const resumoValor = document.getElementById('resumoIbovespaValor');
@@ -2254,10 +2796,7 @@
             resumoDetalhe.textContent = 'Tente novamente';
             resumoDetalhe.className = 'detalhe negativo';
             if (headerValor) headerValor.textContent = '—';
-            if (headerDetalhe) {
-                headerDetalhe.textContent = '—';
-                headerDetalhe.className = 'header-index-change neutro';
-            }
+            if (headerDetalhe) { headerDetalhe.textContent = '—'; headerDetalhe.className = 'header-index-change neutro'; }
             return;
         }
         const valorTxt = preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2267,17 +2806,11 @@
             const pctTxt = `${pct >= 0 ? '+' : ''}${fmt(pct)}%`;
             resumoDetalhe.textContent = pctTxt;
             resumoDetalhe.className = 'detalhe ' + (pct >= 0 ? 'positivo' : 'negativo');
-            if (headerDetalhe) {
-                headerDetalhe.textContent = pctTxt;
-                headerDetalhe.className = 'header-index-change ' + (pct >= 0 ? 'positivo' : 'negativo');
-            }
+            if (headerDetalhe) { headerDetalhe.textContent = pctTxt; headerDetalhe.className = 'header-index-change ' + (pct >= 0 ? 'positivo' : 'negativo'); }
         } else {
             resumoDetalhe.textContent = '—';
             resumoDetalhe.className = 'detalhe neutro';
-            if (headerDetalhe) {
-                headerDetalhe.textContent = '—';
-                headerDetalhe.className = 'header-index-change neutro';
-            }
+            if (headerDetalhe) { headerDetalhe.textContent = '—'; headerDetalhe.className = 'header-index-change neutro'; }
         }
     }
 
@@ -2303,8 +2836,7 @@
             return;
         } catch (e) { console.warn(`CoinGecko ${symbol} falhou:`, e.message); }
         try {
-            const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`;
             const resp = await fetch(`https://brapi.dev/api/v2/crypto?coin=${symbol}&currency=BRL`, { headers });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const json = await resp.json();
@@ -2325,13 +2857,9 @@
     }
 
     document.getElementById('addRowBtnB3').addEventListener('click', () => {
-        if (!editModeB3) {
-            editModeB3 = true;
-            aplicarModoEdicaoTab('b3');
-        }
+        if (!editModeB3) { editModeB3 = true; aplicarModoEdicaoTab('b3'); }
         const newRow = createRowB3();
-        ordenarLinhasB3();
-        saveState();
+        ordenarLinhasB3(); saveState();
         try { newRow.querySelector('.codigo').focus(); } catch (e) {}
     });
     document.getElementById('refreshAllBtnB3').addEventListener('click', () => {
@@ -2343,7 +2871,7 @@
                 const c = tr.querySelector('.codigo').value.trim();
                 if (c) await fetchQuoteB3(c, tr);
                 pend--;
-                if (pend === 0) renderVolumeChartB3();
+                if (pend === 0) { renderVolumeChartB3(); verificarLances(); }
             }, i * 400);
         });
         fetchMarketSummaryB3();
@@ -2352,8 +2880,7 @@
     document.getElementById('renderIndividualBtnB3').addEventListener('click', renderIndividualChartB3);
 
     document.getElementById('fonteSelectB3').addEventListener('change', () => {
-        saveState();
-        showToast('Fonte alterada. Atualizando cotações...');
+        saveState(); showToast('Fonte alterada. Atualizando cotações...');
         document.getElementById('refreshAllBtnB3').click();
     });
 
@@ -2365,12 +2892,8 @@
         saveState();
     });
 
-    document.getElementById('ativoGraficoB3').addEventListener('change', () => {
-        if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
-    });
-    document.getElementById('tipoGraficoB3').addEventListener('change', () => {
-        if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3();
-    });
+    document.getElementById('ativoGraficoB3').addEventListener('change', () => { if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3(); });
+    document.getElementById('tipoGraficoB3').addEventListener('change', () => { if (document.getElementById('ativoGraficoB3').value) renderIndividualChartB3(); });
     document.getElementById('periodoGraficoB3').addEventListener('change', () => {
         const p = document.getElementById('periodoGraficoB3').value;
         document.getElementById('customPeriodoB3').style.display = p === 'custom' ? 'inline-flex' : 'none';
@@ -2390,25 +2913,21 @@
     });
 
     document.getElementById('addRowBtnCrypto').addEventListener('click', () => {
-        if (!editModeCrypto) {
-            editModeCrypto = true;
-            aplicarModoEdicaoTab('crypto');
-        }
+        if (!editModeCrypto) { editModeCrypto = true; aplicarModoEdicaoTab('crypto'); }
         const newRow = createRowCrypto();
-        ordenarLinhasCrypto();
-        saveState();
+        ordenarLinhasCrypto(); saveState();
         try { newRow.querySelector('.codigo').focus(); } catch (e) {}
     });
     document.getElementById('refreshAllBtnCrypto').addEventListener('click', async () => {
         await refreshAllCryptoBatch();
         fetchMarketSummaryCrypto();
+        verificarLances();
     });
     document.getElementById('renderVolumeBtnCrypto').addEventListener('click', renderVolumeChartCrypto);
     document.getElementById('renderIndividualBtnCrypto').addEventListener('click', renderIndividualChartCrypto);
 
     document.getElementById('fonteSelectCrypto').addEventListener('change', () => {
-        saveState();
-        showToast('Fonte alterada. Atualizando cotações...');
+        saveState(); showToast('Fonte alterada. Atualizando cotações...');
         document.getElementById('refreshAllBtnCrypto').click();
     });
 
@@ -2420,12 +2939,8 @@
         saveState();
     });
 
-    document.getElementById('ativoGraficoCrypto').addEventListener('change', () => {
-        if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
-    });
-    document.getElementById('tipoGraficoCrypto').addEventListener('change', () => {
-        if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto();
-    });
+    document.getElementById('ativoGraficoCrypto').addEventListener('change', () => { if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto(); });
+    document.getElementById('tipoGraficoCrypto').addEventListener('change', () => { if (document.getElementById('ativoGraficoCrypto').value) renderIndividualChartCrypto(); });
     document.getElementById('periodoGraficoCrypto').addEventListener('change', () => {
         const p = document.getElementById('periodoGraficoCrypto').value;
         document.getElementById('customPeriodoCrypto').style.display = p === 'custom' ? 'inline-flex' : 'none';
@@ -2451,17 +2966,12 @@
         const a = document.createElement('a');
         a.href = url;
         a.download = `cotacoes-b3-crypto-${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showToast('✅ JSON exportado com sucesso!');
     });
 
-    document.getElementById('importBtn').addEventListener('click', () => {
-        importFile.value = '';
-        importFile.click();
-    });
+    document.getElementById('importBtn').addEventListener('click', () => { importFile.value = ''; importFile.click(); });
     importFile.addEventListener('change', (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -2471,8 +2981,8 @@
                 const imported = JSON.parse(ev.target.result);
                 if (!imported) throw new Error('Arquivo inválido');
                 if (!confirm('Importar dados? Isso substituirá tudo.')) { importFile.value = ''; return; }
-
                 let b3rows = [], cryptorows = [], newToken = token;
+                let newLances = lances;
                 if (imported.b3 || imported.crypto) {
                     b3rows = imported.b3?.rows || [];
                     cryptorows = imported.crypto?.rows || [];
@@ -2480,44 +2990,36 @@
                     if (imported.b3?.fonte) state.b3.fonte = imported.b3.fonte;
                     if (imported.crypto?.fonte) state.crypto.fonte = imported.crypto.fonte;
                     if (imported.autoRefreshMs != null) state.autoRefreshMs = imported.autoRefreshMs;
+                    if (Array.isArray(imported.lances)) newLances = imported.lances;
                 } else if (Array.isArray(imported)) {
                     b3rows = imported;
                 } else if (Array.isArray(imported.rows)) {
                     b3rows = imported.rows;
                     newToken = imported.token || token;
                 }
-
                 token = newToken;
-                updateTokenBadge();
-                tokenInput.value = token;
+                lances = newLances;
+                lances.forEach(l => { if (!l.validadeTipo) l.validadeTipo = 'indeterminado'; });
+                lanceSelectedId = null;
+                updateTokenBadge(); tokenInput.value = token;
 
                 document.getElementById('tableBodyB3').innerHTML = '';
                 if (b3rows.length === 0) createRowB3(); else b3rows.forEach(r => createRowB3(r));
-                ordenarLinhasB3();
-                calcularTotaisB3();
-                atualizarSelectAtivosB3();
-                renderVolumeChartB3();
-                aplicarModoEdicaoTab('b3');
+                ordenarLinhasB3(); calcularTotaisB3(); atualizarSelectAtivosB3(); renderVolumeChartB3(); aplicarModoEdicaoTab('b3');
 
                 document.getElementById('tableBodyCrypto').innerHTML = '';
                 if (cryptorows.length === 0) createRowCrypto(); else cryptorows.forEach(r => createRowCrypto(r));
-                ordenarLinhasCrypto();
-                calcularTotaisCrypto();
-                atualizarSelectAtivosCrypto();
-                renderVolumeChartCrypto();
-                aplicarModoEdicaoTab('crypto');
+                ordenarLinhasCrypto(); calcularTotaisCrypto(); atualizarSelectAtivosCrypto(); renderVolumeChartCrypto(); aplicarModoEdicaoTab('crypto');
 
                 document.getElementById('fonteSelectB3').value = state.b3.fonte || 'brapi';
                 document.getElementById('fonteSelectCrypto').value = state.crypto.fonte || 'brapi';
                 document.getElementById('intervaloAutoSelect').value = String(state.autoRefreshMs || 0);
-                agendarAutoRefresh();
-                saveState();
+                agendarAutoRefresh(); saveState();
+                atualizarIndicadoresLances();
                 showToast('✅ Dados importados com sucesso!');
             } catch (err) {
                 showToast('Erro ao importar: ' + err.message, true);
-            } finally {
-                importFile.value = '';
-            }
+            } finally { importFile.value = ''; }
         };
         reader.readAsText(file, 'utf-8');
     });
@@ -2526,29 +3028,15 @@
     atualizarDataCabecalho();
 
     document.getElementById('fonteSelectB3').value = state.b3.fonte;
-    if (state.b3.rows.length === 0) createRowB3();
-    else state.b3.rows.forEach(r => createRowB3(r));
-    ordenarLinhasB3();
-    calcularTotaisB3();
-    atualizarSelectAtivosB3();
-    renderVolumeChartB3();
-    if (state.b3.hideNome) {
-        document.getElementById('cotacoesTableB3').classList.add('hide-nome');
-        document.getElementById('toggleNomeColBtnB3').textContent = '👁️ Mostrar Nome';
-    }
+    if (state.b3.rows.length === 0) createRowB3(); else state.b3.rows.forEach(r => createRowB3(r));
+    ordenarLinhasB3(); calcularTotaisB3(); atualizarSelectAtivosB3(); renderVolumeChartB3();
+    if (state.b3.hideNome) { document.getElementById('cotacoesTableB3').classList.add('hide-nome'); document.getElementById('toggleNomeColBtnB3').textContent = '👁️ Mostrar Nome'; }
     aplicarModoEdicaoTab('b3');
 
     document.getElementById('fonteSelectCrypto').value = state.crypto.fonte;
-    if (state.crypto.rows.length === 0) createRowCrypto();
-    else state.crypto.rows.forEach(r => createRowCrypto(r));
-    ordenarLinhasCrypto();
-    calcularTotaisCrypto();
-    atualizarSelectAtivosCrypto();
-    renderVolumeChartCrypto();
-    if (state.crypto.hideNome) {
-        document.getElementById('cotacoesTableCrypto').classList.add('hide-nome');
-        document.getElementById('toggleNomeColBtnCrypto').textContent = '👁️ Mostrar Nome';
-    }
+    if (state.crypto.rows.length === 0) createRowCrypto(); else state.crypto.rows.forEach(r => createRowCrypto(r));
+    ordenarLinhasCrypto(); calcularTotaisCrypto(); atualizarSelectAtivosCrypto(); renderVolumeChartCrypto();
+    if (state.crypto.hideNome) { document.getElementById('cotacoesTableCrypto').classList.add('hide-nome'); document.getElementById('toggleNomeColBtnCrypto').textContent = '👁️ Mostrar Nome'; }
     aplicarModoEdicaoTab('crypto');
 
     if (activeTab === 'crypto') document.querySelector('[data-tab="crypto"]').click();
@@ -2557,6 +3045,8 @@
     document.getElementById('intervaloAutoSelect').value = String(state.autoRefreshMs || 0);
     agendarAutoRefresh();
     iniciarCountdown();
+
+    atualizarIndicadoresLances();
 
     setTimeout(() => {
         const temB3 = Array.from(document.querySelectorAll('#tableBodyB3 tr')).some(tr => tr.querySelector('.codigo').value.trim());
