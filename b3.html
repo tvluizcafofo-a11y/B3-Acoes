@@ -183,12 +183,15 @@
             50% { transform: scale(1.3); box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.18); }
         }
 
-        .table-legend {
-            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-            padding: 10px 12px; margin: 8px 0 18px 0;
-            background: #fff8f8; border: 1px solid #ffd0d0; border-radius: 8px;
-            font-size: 0.85rem; color: #555;
-        }
+ .table-legend {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    padding: 10px 12px; margin: 8px 0 18px 0;
+    background: #fff8f8; border: 1px solid #ffd0d0; border-radius: 8px;
+    font-size: 0.85rem; color: #555;
+}
+.legend-line {
+    display: flex; align-items: center; gap: 8px;
+}
         .table-legend .qty-zero-dot { visibility: visible; width: 12px; height: 12px; }
         .table-legend .lance-indicator { visibility: visible; width: 12px; height: 12px; }
         .table-legend strong { color: #c62828; }
@@ -523,16 +526,20 @@
             </table>
         </div>
 
-        <div class="table-legend">
-            <span class="qty-zero-dot" aria-hidden="true"></span>
-            <span>Quantidade zero (fica no final)</span>
-            <span class="legend-sep">·</span>
-            <span class="lance-indicator ativo" aria-hidden="true"></span>
-            <span>Lance <strong>em aberto</strong> aguardando preço</span>
-            <span class="legend-sep">·</span>
-            <span class="lance-indicator atingido" aria-hidden="true"></span>
-            <span>Lance com <strong>preço atingido</strong></span>
-        </div>
+ <div class="table-legend">
+    <div class="legend-line">
+        <span class="qty-zero-dot" aria-hidden="true"></span>
+        <span>Quantidade zero (fica no final)</span>
+    </div>
+    <div class="legend-line">
+        <span class="lance-indicator ativo" aria-hidden="true"></span>
+        <span>Lance <strong>em aberto</strong> aguardando preço</span>
+    </div>
+    <div class="legend-line">
+        <span class="lance-indicator atingido" aria-hidden="true"></span>
+        <span>Lance com <strong>preço atingido</strong></span>
+    </div>
+</div>       
 
         <div class="resumo-mercado">
             <div class="resumo-card" id="cardCarteiraB3">
