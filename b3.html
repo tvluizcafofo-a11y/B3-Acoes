@@ -147,15 +147,40 @@
 
         .table-id td:first-child.codigo-cell { display: flex; align-items: center; gap: 5px; }
         .table-id td:first-child.codigo-cell input.codigo { flex-shrink: 0; }
+        .table-id td:first-child.codigo-cell.readonly { cursor: pointer; }
+        .table-id td:first-child.codigo-cell.readonly:hover { background: #f0f7ff !important; }
         .qty-zero-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #c62828; box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.15); flex-shrink: 0; visibility: hidden; transition: box-shadow 0.2s; }
         .qty-zero-dot.visible { visibility: visible; }
 
-        .lance-indicator { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #ccc; flex-shrink: 0; visibility: hidden; transition: background 0.2s, box-shadow 0.2s, transform 0.2s; }
-        .lance-indicator.ativo { visibility: visible; background: #facc15; box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4), 0 0 0 1px #b45309 inset; cursor: pointer; }
-        .lance-indicator.atingido { visibility: visible; background: #dc2626; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(220, 38, 38, 0.7); animation: pulseLanceAtingido 1s infinite; cursor: pointer; }
-        @keyframes pulseLanceAtingido {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(220, 38, 38, 0.7); }
-            50% { transform: scale(1.35); box-shadow: 0 0 0 2px #ffffff, 0 0 0 7px rgba(220, 38, 38, 0.25); }
+        /* ===== INDICADOR DE LANCE (puramente visual, sem clique) ===== */
+        .lance-indicator {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #ccc;
+            flex-shrink: 0;
+            visibility: hidden;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+            cursor: default;
+            pointer-events: none;
+        }
+        /* Laranja: lance em aberto aguardando preço */
+        .lance-indicator.ativo {
+            visibility: visible;
+            background: #f97316;
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.35);
+        }
+        /* Verde vivo: preço alvo atingido */
+        .lance-indicator.atingido {
+            visibility: visible;
+            background: #22c55e;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55);
+            animation: pulseLanceVerde 1.2s infinite;
+        }
+        @keyframes pulseLanceVerde {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.55); }
+            50% { transform: scale(1.3); box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.18); }
         }
 
         .table-legend {
@@ -165,80 +190,9 @@
             font-size: 0.85rem; color: #555;
         }
         .table-legend .qty-zero-dot { visibility: visible; width: 12px; height: 12px; }
-        .table-legend .lance-indicator { visibility: visible; }
+        .table-legend .lance-indicator { visibility: visible; width: 12px; height: 12px; }
         .table-legend strong { color: #c62828; }
-        .table-legend .legend-sep { color: #ccc; margin: 0 6px; }
-        .legend-lances { display: contents; }
-
-        /* ===== PAINEL DE LANCES EM ABERTO (abaixo da planilha) ===== */
-        .open-lances-panel {
-            margin: 10px 0 14px 0;
-            padding: 14px 16px;
-            background: #fffdf5;
-            border: 1px solid #ffe8a1;
-            border-radius: 10px;
-            border-left: 5px solid #facc15;
-            box-shadow: 0 2px 8px rgba(250, 204, 21, 0.12);
-        }
-        .open-lances-header {
-            font-weight: 800;
-            font-size: 0.82rem;
-            color: #78350f;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .open-lances-list { display: flex; flex-direction: column; gap: 6px; }
-        .open-lance-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 9px 12px;
-            background: #fff;
-            border: 1px solid #ffe8a1;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s;
-            flex-wrap: wrap;
-            font-size: 0.85rem;
-        }
-        .open-lance-item:hover {
-            background: #fff9e6;
-            border-color: #facc15;
-            box-shadow: 0 2px 8px rgba(250, 204, 21, 0.25);
-            transform: translateY(-1px);
-        }
-        .open-lance-item.atingido {
-            background: #fff5f5;
-            border-color: #ffb3b3;
-            border-left: 4px solid #dc2626;
-        }
-        .open-lance-item.atingido:hover {
-            background: #ffe8e8;
-            border-color: #ff8f8f;
-        }
-        .open-lance-op {
-            font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
-            border-radius: 8px; text-transform: uppercase; flex-shrink: 0;
-        }
-        .open-lance-op.compra { background: #d4edda; color: #155724; }
-        .open-lance-op.venda { background: #f8d7da; color: #721c24; }
-        .open-lance-code { font-weight: 800; color: #0a3d8f; font-size: 0.95rem; }
-        .open-lance-info { color: #444; }
-        .open-lance-info strong { color: #222; }
-        .open-lance-validade {
-            font-size: 0.76rem; color: #856404; font-style: italic;
-            padding: 2px 8px; background: #fff8e1; border-radius: 8px;
-            border: 1px solid #ffe8a1;
-        }
-        .open-lance-status {
-            font-size: 0.74rem; font-weight: 700;
-            padding: 3px 9px; border-radius: 10px;
-            flex-shrink: 0; margin-left: auto;
-        }
-        .open-lance-status.ativo { background: #fff3cd; color: #856404; }
-        .open-lance-status.atingido { background: #c62828; color: #fff; animation: pulseBadge 1.5s infinite; }
+        .legend-sep { color: #ccc; margin: 0 6px; }
 
         .table-id thead th:nth-child(3), .table-id thead th:nth-child(4), .table-id thead th:nth-child(6),
         .table-id td.cotacao, .table-id td.variacao, .table-id td.valor-total,
@@ -253,8 +207,8 @@
         input.quantidade { width: 85px; text-align: right; }
         input.nome-input { width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.9rem; background: #fff; color: #222; }
         input.nome-input:focus { border-color: #0066ff; outline: none; }
-        input.codigo:disabled, input.quantidade:disabled, input.nome-input:disabled { background: #f0f2f5; color: #444; opacity: 1; cursor: default; border-color: #e0e0e0; }
-        input.codigo:disabled { color: #0a3d8f; }
+        input.codigo:disabled, input.quantidade:disabled, input.nome-input:disabled { background: #f0f2f5; color: #444; opacity: 1; border-color: #e0e0e0; }
+        input.codigo:disabled { color: #0a3d8f; pointer-events: none; }
         input:disabled::placeholder { color: #aaa; }
 
         .loading { color: #0066ff; font-style: italic; }
@@ -332,17 +286,14 @@
         .btn-warn { background: #f59e0b; color: #fff; }
         .btn-warn:hover { background: #d97706; }
 
-        .back-btn {
-            background: transparent; border: 1px solid #ccc; color: #444;
-            padding: 6px 14px; border-radius: 6px; cursor: pointer;
-            font-size: 0.88rem; margin-bottom: 14px; font-weight: 600;
-        }
+        .back-btn { background: transparent; border: 1px solid #ccc; color: #444; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.88rem; margin-bottom: 14px; font-weight: 600; }
         .back-btn:hover { background: #f0f2f5; border-color: #999; }
 
         .lance-form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .lance-form-row label { flex: 0 0 92px; margin: 0; font-size: 0.88rem; }
         .lance-form-row input, .lance-form-row select { flex: 1; padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.92rem; background: #fff; color: #222; }
         .lance-form-row input:focus, .lance-form-row select:focus { border-color: #0066ff; outline: none; }
+        .lance-form-row .field-hint { flex: 1; font-size: 0.82rem; font-weight: 600; padding: 6px 0; }
 
         .lance-list { margin-bottom: 8px; }
         .lance-item {
@@ -352,8 +303,8 @@
             border-left: 5px solid #facc15;
         }
         .lance-item:hover { background: #f4f7fb; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
-        .lance-item.atingido { border-left-color: #dc2626; background: #fff5f5; }
-        .lance-item.atingido:hover { background: #ffe8e8; }
+        .lance-item.atingido { border-left-color: #22c55e; background: #f0fdf4; }
+        .lance-item.atingido:hover { background: #dcfce7; }
         .lance-item.executado { border-left-color: #0a7a3e; background: #f0faf4; }
         .lance-item.executado:hover { background: #e3f5ea; }
         .lance-item.nao_executado { border-left-color: #f59e0b; background: #fffaf0; }
@@ -372,7 +323,7 @@
         .lance-item-info { font-size: 0.85rem; color: #444; margin-bottom: 4px; }
         .lance-item-status { font-size: 0.82rem; font-weight: 600; }
         .lance-item-status.ativo { color: #b8730a; }
-        .lance-item-status.atingido { color: #c62828; }
+        .lance-item-status.atingido { color: #16a34a; }
         .lance-item-status.executado { color: #0a7a3e; }
         .lance-item-status.nao_executado { color: #b45309; }
         .lance-item-status.cancelado { color: #6b7280; }
@@ -461,7 +412,6 @@
             .lance-form-row { flex-direction: column; align-items: stretch; gap: 4px; }
             .lance-form-row label { flex: none; }
             .alert-banner-text { font-size: 0.85rem; }
-            .open-lance-status { margin-left: 0; }
         }
     </style>
 </head>
@@ -547,7 +497,7 @@
             <table class="table-id" id="cotacoesTableB3">
                 <thead>
                     <tr>
-                        <th style="width:130px;">Código</th>
+                        <th style="width:150px;">Código</th>
                         <th>Nome da Empresa</th>
                         <th style="width:115px;">Cotação (R$)</th>
                         <th style="width:105px;">Variação (%)</th>
@@ -573,22 +523,15 @@
             </table>
         </div>
 
-        <div id="openLancesPanelB3" class="open-lances-panel" style="display:none;">
-            <div class="open-lances-header">🎯 Lances em aberto (dentro do prazo)</div>
-            <div class="open-lances-list" id="openLancesListB3"></div>
-        </div>
-
         <div class="table-legend">
             <span class="qty-zero-dot" aria-hidden="true"></span>
-            <span>Papel com <strong>quantidade zero</strong> (fica no final)</span>
-            <span id="legendLancesB3" class="legend-lances" style="display:none;">
-                <span class="legend-sep">·</span>
-                <span class="lance-indicator ativo" aria-hidden="true"></span>
-                <span>Lance <strong>ativo</strong></span>
-                <span class="legend-sep">·</span>
-                <span class="lance-indicator atingido" aria-hidden="true"></span>
-                <span>Lance <strong>atingido</strong></span>
-            </span>
+            <span>Quantidade zero (fica no final)</span>
+            <span class="legend-sep">·</span>
+            <span class="lance-indicator ativo" aria-hidden="true"></span>
+            <span>Lance <strong>em aberto</strong> aguardando preço</span>
+            <span class="legend-sep">·</span>
+            <span class="lance-indicator atingido" aria-hidden="true"></span>
+            <span>Lance com <strong>preço atingido</strong></span>
         </div>
 
         <div class="resumo-mercado">
@@ -673,7 +616,7 @@
             <table class="table-id" id="cotacoesTableCrypto">
                 <thead>
                     <tr>
-                        <th style="width:130px;">Código</th>
+                        <th style="width:150px;">Código</th>
                         <th>Nome</th>
                         <th style="width:115px;">Cotação (R$)</th>
                         <th style="width:105px;">Variação (%)</th>
@@ -699,22 +642,15 @@
             </table>
         </div>
 
-        <div id="openLancesPanelCrypto" class="open-lances-panel" style="display:none;">
-            <div class="open-lances-header">🎯 Lances em aberto (dentro do prazo)</div>
-            <div class="open-lances-list" id="openLancesListCrypto"></div>
-        </div>
-
         <div class="table-legend">
             <span class="qty-zero-dot" aria-hidden="true"></span>
-            <span>Criptoativo com <strong>quantidade zero</strong> (fica no final)</span>
-            <span id="legendLancesCrypto" class="legend-lances" style="display:none;">
-                <span class="legend-sep">·</span>
-                <span class="lance-indicator ativo" aria-hidden="true"></span>
-                <span>Lance <strong>ativo</strong></span>
-                <span class="legend-sep">·</span>
-                <span class="lance-indicator atingido" aria-hidden="true"></span>
-                <span>Lance <strong>atingido</strong></span>
-            </span>
+            <span>Quantidade zero (fica no final)</span>
+            <span class="legend-sep">·</span>
+            <span class="lance-indicator ativo" aria-hidden="true"></span>
+            <span>Lance <strong>em aberto</strong> aguardando preço</span>
+            <span class="legend-sep">·</span>
+            <span class="lance-indicator atingido" aria-hidden="true"></span>
+            <span>Lance com <strong>preço atingido</strong></span>
         </div>
 
         <div class="resumo-mercado">
@@ -829,6 +765,10 @@
                 <label for="lanceQtd">Quantidade</label>
                 <input type="number" id="lanceQtd" min="0" step="1" value="100">
             </div>
+            <div class="lance-form-row" id="lanceQtdHintRow" style="display:none;">
+                <label></label>
+                <span id="lanceQtdHint" class="field-hint"></span>
+            </div>
             <div class="lance-form-row">
                 <label for="lancePreco">Preço alvo (R$)</label>
                 <input type="number" id="lancePreco" min="0" step="0.01" placeholder="0,00">
@@ -847,7 +787,7 @@
             </div>
             <p class="hint" style="margin-top:8px;">
                 <strong>Compra:</strong> alerta quando preço atual ≤ alvo · <strong>Venda:</strong> alerta quando preço atual ≥ alvo.<br>
-                <strong>Validade:</strong> controla até quando o lance fica ativo. Após expirar, ele para de alertar e não aparece no painel de lances em aberto.
+                <strong>Validade:</strong> controla até quando o lance fica ativo. Após expirar, ele para de alertar.
             </p>
             <div class="modal-actions">
                 <button class="btn-secondary" id="lanceFormCancelBtn">Cancelar</button>
@@ -922,7 +862,6 @@
     let editModeCrypto = false;
 
     let lances = state.lances || [];
-    // Migração: lances antigos sem validade passam a ser "indeterminado"
     lances.forEach(l => { if (!l.validadeTipo) l.validadeTipo = 'indeterminado'; });
     let lanceEditMode = 'new';
     let lanceSelectedId = null;
@@ -938,7 +877,6 @@
         return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // ===== VALIDADE DOS LANCES =====
     function isLanceValido(l) {
         if (!l.validadeTipo || l.validadeTipo === 'indeterminado') return true;
         if (!l.validadeData) return true;
@@ -1145,6 +1083,9 @@
         const btn = document.getElementById(isB3 ? 'toggleEditBtnB3' : 'toggleEditBtnCrypto');
         if (tbody) {
             tbody.querySelectorAll('.codigo, .nome-input, .quantidade').forEach(inp => { inp.disabled = !editMode; });
+            tbody.querySelectorAll('.codigo-cell').forEach(cell => {
+                cell.classList.toggle('readonly', !editMode);
+            });
         }
         if (btn) {
             btn.classList.toggle('active', editMode);
@@ -1161,6 +1102,64 @@
         aplicarModoEdicaoTab('crypto');
         showToast(editModeCrypto ? '✏️ Edição ativada (Crypto)' : '🔒 Edição bloqueada (Crypto)');
     });
+
+    function getQuantidadeAtivo(tab, codigo) {
+        const tbody = document.getElementById(tab === 'b3' ? 'tableBodyB3' : 'tableBodyCrypto');
+        if (!tbody) return 0;
+        const target = codigo.toUpperCase();
+        let qty = 0;
+        for (const tr of tbody.querySelectorAll('tr')) {
+            if (tr.querySelector('.codigo').value.trim().toUpperCase() === target) {
+                qty += parseFloat(tr.querySelector('.quantidade').value) || 0;
+            }
+        }
+        return qty;
+    }
+
+    function getPrecoAtualAtivo(tab, codigo) {
+        const tbody = document.getElementById(tab === 'b3' ? 'tableBodyB3' : 'tableBodyCrypto');
+        if (!tbody) return 0;
+        const target = codigo.toUpperCase();
+        for (const tr of tbody.querySelectorAll('tr')) {
+            if (tr.querySelector('.codigo').value.trim().toUpperCase() === target) {
+                return parseFloat(tr.dataset.price) || 0;
+            }
+        }
+        return 0;
+    }
+
+    // ===== CLICK NO CÓDIGO DO ATIVO (abre ordens do ativo) =====
+    // IMPORTANTE: cliques na bolinha (lance-indicator) são ignorados.
+    document.getElementById('tableBodyB3').addEventListener('click', handleCodigoClick);
+    document.getElementById('tableBodyCrypto').addEventListener('click', handleCodigoClick);
+
+    function handleCodigoClick(e) {
+        // Bolinha é puramente visual - ignorar cliques nela
+        if (e.target.classList && e.target.classList.contains('lance-indicator')) return;
+        const cell = e.target.closest('.codigo-cell');
+        if (!cell) return;
+        const input = cell.querySelector('.codigo');
+        if (!input) return;
+        if (!input.disabled) return;
+        const codigo = input.value.trim().toUpperCase();
+        if (!codigo) return;
+        const tab = cell.closest('tbody').id === 'tableBodyB3' ? 'b3' : 'crypto';
+        abrirOrdensDoAtivo(tab, codigo);
+    }
+
+    function abrirOrdensDoAtivo(tab, codigo) {
+        const ordensDoAtivo = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo);
+        const abertas = ordensDoAtivo.filter(l => isLanceAberto(l) && isLanceValido(l));
+        if (abertas.length === 1) {
+            abrirDetalheLance(abertas[0].id);
+        } else if (abertas.length > 1) {
+            abrirListaLancesFiltrada(tab, codigo);
+        } else if (ordensDoAtivo.length > 0) {
+            abrirListaLancesFiltrada(tab, codigo);
+        } else {
+            abrirFormLance(null, tab, codigo);
+        }
+    }
 
     // ===== LANCES: views =====
     function showLanceView(view) {
@@ -1191,7 +1190,7 @@
         lanceModal.classList.add('active');
     }
 
-    function abrirFormLance(id) {
+    function abrirFormLance(id, prefillTab, prefillCodigo) {
         if (id) {
             lanceEditMode = 'edit';
             lanceSelectedId = id;
@@ -1208,12 +1207,15 @@
             document.getElementById('lanceValidadeDataRow').style.display = tipo === 'data' ? 'flex' : 'none';
             document.getElementById('lanceValidadeData').value = (tipo === 'data' && l.validadeData) ? l.validadeData : '';
             atualizarFormLance();
+            atualizarHintDisponivel();
         } else {
             lanceEditMode = 'new';
             lanceSelectedId = null;
-            document.getElementById('lanceFormTitle').textContent = 'Novo lance';
-            document.getElementById('lanceTabSelect').value = activeTab;
-            document.getElementById('lanceCodigo').value = (lanceFilterAtivo && lanceFilterAtivo.codigo) || '';
+            const preTab = prefillTab || (lanceFilterAtivo && lanceFilterAtivo.tab) || activeTab;
+            const preCodigo = prefillCodigo || (lanceFilterAtivo && lanceFilterAtivo.codigo) || '';
+            document.getElementById('lanceFormTitle').textContent = preCodigo ? `Novo lance: ${preCodigo}` : 'Novo lance';
+            document.getElementById('lanceTabSelect').value = preTab;
+            document.getElementById('lanceCodigo').value = preCodigo;
             document.getElementById('lanceOperacao').value = 'compra';
             document.getElementById('lanceQtd').value = '100';
             document.getElementById('lancePreco').value = '';
@@ -1221,11 +1223,12 @@
             document.getElementById('lanceValidadeDataRow').style.display = 'none';
             document.getElementById('lanceValidadeData').value = '';
             atualizarFormLance();
+            atualizarHintDisponivel();
         }
         showLanceView('form');
         lanceModal.classList.add('active');
         setTimeout(() => {
-            const inp = document.getElementById('lanceCodigo');
+            const inp = prefillCodigo || prefillTab ? document.getElementById('lancePreco') : document.getElementById('lanceCodigo');
             if (inp) inp.focus();
         }, 150);
     }
@@ -1272,7 +1275,36 @@
             }
         });
     }
-    document.getElementById('lanceTabSelect').addEventListener('change', atualizarFormLance);
+    document.getElementById('lanceTabSelect').addEventListener('change', () => { atualizarFormLance(); atualizarHintDisponivel(); });
+    document.getElementById('lanceCodigo').addEventListener('input', () => { atualizarHintDisponivel(); });
+    document.getElementById('lanceOperacao').addEventListener('change', () => { atualizarHintDisponivel(); });
+    document.getElementById('lanceQtd').addEventListener('input', () => { atualizarHintDisponivel(); });
+
+    function atualizarHintDisponivel() {
+        const tab = document.getElementById('lanceTabSelect').value;
+        const codigo = document.getElementById('lanceCodigo').value.trim().toUpperCase();
+        const operacao = document.getElementById('lanceOperacao').value;
+        const hintRow = document.getElementById('lanceQtdHintRow');
+        const hintEl = document.getElementById('lanceQtdHint');
+        if (!hintRow || !hintEl) return;
+        if (operacao !== 'venda' || !codigo) {
+            hintRow.style.display = 'none';
+            return;
+        }
+        const disponivel = getQuantidadeAtivo(tab, codigo);
+        const qtd = parseFloat(document.getElementById('lanceQtd').value) || 0;
+        hintRow.style.display = 'flex';
+        if (disponivel === 0) {
+            hintEl.textContent = `⚠️ Você não possui ${codigo} na carteira`;
+            hintEl.style.color = '#c62828';
+        } else if (qtd > disponivel) {
+            hintEl.textContent = `⚠️ Você tem apenas ${fmt(disponivel)} un. de ${codigo}`;
+            hintEl.style.color = '#c62828';
+        } else {
+            hintEl.textContent = `Disponível para venda: ${fmt(disponivel)} un. de ${codigo}`;
+            hintEl.style.color = '#0a7a3e';
+        }
+    }
 
     document.getElementById('lanceValidadeTipo').addEventListener('change', () => {
         const tipo = document.getElementById('lanceValidadeTipo').value;
@@ -1303,6 +1335,18 @@
         if (!codigo) { showToast('Informe o ativo', true); return; }
         if (qtd <= 0) { showToast('Quantidade inválida', true); return; }
         if (preco <= 0) { showToast('Preço alvo inválido', true); return; }
+
+        if (operacao === 'venda') {
+            const disponivel = getQuantidadeAtivo(tab, codigo);
+            if (disponivel === 0) {
+                showToast(`Você não possui ${codigo} na carteira para vender`, true);
+                return;
+            }
+            if (qtd > disponivel) {
+                showToast(`Venda limitada: você tem apenas ${fmt(disponivel)} un. de ${codigo}`, true);
+                return;
+            }
+        }
 
         if (lanceEditMode === 'edit' && lanceSelectedId) {
             const l = lances.find(x => x.id === lanceSelectedId);
@@ -1387,7 +1431,7 @@
         const opLabel = { compra: 'Compra', venda: 'Venda' };
         const statusLabel = {
             ativo: '⏳ Aguardando preço alvo',
-            atingido: '🔔 Atingido — verifique execução',
+            atingido: '🟢 Preço atingido — verifique execução',
             executado: '✅ Executada',
             nao_executado: '⏳ Não executada',
             cancelado: '✖ Cancelada',
@@ -1430,7 +1474,7 @@
         const opLabel = { compra: 'Compra', venda: 'Venda' };
         const statusLabel = {
             ativo: '⏳ Aguardando preço alvo',
-            atingido: '🔔 Atingido — verificar execução',
+            atingido: '🟢 Preço atingido — verificar execução',
             executado: '✅ Executada',
             nao_executado: '⏳ Não executada',
             cancelado: '✖ Cancelada',
@@ -1488,18 +1532,6 @@
         });
     }
 
-    function getPrecoAtualAtivo(tab, codigo) {
-        const tbody = document.getElementById(tab === 'b3' ? 'tableBodyB3' : 'tableBodyCrypto');
-        if (!tbody) return 0;
-        const target = codigo.toUpperCase();
-        for (const tr of tbody.querySelectorAll('tr')) {
-            if (tr.querySelector('.codigo').value.trim().toUpperCase() === target) {
-                return parseFloat(tr.dataset.price) || 0;
-            }
-        }
-        return 0;
-    }
-
     function alterarStatusLance(id, novoStatus) {
         const l = lances.find(x => x.id === id);
         if (!l) return;
@@ -1542,53 +1574,7 @@
         showToast('Lance excluído permanentemente.');
     });
 
-    // ===== PAINEL DE LANCES EM ABERTO (abaixo da planilha) =====
-    function renderOpenLancesPanels() {
-        ['b3', 'crypto'].forEach(tab => {
-            const suf = tab === 'b3' ? 'B3' : 'Crypto';
-            const panel = document.getElementById('openLancesPanel' + suf);
-            const list = document.getElementById('openLancesList' + suf);
-            const legendLances = document.getElementById('legendLances' + suf);
-            if (!panel || !list) return;
-            const abertos = lances.filter(l => 
-                l.tab === tab && 
-                isLanceAberto(l) && 
-                isLanceValido(l)
-            );
-            if (abertos.length === 0) {
-                panel.style.display = 'none';
-                if (legendLances) legendLances.style.display = 'none';
-                return;
-            }
-            panel.style.display = 'block';
-            if (legendLances) legendLances.style.display = 'contents';
-            const opLabel = { compra: 'Compra', venda: 'Venda' };
-            abertos.sort((a, b) => {
-                const sa = a.status === 'atingido' ? 0 : 1;
-                const sb = b.status === 'atingido' ? 0 : 1;
-                if (sa !== sb) return sa - sb;
-                return a.codigo.localeCompare(b.codigo);
-            });
-            list.innerHTML = abertos.map(l => {
-                const valTxt = formatarValidadeLance(l);
-                const statusTxt = l.status === 'atingido' ? '🔔 ATINGIDO' : '⏳ aguardando';
-                return `
-                    <div class="open-lance-item ${l.status}" data-id="${l.id}">
-                        <span class="open-lance-op ${l.operacao}">${opLabel[l.operacao] || l.operacao}</span>
-                        <span class="open-lance-code">${l.codigo}</span>
-                        <span class="open-lance-info"><strong>${fmt(l.quantidade)}</strong> un · alvo <strong>R$ ${fmt(l.precoAlvo)}</strong>${l.status === 'atingido' && l.precoAtingido ? ` · atingiu <strong>R$ ${fmt(l.precoAtingido)}</strong>` : ''}</span>
-                        <span class="open-lance-validade">📅 ${valTxt}</span>
-                        <span class="open-lance-status ${l.status}">${statusTxt}</span>
-                    </div>
-                `;
-            }).join('');
-            list.querySelectorAll('.open-lance-item').forEach(el => {
-                el.addEventListener('click', () => abrirDetalheLance(el.dataset.id));
-            });
-        });
-    }
-
-    // ===== INDICADORES =====
+    // ===== INDICADORES VISUAIS (bolinha laranja/verde) =====
     function atualizarIndicadoresLances() {
         ['B3', 'Crypto'].forEach(tabName => {
             const tab = tabName.toLowerCase();
@@ -1607,10 +1593,10 @@
                 const atingidos = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo && l.status === 'atingido' && isLanceValido(l));
                 if (atingidos.length > 0) {
                     indicator.className = 'lance-indicator atingido';
-                    indicator.title = `${atingidos.length} lance(s) ATINGIDO(S) — clique para verificar!`;
+                    indicator.title = `${atingidos.length} lance(s) com preço atingido`;
                 } else if (ativos.length > 0) {
                     indicator.className = 'lance-indicator ativo';
-                    indicator.title = `${ativos.length} lance(s) ativo(s) — clique para abrir`;
+                    indicator.title = `${ativos.length} lance(s) em aberto`;
                 } else {
                     indicator.className = 'lance-indicator';
                     indicator.title = '';
@@ -1618,7 +1604,6 @@
             });
         });
         atualizarBadgeLances();
-        renderOpenLancesPanels();
     }
 
     function atualizarBadgeLances() {
@@ -1631,7 +1616,7 @@
         if (badge) {
             if (totalAtingidos > 0) {
                 badge.className = 'lance-badge atingido';
-                badge.textContent = `🔔 ${totalAtingidos} atingido${totalAtingidos > 1 ? 's' : ''}`;
+                badge.textContent = `🟢 ${totalAtingidos} atingido${totalAtingidos > 1 ? 's' : ''}`;
                 badge.style.display = 'inline-flex';
             } else if (totalAtivos > 0) {
                 badge.className = 'lance-badge ativo';
@@ -1645,31 +1630,11 @@
             if (!btn) return;
             const hasAlert = totalAtingidos > 0;
             btn.classList.toggle('alerta', hasAlert);
-            btn.textContent = hasAlert ? `🔔 Lance (${totalAtingidos})` : '🎯 Lance';
+            btn.textContent = hasAlert ? `🟢 Lance (${totalAtingidos})` : '🎯 Lance';
         });
         const banner = document.getElementById('alertBanner');
         if (totalAtingidos === 0 && banner && banner.style.display === 'flex') {
             banner.style.display = 'none';
-        }
-    }
-
-    document.getElementById('tableBodyB3').addEventListener('click', handleIndicatorClick);
-    document.getElementById('tableBodyCrypto').addEventListener('click', handleIndicatorClick);
-
-    function handleIndicatorClick(e) {
-        if (!e.target.classList || !e.target.classList.contains('lance-indicator')) return;
-        const row = e.target.closest('tr');
-        if (!row) return;
-        const codigo = row.querySelector('.codigo').value.trim().toUpperCase();
-        if (!codigo) return;
-        const isB3 = row.closest('tbody').id === 'tableBodyB3';
-        const tab = isB3 ? 'b3' : 'crypto';
-        const lancesDoAtivo = lances.filter(l => l.tab === tab && l.codigo.toUpperCase() === codigo);
-        if (lancesDoAtivo.length === 0) return;
-        if (lancesDoAtivo.length === 1) {
-            abrirDetalheLance(lancesDoAtivo[0].id);
-        } else {
-            abrirListaLancesFiltrada(tab, codigo);
         }
     }
 
@@ -1685,7 +1650,6 @@
         let changed = false;
         const novosAtingidos = [];
         lances.forEach(l => {
-            // Auto-expirar
             if (isLanceAberto(l) && !isLanceValido(l)) {
                 l.status = 'expirado';
                 l.expiradoEm = Date.now();
@@ -1728,10 +1692,10 @@
         );
         text.innerHTML = 'Lance atingido!<br>' + items.join('<br>');
         banner.style.display = 'flex';
-        try { document.title = '🔔 LANCE ATINGIDO — Cotações'; } catch (e) {}
+        try { document.title = '🟢 LANCE ATINGIDO — Cotações'; } catch (e) {}
         try { tocarAlertaSom(); } catch (e) {}
         try { setTimeout(() => { document.title = 'Cotações B3 & Crypto'; }, 8000); } catch (e) {}
-        atingidos.forEach(l => showToast(`🔔 ${l.codigo}: alvo R$ ${fmt(l.precoAlvo)} atingido!`));
+        atingidos.forEach(l => showToast(`🟢 ${l.codigo}: alvo R$ ${fmt(l.precoAlvo)} atingido!`));
     }
 
     document.getElementById('alertBannerCloseBtn').addEventListener('click', () => {
@@ -2537,7 +2501,7 @@
         const tbody = document.getElementById('tableBodyB3');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="PETR4" maxlength="12"><span class="lance-indicator" title=""></span></td>
+            <td class="codigo-cell${editModeB3 ? '' : ' readonly'}"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="PETR4" maxlength="12"><span class="lance-indicator" title=""></span></td>
             <td><input type="text" class="nome-input" placeholder="Nome"></td>
             <td class="cotacao"></td>
             <td class="variacao"></td>
@@ -2651,7 +2615,7 @@
         const tbody = document.getElementById('tableBodyCrypto');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="codigo-cell"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="BTC" maxlength="10"><span class="lance-indicator" title=""></span></td>
+            <td class="codigo-cell${editModeCrypto ? '' : ' readonly'}"><span class="qty-zero-dot" title="Quantidade zero"></span><input type="text" class="codigo" placeholder="BTC" maxlength="10"><span class="lance-indicator" title=""></span></td>
             <td><input type="text" class="nome-input" placeholder="Bitcoin"></td>
             <td class="cotacao"></td>
             <td class="variacao"></td>
