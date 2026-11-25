@@ -3034,6 +3034,75 @@
             fetchMarketSummaryCrypto();
         }
     }, 400);
+    
+/* ===== PATCH: Ativos FUNDO com cotação fixa R$ 1,00 ===== */
+(function () {
+    const PREFIXO_FUNDO = /^FUNDO/i;
+
+    function aplicarFundoNaLinha(tr) {
+        if (!tr || !tr.querySelector) return;
+        const input = tr.querySelector('.codigo');
+        if (!input) return;
+        const codigo = (input.value || '').trim();
+        if (!codigo || !PREFIXO_FUNDO.test(codigo)) return;
+
+        tr.dataset.fundoManual = '1';
+        tr.dataset.price = '1';
+        delete tr.dataset.variacao;
+
+        const cot = tr.querySelector('.cotacao');
+        if (cot) {
+            if (cot.textContent.trim() !== 'R$ 1,00') cot.textContent = 'R$ 1,00';
+            cot.classList.remove('sem-info');
+        }
+        const varCell = tr.querySelector('.variacao');
+        if (varCell) {
+            if (varCell.textContent !== '') varCell.textContent = '';
+            varCell.className = 'variacao';
+        }
+
+        try {
+            if (tr.closest('#tableBodyB3') && typeof atualizarTotalB3 === 'function') atualizarTotalB3(tr);
+            if (tr.closest('#tableBodyCrypto') && typeof atualizarTotalCrypto === 'function') atualizarTotalCrypto(tr);
+        } catch (e) {}
+    }
+
+    function varrerTabelas() {
+        document.querySelectorAll('#tableBodyB3 tr, #tableBodyCrypto tr').forEach(aplicarFundoNaLinha);
+    }
+
+    // Novas linhas adicionadas
+    ['tableBodyB3', 'tableBodyCrypto'].forEach(function (id) {
+        const tb = document.getElementById(id);
+        if (!tb) return;
+
+        new MutationObserver(function (muts) {
+            muts.forEach(function (m) {
+                if (m.type === 'childList') {
+                    m.addedNodes.forEach(function (n) {
+                        if (n.nodeType === 1) setTimeout(function () { aplicarFundoNaLinha(n); }, 30);
+                    });
+                }
+            });
+        }).observe(tb, { childList: true, subtree: true });
+
+        tb.addEventListener('input', function (e) {
+            if (e.target && e.target.classList && e.target.classList.contains('codigo')) {
+                setTimeout(function () { aplicarFundoNaLinha(e.target.closest('tr')); }, 10);
+            }
+        });
+        tb.addEventListener('change', function (e) {
+            if (e.target && e.target.classList && e.target.classList.contains('codigo')) {
+                setTimeout(function () { aplicarFundoNaLinha(e.target.closest('tr')); }, 10);
+            }
+        });
+    });
+
+    // Reaplica sempre depois de um refresh (que tentaria sobrescrever com "sem informação")
+    setInterval(varrerTabelas, 1000);
+    setTimeout(varrerTabelas, 500);
+})();    
+    
 </script>
 </body>
 </html>
