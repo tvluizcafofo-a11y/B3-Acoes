@@ -3035,72 +3035,338 @@
         }
     }, 400);
     
-/* ===== PATCH: Ativos FUNDO com cotação fixa R$ 1,00 ===== */
+/* ============================================================
+   PATCH: Nova aba "Fundos"
+   - Código, Nome, Valor da Cota (R$), Quantidade, Total (R$)
+   - Total = cota × qtd
+   - Soma no cabeçalho geral (B3 + Crypto + Fundos)
+   - Persiste em localStorage junto com o resto
+   ============================================================ */
 (function () {
-    const PREFIXO_FUNDO = /^FUNDO/i;
-
-    function aplicarFundoNaLinha(tr) {
-        if (!tr || !tr.querySelector) return;
-        const input = tr.querySelector('.codigo');
-        if (!input) return;
-        const codigo = (input.value || '').trim();
-        if (!codigo || !PREFIXO_FUNDO.test(codigo)) return;
-
-        tr.dataset.fundoManual = '1';
-        tr.dataset.price = '1';
-        delete tr.dataset.variacao;
-
-        const cot = tr.querySelector('.cotacao');
-        if (cot) {
-            if (cot.textContent.trim() !== 'R$ 1,00') cot.textContent = 'R$ 1,00';
-            cot.classList.remove('sem-info');
+    // ---------- CSS extra ----------
+    const style = document.createElement('style');
+    style.textContent = `
+        .tab-btn[data-tab="fundos"].active {
+            background: linear-gradient(135deg, #0a7a3e 0%, #22c55e 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(10, 122, 62, 0.45);
+            transform: translateY(-3px);
         }
-        const varCell = tr.querySelector('.variacao');
-        if (varCell) {
-            if (varCell.textContent !== '') varCell.textContent = '';
-            varCell.className = 'variacao';
+        .header-total-item.fundos { border-color: #a7d7c5; }
+        .header-total-item.fundos .header-total-value { color: #0a7a3e; }
+        #tab-fundos input.cota-fundos {
+            width: 120px; text-align: right; padding: 6px 8px;
+            border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;
+            background: #fff; color: #222;
         }
+        #tab-fundos .data-hora { font-size: 0.82rem; color: #888; }
+        #cardCarteiraFundos { border-left-color: #0a7a3e; }
+    `;
+    document.head.appendChild(style);
 
-        try {
-            if (tr.closest('#tableBodyB3') && typeof atualizarTotalB3 === 'function') atualizarTotalB3(tr);
-            if (tr.closest('#tableBodyCrypto') && typeof atualizarTotalCrypto === 'function') atualizarTotalCrypto(tr);
-        } catch (e) {}
+    // ---------- utils ----------
+    function fmtR$(v) {
+        const n = Number(v);
+        if (!isFinite(n)) return '0,00';
+        return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function varrerTabelas() {
-        document.querySelectorAll('#tableBodyB3 tr, #tableBodyCrypto tr').forEach(aplicarFundoNaLinha);
+    function calcTotalFundos() {
+        let total = 0;
+        document.querySelectorAll('#tableBodyFundos tr').forEach(tr => {
+            const qty = parseFloat(tr.querySelector('.quantidade-fundos').value) || 0;
+            const cota = parseFloat(tr.dataset.cota) || 0;
+            total += qty * cota;
+        });
+        return total;
     }
 
-    // Novas linhas adicionadas
-    ['tableBodyB3', 'tableBodyCrypto'].forEach(function (id) {
-        const tb = document.getElementById(id);
-        if (!tb) return;
+    function atualizarGeralHeader() {
+        const el = document.getElementById('headerTotalGeral');
+        if (!el) return;
+        const vB3 = (typeof totalB3Num === 'number') ? totalB3Num : 0;
+        const vC  = (typeof totalCryptoNum === 'number') ? totalCryptoNum : 0;
+        const vF  = calcTotalFundos();
+        el.textContent = 'R$ ' + fmtR$(vB3 + vC + vF);
+    }
 
-        new MutationObserver(function (muts) {
-            muts.forEach(function (m) {
-                if (m.type === 'childList') {
-                    m.addedNodes.forEach(function (n) {
-                        if (n.nodeType === 1) setTimeout(function () { aplicarFundoNaLinha(n); }, 30);
-                    });
-                }
+    function atualizarTotalFundos() {
+        const total = calcTotalFundos();
+        const el = document.getElementById('totalCarteiraFundos');
+        if (el) el.textContent = fmtR$(total);
+        const hdr = document.getElementById('headerTotalFundos');
+        if (hdr) hdr.textContent = 'R$ ' + fmtR$(total);
+        const resumo = document.getElementById('resumoFundosValor');
+        if (resumo) resumo.textContent = 'R$ ' + fmtR$(total);
+        atualizarGeralHeader();
+    }
+
+    // ---------- override do total geral ----------
+    try {
+        if (typeof atualizarTotalGeralHeader === 'function') {
+            atualizarTotalGeralHeader = function () { atualizarGeralHeader(); };
+        }
+    } catch (e) { /* fallback: setInterval abaixo */ }
+
+    // ---------- injeção de HTML ----------
+    function injectHeaderTotal() {
+        const headerTotals = document.querySelector('.header-totals');
+        if (!headerTotals) return false;
+        if (document.getElementById('headerTotalFundos')) return true;
+        const geral = headerTotals.querySelector('.header-total-item.geral');
+        const div = document.createElement('div');
+        div.className = 'header-total-item fundos';
+        div.innerHTML = '<span class="header-total-label">Fundos</span><span class="header-total-value" id="headerTotalFundos">R$ 0,00</span>';
+        if (geral) headerTotals.insertBefore(div, geral);
+        else headerTotals.appendChild(div);
+        return true;
+    }
+
+    function injectTabButton() {
+        const tabs = document.querySelector('.tabs');
+        if (!tabs) return false;
+        if (tabs.querySelector('[data-tab="fundos"]')) return true;
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn';
+        btn.dataset.tab = 'fundos';
+        btn.textContent = '🏦 Fundos';
+        btn.addEventListener('click', function () {
+            try { if (typeof activeTab !== 'undefined') activeTab = 'fundos'; } catch (e) {}
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const target = document.getElementById('tab-fundos');
+            if (target) target.classList.add('active');
+            if (typeof saveState === 'function') saveState();
+        });
+        tabs.appendChild(btn);
+        return true;
+    }
+
+    function injectTabContent() {
+        const container = document.querySelector('.container');
+        if (!container) return false;
+        if (document.getElementById('tab-fundos')) return true;
+        const div = document.createElement('div');
+        div.id = 'tab-fundos';
+        div.className = 'tab-content';
+        div.innerHTML = `
+            <div class="toolbar">
+                <button id="addRowBtnFundos" class="add-btn">➕ Fundo</button>
+                <button id="toggleEditBtnFundos" class="edit-btn">✏️ Editar</button>
+                <button id="toggleNomeColBtnFundos" class="secondary" title="Ocultar coluna Nome">👁️ Ocultar Nome</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="table-id" id="cotacoesTableFundos">
+                    <thead>
+                        <tr>
+                            <th style="width:150px;">Código</th>
+                            <th>Nome do Fundo</th>
+                            <th style="width:130px;">Valor da Cota (R$)</th>
+                            <th style="width:120px;">Qtd.</th>
+                            <th style="width:130px;">Total (R$)</th>
+                            <th style="width:90px;">Hora</th>
+                            <th style="width:70px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyFundos"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="total-label">Total:</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td id="totalCarteiraFundos" class="totalCarteira">0,00</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="resumo-mercado">
+                <div class="resumo-card" id="cardCarteiraFundos">
+                    <div class="label">Total em Fundos</div>
+                    <div class="valor" id="resumoFundosValor">R$ 0,00</div>
+                    <div class="detalhe neutro">Cota × quantidade, informados manualmente</div>
+                </div>
+            </div>
+        `;
+        const lastTab = container.querySelector('.tab-content:last-of-type');
+        if (lastTab) lastTab.parentNode.insertBefore(div, lastTab.nextSibling);
+        else container.appendChild(div);
+        return true;
+    }
+
+    // ---------- lógica de linhas ----------
+    let editModeFundos = false;
+
+    function aplicarModoEdicaoLinha(tr) {
+        tr.querySelectorAll('input').forEach(inp => { inp.disabled = !editModeFundos; });
+    }
+    function aplicarModoEdicaoTodas() {
+        document.querySelectorAll('#tableBodyFundos tr').forEach(aplicarModoEdicaoLinha);
+        const btn = document.getElementById('toggleEditBtnFundos');
+        if (btn) {
+            btn.classList.toggle('active', editModeFundos);
+            btn.textContent = editModeFundos ? '✅ Finalizar' : '✏️ Editar';
+        }
+    }
+
+    function recalcularLinha(tr) {
+        const cota = parseFloat(tr.dataset.cota) || 0;
+        const qty = parseFloat(tr.querySelector('.quantidade-fundos').value) || 0;
+        const totEl = tr.querySelector('.valor-total');
+        if (totEl) totEl.textContent = fmtR$(cota * qty);
+        atualizarTotalFundos();
+    }
+
+    function registrarHora(tr) {
+        const dh = tr.querySelector('.data-hora');
+        if (dh) {
+            const now = new Date();
+            dh.textContent = now.toLocaleTimeString('pt-BR', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        }
+    }
+
+    function criarLinha(codigo, nome, cota, qty, hora) {
+        const tbody = document.getElementById('tableBodyFundos');
+        if (!tbody) return null;
+        const tr = document.createElement('tr');
+        tr.dataset.cota = cota != null ? String(cota) : '';
+        tr.innerHTML = `
+            <td class="codigo-cell">
+                <input type="text" class="codigo codigo-fundos" maxlength="20" placeholder="FUNDO" style="text-transform:uppercase;">
+            </td>
+            <td><input type="text" class="nome-input nome-fundos" placeholder="Nome do fundo"></td>
+            <td><input type="number" class="cota-fundos" step="0.000001" min="0" placeholder="0,00"></td>
+            <td><input type="number" class="quantidade quantidade-fundos" step="0.000001" min="0" placeholder="0"></td>
+            <td class="valor-total">0,00</td>
+            <td class="data-hora">—</td>
+            <td><button class="remove-btn" title="Remover">🗑</button></td>
+        `;
+        tr.querySelector('.codigo-fundos').value = codigo || '';
+        tr.querySelector('.nome-fundos').value = nome || '';
+        tr.querySelector('.cota-fundos').value = cota != null ? cota : '';
+        tr.querySelector('.quantidade-fundos').value = qty != null ? qty : '';
+        if (hora) tr.querySelector('.data-hora').textContent = hora;
+
+        tr.querySelector('.cota-fundos').addEventListener('input', function () {
+            tr.dataset.cota = this.value;
+            recalcularLinha(tr);
+            registrarHora(tr);
+        });
+        tr.querySelector('.quantidade-fundos').addEventListener('input', function () {
+            recalcularLinha(tr);
+        });
+        tr.querySelector('.remove-btn').addEventListener('click', function () {
+            if (confirm('Remover este fundo?')) {
+                tr.remove();
+                atualizarTotalFundos();
+                salvarFundos();
+            }
+        });
+        tr.querySelector('.codigo-fundos').addEventListener('change', function () {
+            this.value = this.value.trim().toUpperCase();
+            registrarHora(tr);
+        });
+        tr.querySelectorAll('input').forEach(inp => {
+            inp.addEventListener('change', salvarFundos);
+        });
+
+        aplicarModoEdicaoLinha(tr);
+        tbody.appendChild(tr);
+        recalcularLinha(tr);
+        return tr;
+    }
+
+    // ---------- persistência ----------
+    function salvarFundos() {
+        const rows = [];
+        document.querySelectorAll('#tableBodyFundos tr').forEach(tr => {
+            rows.push({
+                codigo: tr.querySelector('.codigo-fundos').value.trim(),
+                nome: tr.querySelector('.nome-fundos').value.trim(),
+                cota: parseFloat(tr.dataset.cota) || 0,
+                quantidade: parseFloat(tr.querySelector('.quantidade-fundos').value) || 0,
+                hora: tr.querySelector('.data-hora').textContent
             });
-        }).observe(tb, { childList: true, subtree: true });
-
-        tb.addEventListener('input', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('codigo')) {
-                setTimeout(function () { aplicarFundoNaLinha(e.target.closest('tr')); }, 10);
-            }
         });
-        tb.addEventListener('change', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('codigo')) {
-                setTimeout(function () { aplicarFundoNaLinha(e.target.closest('tr')); }, 10);
-            }
-        });
-    });
+        try { if (typeof state !== 'undefined') state.fundos = { rows }; } catch (e) {}
+        if (typeof saveState === 'function') {
+            try { saveState(); } catch (e) { console.warn('saveState falhou:', e); }
+        }
+        atualizarTotalFundos();
+    }
 
-    // Reaplica sempre depois de um refresh (que tentaria sobrescrever com "sem informação")
-    setInterval(varrerTabelas, 1000);
-    setTimeout(varrerTabelas, 500);
+    function carregarFundos() {
+        let rows = [];
+        try {
+            const saved = JSON.parse(localStorage.getItem('b3_crypto_cotacoes_data') || '{}');
+            rows = (saved && saved.fundos && saved.fundos.rows) || [];
+        } catch (e) {}
+        try { if (typeof state !== 'undefined') state.fundos = { rows: rows }; } catch (e) {}
+        const tbody = document.getElementById('tableBodyFundos');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        rows.forEach(r => criarLinha(r.codigo, r.nome, r.cota, r.quantidade, r.hora));
+        atualizarTotalFundos();
+    }
+
+    // ---------- eventos da toolbar ----------
+    function wireEvents() {
+        const addBtn = document.getElementById('addRowBtnFundos');
+        if (addBtn) addBtn.addEventListener('click', function () {
+            if (!editModeFundos) { editModeFundos = true; aplicarModoEdicaoTodas(); }
+            const tr = criarLinha('', '', '', '', '');
+            if (tr) { tr.querySelector('.codigo-fundos').focus(); salvarFundos(); }
+        });
+
+        const editBtn = document.getElementById('toggleEditBtnFundos');
+        if (editBtn) editBtn.addEventListener('click', function () {
+            editModeFundos = !editModeFundos;
+            aplicarModoEdicaoTodas();
+        });
+
+        const toggleNome = document.getElementById('toggleNomeColBtnFundos');
+        if (toggleNome) toggleNome.addEventListener('click', function () {
+            const tbl = document.getElementById('cotacoesTableFundos');
+            if (!tbl) return;
+            tbl.classList.toggle('hide-nome');
+            toggleNome.textContent = tbl.classList.contains('hide-nome') ? '👁️ Mostrar Nome' : '👁️ Ocultar Nome';
+        });
+    }
+
+    // ---------- fallback: re-sincroniza total geral a cada 1s ----------
+    setInterval(atualizarGeralHeader, 1000);
+
+    // ---------- reativa aba Fundos se era a última ativa ----------
+    setTimeout(function () {
+        try {
+            const saved = JSON.parse(localStorage.getItem('b3_crypto_cotacoes_data') || '{}');
+            if (saved.activeTab !== 'fundos') return;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const btn = document.querySelector('.tab-btn[data-tab="fundos"]');
+            if (btn) btn.classList.add('active');
+            const target = document.getElementById('tab-fundos');
+            if (target) target.classList.add('active');
+            try { if (typeof activeTab !== 'undefined') activeTab = 'fundos'; } catch (e) {}
+        } catch (e) {}
+    }, 250);
+
+    // ---------- init ----------
+    function initAll() {
+        if (!injectHeaderTotal()) return setTimeout(initAll, 100);
+        if (!injectTabButton()) return setTimeout(initAll, 100);
+        if (!injectTabContent()) return setTimeout(initAll, 100);
+        wireEvents();
+        carregarFundos();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+        initAll();
+    }
 })();    
     
 </script>
